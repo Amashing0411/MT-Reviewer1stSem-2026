@@ -493,23 +493,36 @@ export function createDefaultProfile() {
   };
 }
 
-// Merges cloud roster with local roster, preserving highest XP and records
+// Merges cloud roster with local roster, preserving highest XP and records without duplicates
 export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
   const mergedMap = new Map();
 
-  // Index local entries
-  (localRoster || []).forEach((item) => {
+  // 1. Cloud roster is the authoritative source of truth for the class
+  (cloudRoster || []).forEach((item) => {
     if (item && item.id && item.id !== currentUserId && item.id !== "me") {
-      mergedMap.set(item.id, item);
+      const cleanItem = {
+        ...item,
+        avatar: normalizeAvatar(item.avatar),
+        levelInfo: getLevelInfo(item.xp || 0),
+      };
+      mergedMap.set(item.id, cleanItem);
+      const nameKey = (item.name || "").trim().toLowerCase();
+      if (nameKey) {
+        mergedMap.set(`name:${nameKey}`, item.id);
+      }
     }
   });
 
-  // Merge cloud entries
-  (cloudRoster || []).forEach((item) => {
+  // 2. Supplement with any locally preserved entries (e.g. manually imported scorecard links)
+  (localRoster || []).forEach((item) => {
     if (item && item.id && item.id !== currentUserId && item.id !== "me") {
-      const existing = mergedMap.get(item.id);
-      if (existing) {
-        // Merge subjectStats
+      const nameKey = (item.name || "").trim().toLowerCase();
+      const existingIdByName = nameKey ? mergedMap.get(`name:${nameKey}`) : null;
+      const targetId = mergedMap.has(item.id) ? item.id : existingIdByName;
+
+      if (targetId) {
+        const existing = mergedMap.get(targetId);
+        // Merge stats, keeping higher XP
         const mergedSubjectStats = { ...(existing.subjectStats || {}) };
         if (item.subjectStats) {
           Object.keys(item.subjectStats).forEach((subKey) => {
@@ -526,23 +539,35 @@ export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
           });
         }
 
-        mergedMap.set(item.id, {
-          ...existing,
+        const mergedXp = Math.max(existing.xp || 0, item.xp || 0);
+        mergedMap.set(targetId, {
           ...item,
-          xp: Math.max(existing.xp || 0, item.xp || 0),
-          fastestBlitz: item.fastestBlitz
-            ? (existing.fastestBlitz ? Math.min(existing.fastestBlitz, item.fastestBlitz) : item.fastestBlitz)
-            : existing.fastestBlitz,
+          ...existing,
+          xp: mergedXp,
+          levelInfo: getLevelInfo(mergedXp),
+          fastestBlitz: existing.fastestBlitz
+            ? (item.fastestBlitz ? Math.min(existing.fastestBlitz, item.fastestBlitz) : existing.fastestBlitz)
+            : item.fastestBlitz,
           highestPercent: Math.max(existing.highestPercent || 0, item.highestPercent || 0),
+          avatar: normalizeAvatar(existing.avatar || item.avatar),
+          customPhoto: existing.customPhoto || item.customPhoto || null,
           subjectStats: mergedSubjectStats,
         });
       } else {
-        mergedMap.set(item.id, item);
+        const cleanLocalItem = {
+          ...item,
+          avatar: normalizeAvatar(item.avatar),
+          levelInfo: getLevelInfo(item.xp || 0),
+        };
+        mergedMap.set(item.id, cleanLocalItem);
+        if (nameKey) {
+          mergedMap.set(`name:${nameKey}`, item.id);
+        }
       }
     }
   });
 
-  return Array.from(mergedMap.values());
+  return Array.from(mergedMap.values()).filter((item) => typeof item === "object" && item && item.id);
 }
 
 // Builds leaderboard containing ONLY real user submissions (Overall or Per-Subject!)
@@ -567,19 +592,28 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
     isCurrentUser: true,
   };
 
-  // Filter out any duplicates matching current user name or id
-  const otherClassmates = roster
-    .filter((c) => c.id !== currentUser.id && c.name?.trim().toLowerCase() !== currentUser.name?.trim().toLowerCase() && c.id !== "me")
-    .map((c) => {
-      const cSub = isAll ? {} : (c.subjectStats?.[subjectFilter] || {});
-      return {
-        ...c,
-        avatar: normalizeAvatar(c.avatar),
-        xp: isAll ? (c.xp || 0) : (cSub.xp || 0),
-        fastestBlitz: isAll ? (c.fastestBlitz || null) : (cSub.fastestBlitz || null),
-        highestPercent: isAll ? (c.highestPercent || 0) : (cSub.highestPercent || 0),
-      };
+  // Filter out any duplicates matching current user name or id, and guarantee unique classmates by name
+  const seenClassmateNames = new Set();
+  const otherClassmates = [];
+
+  roster.forEach((c) => {
+    if (!c || c.id === currentUser.id || c.id === "me") return;
+    const nameKey = (c.name || "").trim().toLowerCase();
+    if (!nameKey || nameKey === (currentUser.name || "").trim().toLowerCase()) return;
+    if (seenClassmateNames.has(nameKey)) return;
+    seenClassmateNames.add(nameKey);
+
+    const cSub = isAll ? {} : (c.subjectStats?.[subjectFilter] || {});
+    const classmateXp = isAll ? (c.xp || 0) : (cSub.xp || 0);
+    otherClassmates.push({
+      ...c,
+      avatar: normalizeAvatar(c.avatar),
+      xp: classmateXp,
+      fastestBlitz: isAll ? (c.fastestBlitz || null) : (cSub.fastestBlitz || null),
+      highestPercent: isAll ? (c.highestPercent || 0) : (cSub.highestPercent || 0),
+      levelInfo: getLevelInfo(classmateXp),
     });
+  });
 
   // Sort by XP descending
   const list = [userEntry, ...otherClassmates].sort((a, b) => b.xp - a.xp);
