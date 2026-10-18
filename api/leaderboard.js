@@ -2,13 +2,24 @@
 // Vercel Serverless Function supporting Vercel KV / Upstash Redis with Cross-Device Sync & PIN Security
 
 // Silence cosmetic Node.js DEP0169 warning emitted by Vercel runtime's legacy bridge
-if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
-  const _origEmitWarning = process.emitWarning;
-  process.emitWarning = (warning, ...args) => {
-    if (typeof warning === "string" && warning.includes("url.parse()")) return;
-    if (typeof warning === "object" && (warning?.code === "DEP0169" || String(warning?.message || "").includes("url.parse()"))) return;
-    return _origEmitWarning.call(process, warning, ...args);
-  };
+if (typeof process !== "undefined") {
+  if (typeof process.emitWarning === "function") {
+    const _origEmitWarning = process.emitWarning;
+    process.emitWarning = (warning, ...args) => {
+      if (typeof warning === "string" && (warning.includes("url.parse()") || warning.includes("DEP0169"))) return;
+      if (typeof warning === "object" && (warning?.code === "DEP0169" || String(warning?.message || "").includes("url.parse()"))) return;
+      return _origEmitWarning.call(process, warning, ...args);
+    };
+  }
+  if (process.stderr && typeof process.stderr.write === "function") {
+    const _origStderrWrite = process.stderr.write;
+    process.stderr.write = function (chunk, ...args) {
+      if (typeof chunk === "string" && (chunk.includes("DEP0169") || chunk.includes("url.parse()"))) {
+        return true;
+      }
+      return _origStderrWrite.call(process.stderr, chunk, ...args);
+    };
+  }
 }
 
 export default async function handler(req, res) {

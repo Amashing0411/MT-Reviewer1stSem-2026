@@ -68,8 +68,8 @@ export function getBattleQuestions(subjectId = "all", seed = null) {
     ];
   }
 
-  // Shuffle the questions order
-  const shuffledQuestions = shuffle(pool, seed);
+  // Shuffle the questions order and cap at 40 questions per battle match
+  const shuffledQuestions = shuffle(pool, seed).slice(0, 40);
 
   // Return formatted questions with shuffled options
   return shuffledQuestions.map((q, idx) => {

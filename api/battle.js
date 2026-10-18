@@ -2,13 +2,24 @@
 // Vercel Serverless Function supporting Real-Time 1v1 Battle Exam Arenas, 5s Ready Countdown, Synchronized Coin Toss, & Live Twitch Spectator Mode via Upstash Redis
 
 // Silence cosmetic Node.js DEP0169 warning emitted by Vercel runtime's legacy bridge
-if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
-  const _origEmitWarning = process.emitWarning;
-  process.emitWarning = (warning, ...args) => {
-    if (typeof warning === "string" && warning.includes("url.parse()")) return;
-    if (typeof warning === "object" && (warning?.code === "DEP0169" || String(warning?.message || "").includes("url.parse()"))) return;
-    return _origEmitWarning.call(process, warning, ...args);
-  };
+if (typeof process !== "undefined") {
+  if (typeof process.emitWarning === "function") {
+    const _origEmitWarning = process.emitWarning;
+    process.emitWarning = (warning, ...args) => {
+      if (typeof warning === "string" && (warning.includes("url.parse()") || warning.includes("DEP0169"))) return;
+      if (typeof warning === "object" && (warning?.code === "DEP0169" || String(warning?.message || "").includes("url.parse()"))) return;
+      return _origEmitWarning.call(process, warning, ...args);
+    };
+  }
+  if (process.stderr && typeof process.stderr.write === "function") {
+    const _origStderrWrite = process.stderr.write;
+    process.stderr.write = function (chunk, ...args) {
+      if (typeof chunk === "string" && (chunk.includes("DEP0169") || chunk.includes("url.parse()"))) {
+        return true;
+      }
+      return _origStderrWrite.call(process.stderr, chunk, ...args);
+    };
+  }
 }
 
 export default async function handler(req, res) {
@@ -110,7 +121,13 @@ export default async function handler(req, res) {
   // GET: Return room list or single room details (with live clock sync)
   if (req.method === "GET") {
     try {
-      const { roomId } = req.query;
+      let roomId = req.query?.roomId;
+      if (!roomId && req.url) {
+        try {
+          const parsed = new URL(req.url, "http://localhost");
+          roomId = parsed.searchParams.get("roomId");
+        } catch (e) {}
+      }
       const rooms = await getRooms();
       const now = Date.now();
 
@@ -326,9 +343,9 @@ export default async function handler(req, res) {
           frame: student.frame || "default",
         };
 
-        if (asPlayer && room.status === "waiting" && !room.guest && room.host.id !== student.id) {
+        if (asPlayer && room.status === "waiting" && (!room.guest || room.guest.id === student.id) && room.host.id !== student.id) {
           room.guest = playerInfo;
-          room.guestReady = false;
+          room.guestReady = room.guestReady || false;
           room.chat.push({
             id: "c_" + now,
             type: "event",
@@ -336,6 +353,9 @@ export default async function handler(req, res) {
             senderName: "Arena System",
             createdAt: now,
           });
+        } else if (room.host.id === student.id) {
+          // Host reconnecting/refreshing
+          room.host = playerInfo;
         } else {
           // Join as spectator
           room.spectators = (room.spectators || []).filter((s) => s.id !== student.id);
@@ -364,7 +384,7 @@ export default async function handler(req, res) {
         const isGuest = room.guest?.id === studentId;
 
         if (!isHost && !isGuest) {
-          return res.status(403).json({ ok: false, error: "Spectators cannot toggle ready." });
+          return res.status(200).json({ ok: false, ignored: true, message: "Spectators cannot toggle ready.", room });
         }
 
         if (isHost) {
@@ -438,12 +458,12 @@ export default async function handler(req, res) {
         const { roomId, studentId, isCorrect, choiceIndex } = body;
         const room = rooms.find((r) => r.id === roomId);
         if (!room || room.status !== "in_battle") {
-          return res.status(400).json({ ok: false, error: "Match not active" });
+          return res.status(200).json({ ok: false, ignored: true, message: "Match not active", room });
         }
 
-        // Only active player can answer!
+        // Only active player can answer! If turn passed or spectator, ignore safely with latest room state
         if (room.gameState.activePlayerId !== studentId) {
-          return res.status(403).json({ ok: false, error: "Not your turn or spectator." });
+          return res.status(200).json({ ok: false, ignored: true, message: "Not your turn or spectator.", room });
         }
 
         const isHost = room.host.id === studentId;
@@ -513,11 +533,11 @@ export default async function handler(req, res) {
         const { roomId, studentId } = body;
         const room = rooms.find((r) => r.id === roomId);
         if (!room || room.status !== "in_battle") {
-          return res.status(400).json({ ok: false, error: "Match not active" });
+          return res.status(200).json({ ok: false, ignored: true, message: "Match not active", room });
         }
 
         if (room.gameState.activePlayerId !== studentId) {
-          return res.status(403).json({ ok: false, error: "Not your turn or spectator." });
+          return res.status(200).json({ ok: false, ignored: true, message: "Not your turn or spectator.", room });
         }
 
         const isHost = room.host.id === studentId;
