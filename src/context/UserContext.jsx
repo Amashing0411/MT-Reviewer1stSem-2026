@@ -34,7 +34,10 @@ export function UserProvider({ children }) {
 
   // Background helper to upload profile to Vercel KV cloud
   const pushProfileToCloud = async (currentProfile) => {
-    if (!currentProfile || !currentProfile.id) return;
+    // DO NOT upload unconfigured default profiles or ghost visits
+    if (!currentProfile || !currentProfile.id || !currentProfile.isConfigured) return;
+    if (currentProfile.name?.startsWith("Student #") && (!currentProfile.xp || currentProfile.xp === 0)) return;
+
     try {
       const payload = {
         id: currentProfile.id,
@@ -156,7 +159,9 @@ export function UserProvider({ children }) {
           saveClassRoster(merged);
           setRosterVersion((v) => v + 1);
         }
-        await pushProfileToCloud(profile);
+        if (profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
+          await pushProfileToCloud(profile);
+        }
         return true;
       } else {
         setIsCloudConnected(false);
@@ -173,7 +178,7 @@ export function UserProvider({ children }) {
   // Sync to localStorage whenever profile changes
   useEffect(() => {
     saveProfile(profile);
-    if (isCloudConnected) {
+    if (isCloudConnected && profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
       pushProfileToCloud(profile);
     }
   }, [profile, isCloudConnected]);

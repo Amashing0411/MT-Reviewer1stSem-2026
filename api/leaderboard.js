@@ -169,6 +169,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: "Missing student data" });
       }
 
+      // Guard: Reject unconfigured default ghost profiles (e.g. "Student #..." with 0 XP)
+      if (
+        String(student.name || "").startsWith("Student #") &&
+        (!student.xp || Number(student.xp) === 0)
+      ) {
+        const currentRoster = await getRoster();
+        const safeRoster = currentRoster.map(({ pin, ...safe }) => safe);
+        return res.status(200).json({ ok: true, isCloudConnected: true, roster: safeRoster });
+      }
+
       let roster = await getRoster();
 
       const cleanRecord = {
