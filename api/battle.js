@@ -630,19 +630,32 @@ export default async function handler(req, res) {
         const roomIdx = rooms.findIndex((r) => r.id === roomId);
         if (roomIdx !== -1) {
           const room = rooms[roomIdx];
-          room.spectators = (room.spectators || []).filter((s) => s.id !== studentId);
+          const specIdx = (room.spectators || []).findIndex((s) => s.id === studentId);
+          if (specIdx !== -1) {
+            const specName = room.spectators[specIdx]?.name || "Spectator";
+            room.spectators.splice(specIdx, 1);
+            room.chat.push({
+              id: "c_" + now,
+              type: "event",
+              text: `👋 ${specName} left the spectator feed.`,
+              senderName: "Audience Feed",
+              createdAt: now,
+            });
+          }
 
-          if (room.status === "in_battle") {
+          if (room.status === "in_battle" || room.status === "tossing_coin") {
             if (room.host.id === studentId || room.guest?.id === studentId) {
-              const winner = room.host.id === studentId ? room.guest : room.host;
+              const isHost = room.host.id === studentId;
+              const surrenderingPlayer = isHost ? room.host : room.guest;
+              const winner = isHost ? room.guest : room.host;
               room.status = "finished";
               room.gameState.winnerId = winner?.id;
               room.gameState.finishReason = "surrender";
               room.chat.push({
                 id: "c_" + now,
                 type: "event",
-                text: `🏳️ Player disconnected/forfeited. ${winner?.name} takes victory!`,
-                senderName: "Arena System",
+                text: `🏳️ FORFEIT: ${surrenderingPlayer?.name} surrendered / left match. ${winner?.name} WINS!`,
+                senderName: "Arena Referee",
                 createdAt: now,
               });
             }
@@ -654,15 +667,32 @@ export default async function handler(req, res) {
                 room.hostReady = false;
                 room.guestReady = false;
                 room.status = "waiting";
+                room.countdownEnd = null;
+                room.chat.push({
+                  id: "c_" + now,
+                  type: "event",
+                  text: `👑 Host left. ${room.host.name} is now the host! Waiting for challenger...`,
+                  senderName: "Arena System",
+                  createdAt: now,
+                });
               } else {
                 rooms.splice(roomIdx, 1);
                 await saveRooms(rooms);
                 return res.status(200).json({ ok: true, deleted: true });
               }
             } else if (room.guest?.id === studentId) {
+              const guestName = room.guest.name;
               room.guest = null;
               room.guestReady = false;
               room.status = "waiting";
+              room.countdownEnd = null;
+              room.chat.push({
+                id: "c_" + now,
+                type: "event",
+                text: `🚪 Challenger ${guestName} left the lobby.`,
+                senderName: "Arena System",
+                createdAt: now,
+              });
             }
           }
 
@@ -671,6 +701,47 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true, room });
         }
         return res.status(200).json({ ok: true });
+      }
+
+      // 10. SURRENDER / FORFEIT MATCH
+      if (action === "surrender") {
+        const { roomId, studentId } = body;
+        const roomIdx = rooms.findIndex((r) => r.id === roomId);
+        if (roomIdx === -1) {
+          return res.status(404).json({ ok: false, error: "Room not found" });
+        }
+
+        const room = rooms[roomIdx];
+        const isHost = room.host.id === studentId;
+        const isGuest = room.guest?.id === studentId;
+
+        if (!isHost && !isGuest) {
+          return res.status(400).json({ ok: false, error: "Spectators cannot surrender" });
+        }
+
+        const surrenderingPlayer = isHost ? room.host : room.guest;
+        const winner = isHost ? room.guest : room.host;
+
+        if (winner) {
+          room.status = "finished";
+          room.gameState.winnerId = winner.id;
+          room.gameState.finishReason = "surrender";
+          room.chat.push({
+            id: "c_" + now,
+            type: "event",
+            text: `🏳️ FORFEIT: ${surrenderingPlayer.name} has surrendered! ${winner.name} WINS and takes the ${room.wager * 2} XP pot!`,
+            senderName: "Arena Referee",
+            createdAt: now,
+          });
+        } else {
+          rooms.splice(roomIdx, 1);
+          await saveRooms(rooms);
+          return res.status(200).json({ ok: true, deleted: true });
+        }
+
+        room.updatedAt = now;
+        await saveRooms(rooms);
+        return res.status(200).json({ ok: true, room });
       }
 
       return res.status(400).json({ ok: false, error: "Invalid action" });

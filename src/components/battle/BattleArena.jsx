@@ -29,7 +29,10 @@ import {
   CheckCircle2,
   XCircle,
   Check,
+  Flag,
 } from "lucide-react";
+
+const SESSION_ROOM_KEY = "bscpe_active_battle_room_id";
 
 const BOT_PLAYER = {
   id: "bot_deans_lister",
@@ -69,12 +72,62 @@ export function BattleArena({ onBackToReviewer }) {
   const [liveClocks, setLiveClocks] = useState({ host: 60, guest: 60 });
   const [countdownSeconds, setCountdownSeconds] = useState(5);
   const [floatingReactions, setFloatingReactions] = useState([]);
+  const [isSurrenderConfirmOpen, setIsSurrenderConfirmOpen] = useState(false);
+  const [isSurrendering, setIsSurrendering] = useState(false);
   const seenEmoteIdsRef = useRef(new Set());
 
   // Polling ref for cloud rooms
   const pollTimerRef = useRef(null);
   const clockIntervalRef = useRef(null);
   const botTurnTimeoutRef = useRef(null);
+
+  // Auto-reconnect across page refresh if player was in an active battle match
+  useEffect(() => {
+    let isCancelled = false;
+    try {
+      const savedRoomId = sessionStorage.getItem(SESSION_ROOM_KEY);
+      if (savedRoomId && !activeRoom && screen === "lobby") {
+        fetch(`/api/battle?roomId=${savedRoomId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (isCancelled) return;
+            if (data.ok && data.room) {
+              const r = data.room;
+              if (r.status !== "finished") {
+                setActiveRoom(r);
+                setIsBotMatch(false);
+                if (r.status === "in_battle") {
+                  setScreen("playing");
+                } else {
+                  setScreen("room_setup");
+                }
+              } else {
+                sessionStorage.removeItem(SESSION_ROOM_KEY);
+              }
+            } else {
+              sessionStorage.removeItem(SESSION_ROOM_KEY);
+            }
+          })
+          .catch(() => {
+            if (!isCancelled) sessionStorage.removeItem(SESSION_ROOM_KEY);
+          });
+      }
+    } catch (e) {}
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Synchronize active room session with sessionStorage
+  useEffect(() => {
+    try {
+      if (activeRoom?.id && !isBotMatch && activeRoom.status !== "finished" && screen !== "game_over" && screen !== "lobby") {
+        sessionStorage.setItem(SESSION_ROOM_KEY, activeRoom.id);
+      } else if (screen === "lobby" || screen === "game_over" || activeRoom?.status === "finished") {
+        sessionStorage.removeItem(SESSION_ROOM_KEY);
+      }
+    } catch (e) {}
+  }, [activeRoom?.id, activeRoom?.status, isBotMatch, screen]);
 
   // Spawn floating reactions on the global arena overlay
   const spawnFloatingReaction = useCallback((emoji, senderName) => {
@@ -374,6 +427,10 @@ export function BattleArena({ onBackToReviewer }) {
 
   // Match End Handler
   const handleMatchEnd = (winnerId, latestRoom = null) => {
+    try {
+      sessionStorage.removeItem(SESSION_ROOM_KEY);
+    } catch (e) {}
+
     const room = latestRoom || activeRoom;
     if (!room) return;
 
@@ -400,6 +457,106 @@ export function BattleArena({ onBackToReviewer }) {
         addXp(-penalty, `1v1 Battle Exam Defeat (Lost Wager)`);
       }
     }
+  };
+
+  // Forfeit / Surrender Match Handler
+  const handleSurrender = async () => {
+    if (!isPlayer || !activeRoom) return;
+    setIsSurrendering(true);
+    sound.playWomp();
+
+    try {
+      sessionStorage.removeItem(SESSION_ROOM_KEY);
+    } catch (e) {}
+
+    if (isBotMatch) {
+      setIsSurrenderConfirmOpen(false);
+      setIsSurrendering(false);
+      handleMatchEnd(BOT_PLAYER.id);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "surrender",
+          roomId: activeRoom.id,
+          studentId: profile.id,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setIsSurrenderConfirmOpen(false);
+        if (data.room) {
+          setActiveRoom(data.room);
+          handleMatchEnd(data.room.gameState?.winnerId, data.room);
+        }
+      }
+    } catch (e) {
+      alert("Failed to submit forfeit. Please check your connection.");
+    } finally {
+      setIsSurrendering(false);
+    }
+  };
+
+  // Leave Match Lobby Handler (Waiting / Countdown room)
+  const handleLeaveLobby = async () => {
+    try {
+      sessionStorage.removeItem(SESSION_ROOM_KEY);
+    } catch (e) {}
+
+    if (isBotMatch) {
+      setActiveRoom(null);
+      setIsBotMatch(false);
+      setScreen("lobby");
+      return;
+    }
+
+    if (activeRoom?.id) {
+      try {
+        await fetch("/api/battle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "leave_room",
+            roomId: activeRoom.id,
+            studentId: profile.id,
+          }),
+        });
+      } catch (e) {}
+    }
+
+    setActiveRoom(null);
+    setScreen("lobby");
+    fetchRooms();
+  };
+
+  // Leave Spectator Feed Handler
+  const handleLeaveSpectator = async () => {
+    try {
+      sessionStorage.removeItem(SESSION_ROOM_KEY);
+    } catch (e) {}
+
+    if (activeRoom?.id && !isBotMatch) {
+      try {
+        await fetch("/api/battle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "leave_room",
+            roomId: activeRoom.id,
+            studentId: profile.id,
+          }),
+        });
+      } catch (e) {}
+    }
+
+    setActiveRoom(null);
+    setScreen("lobby");
+    fetchRooms();
   };
 
   // 6. Start Practice vs Bot Match
@@ -1006,6 +1163,8 @@ export function BattleArena({ onBackToReviewer }) {
                   {rooms.map((room) => {
                     const isFull = !!room.guest;
                     const isMyRoom = room.host?.id === profile.id;
+                    const isMyGuest = room.guest?.id === profile.id;
+                    const isParticipant = isMyRoom || isMyGuest;
                     const isRoomInBattle = room.status === "in_battle" || room.status === "tossing_coin";
 
                     return (
@@ -1049,7 +1208,23 @@ export function BattleArena({ onBackToReviewer }) {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {isRoomInBattle || (isFull && !isMyRoom && room.guest?.id !== profile.id) ? (
+                            {isParticipant && (isRoomInBattle || room.status === "countdown") ? (
+                              <button
+                                onClick={() => handleJoinRoom(room, isMyGuest)}
+                                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 animate-pulse"
+                              >
+                                <Swords className="w-3.5 h-3.5" />
+                                <span>Rejoin Battle ⚔️</span>
+                              </button>
+                            ) : isParticipant && !isRoomInBattle ? (
+                              <button
+                                onClick={() => handleJoinRoom(room, isMyGuest)}
+                                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
+                              >
+                                <Swords className="w-3.5 h-3.5" />
+                                <span>{isMyRoom ? "Enter Arena" : "Rejoin Lobby"}</span>
+                              </button>
+                            ) : isRoomInBattle || (isFull && !isParticipant) ? (
                               <button
                                 onClick={() => handleJoinRoom(room, false)}
                                 className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95"
@@ -1059,11 +1234,11 @@ export function BattleArena({ onBackToReviewer }) {
                               </button>
                             ) : (
                               <button
-                                onClick={() => handleJoinRoom(room, !isMyRoom)}
+                                onClick={() => handleJoinRoom(room, true)}
                                 className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
                               >
                                 <Swords className="w-3.5 h-3.5" />
-                                <span>{isMyRoom ? "Enter Arena" : "Accept Challenge"}</span>
+                                <span>Accept Challenge</span>
                               </button>
                             )}
                           </div>
@@ -1177,8 +1352,8 @@ export function BattleArena({ onBackToReviewer }) {
             {/* Action Bar (Players get READY button, Spectators get live status) */}
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
-                onClick={() => setScreen("lobby")}
-                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors"
+                onClick={handleLeaveLobby}
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors cursor-pointer"
               >
                 Leave Lobby
               </button>
@@ -1228,6 +1403,40 @@ export function BattleArena({ onBackToReviewer }) {
       {/* SCREEN 3: ACTIVE 60S BLITZ SHOWDOWN (Synchronized Clocks, Questions, & Spectator View) */}
       {screen === "playing" && activeRoom && (
         <div className="space-y-4">
+          {/* Top Active Match Control Bar */}
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+              <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
+                {activeRoom.title}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-500/30 shrink-0">
+                <Zap className="w-3 h-3 fill-amber-400" />
+                <span>{activeRoom.wager * 2} XP Pot</span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              {isPlayer ? (
+                <button
+                  onClick={() => setIsSurrenderConfirmOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/60 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-black flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
+                  title="Concede and forfeit this match"
+                >
+                  <Flag className="w-3.5 h-3.5 text-red-500 stroke-[2.5]" />
+                  <span>Surrender Match</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleLeaveSpectator}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                >
+                  Exit Spectator
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Spectator Mode Top Notice Bar */}
           {isSpectator && (
             <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm dark:shadow-lg">
@@ -1235,9 +1444,17 @@ export function BattleArena({ onBackToReviewer }) {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
                 <span>👀 Spectator Mode Active • Watching {activeRoom.host.name} vs {activeRoom.guest?.name}</span>
               </div>
-              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-mono">
-                {activeRoom.spectators?.length || 1} Watching
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-mono">
+                  {activeRoom.spectators?.length || 1} Watching
+                </span>
+                <button
+                  onClick={handleLeaveSpectator}
+                  className="px-2.5 py-0.5 rounded-lg bg-emerald-200/80 hover:bg-emerald-300 dark:bg-emerald-900/60 dark:hover:bg-emerald-800 text-emerald-900 dark:text-emerald-200 text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Leave
+                </button>
+              </div>
             </div>
           )}
 
@@ -1465,7 +1682,7 @@ export function BattleArena({ onBackToReviewer }) {
                   })}
                 </div>
 
-                {/* Tactical Action Bar: Pass Button */}
+                {/* Tactical Action Bar: Pass Button & Surrender */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                     {isSpectator
@@ -1475,17 +1692,29 @@ export function BattleArena({ onBackToReviewer }) {
                       : "Waiting for opponent..."}
                   </div>
 
-                  {isMyTurn && (
-                    <button
-                      onClick={handlePassQuestion}
-                      disabled={isHalted || !!answerFeedback}
-                      className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
-                      title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
-                    >
-                      <FastForward className="w-3.5 h-3.5" />
-                      <span>Pass (-5s)</span>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {isPlayer && (
+                      <button
+                        onClick={() => setIsSurrenderConfirmOpen(true)}
+                        className="text-[11px] text-red-500 hover:text-red-700 dark:hover:text-red-400 font-bold px-2 py-1 transition-colors cursor-pointer"
+                        title="Surrender and concede this match"
+                      >
+                        Surrender
+                      </button>
+                    )}
+
+                    {isMyTurn && (
+                      <button
+                        onClick={handlePassQuestion}
+                        disabled={isHalted || !!answerFeedback}
+                        className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
+                        title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
+                      >
+                        <FastForward className="w-3.5 h-3.5" />
+                        <span>Pass (-5s)</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1696,6 +1925,45 @@ export function BattleArena({ onBackToReviewer }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* SURRENDER / FORFEIT CONFIRMATION MODAL */}
+      {isSurrenderConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 dark:bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border-2 border-red-500/40 p-6 text-center space-y-4 shadow-2xl animate-scaleIn">
+            <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-500/40 flex items-center justify-center mx-auto text-red-600 dark:text-red-400 shadow-md">
+              <Flag className="w-7 h-7 stroke-[2.5]" />
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                Forfeit & Concede Match? 🏳️
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                Are you sure you want to surrender? If you concede, your opponent will immediately win the showdown and your <span className="text-red-600 dark:text-red-400 font-bold font-mono">{activeRoom?.wager || 250} XP</span> wager will be transferred to them.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2">
+              <button
+                onClick={handleSurrender}
+                disabled={isSurrendering}
+                className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs shadow-md shadow-red-600/30 active:scale-95 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              >
+                <Flag className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>{isSurrendering ? "Surrendering..." : "Yes, Forfeit Match"}</span>
+              </button>
+
+              <button
+                onClick={() => setIsSurrenderConfirmOpen(false)}
+                disabled={isSurrendering}
+                className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+              >
+                No, Keep Fighting! ⚔️
+              </button>
+            </div>
           </div>
         </div>
       )}
