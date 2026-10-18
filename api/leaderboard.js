@@ -94,6 +94,23 @@ export default async function handler(req, res) {
       }
     }
 
+    if (Array.isArray(roster)) {
+      let needsRosterRepair = false;
+      roster.forEach((student) => {
+        if (
+          student.avatar &&
+          (student.avatar === "/avatars/b" ||
+            (student.avatar.startsWith("/avatars/") && !student.avatar.endsWith(".jpg") && !student.avatar.endsWith(".png")))
+        ) {
+          student.avatar = "/avatars/bean-female-debugging.jpg";
+          needsRosterRepair = true;
+        }
+      });
+      if (needsRosterRepair) {
+        upstashCommand(["SET", KEY, JSON.stringify(roster)]).catch(() => {});
+      }
+    }
+
     return Array.isArray(roster) ? roster : [];
   }
 
@@ -136,6 +153,24 @@ export default async function handler(req, res) {
       ];
       upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]).catch(() => {});
     }
+
+    if (Array.isArray(feed)) {
+      let needsFeedRepair = false;
+      feed.forEach((msg) => {
+        if (
+          msg.avatar &&
+          (msg.avatar === "/avatars/b" ||
+            (msg.avatar.startsWith("/avatars/") && !msg.avatar.endsWith(".jpg") && !msg.avatar.endsWith(".png")))
+        ) {
+          msg.avatar = "/avatars/bean-female-debugging.jpg";
+          needsFeedRepair = true;
+        }
+      });
+      if (needsFeedRepair) {
+        upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]).catch(() => {});
+      }
+    }
+
     return feed;
   }
 
@@ -197,7 +232,7 @@ export default async function handler(req, res) {
           studentId: String(body.studentId || "").slice(0, 50),
           studentName: String(body.studentName || "Anonymous Student").slice(0, 40),
           studentSection: String(body.studentSection || "BSCPE 4D").slice(0, 20),
-          avatar: String(body.avatar || "🤖").slice(0, 10),
+          avatar: String(body.avatar || "/avatars/bean-female-debugging.jpg").slice(0, 80),
           frame: String(body.frame || "default").slice(0, 30),
           nameFx: String(body.nameFx || "none").slice(0, 30),
           tagline: String(body.tagline || "").slice(0, 80),
@@ -365,7 +400,7 @@ export default async function handler(req, res) {
         id: String(student.id).slice(0, 50),
         name: String(student.name).slice(0, 40),
         section: String(student.section || "BSCPE 4D").slice(0, 20),
-        avatar: String(student.avatar || "🤖").slice(0, 10),
+        avatar: String(student.avatar || "/avatars/bean-female-debugging.jpg").slice(0, 80),
         frame: String(student.frame || "default").slice(0, 30),
         tagline: String(student.tagline || "").slice(0, 80),
         nameFx: String(student.nameFx || "none").slice(0, 30),

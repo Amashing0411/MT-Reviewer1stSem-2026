@@ -1,6 +1,6 @@
 import React from "react";
 import { useUser } from "../context/UserContext";
-import { AVATAR_FRAMES, NAME_EFFECTS, getLevelInfo } from "../utils/gamification";
+import { AVATAR_FRAMES, NAME_EFFECTS, getLevelInfo, normalizeAvatar } from "../utils/gamification";
 import { StudentAvatar } from "./StudentAvatar";
 import { SECTIONS, normalizeSectionKey } from "../data/scheduleData";
 import { 
@@ -44,7 +44,7 @@ export function StudentProfileModal({ student, onClose }) {
         id: profile.id,
         name: profile.name,
         section: profile.section,
-        avatar: profile.avatar,
+        avatar: normalizeAvatar(profile.avatar),
         frame: profile.frame,
         nameFx: profile.nameFx,
         tagline: profile.tagline,
@@ -59,7 +59,7 @@ export function StudentProfileModal({ student, onClose }) {
         id: classmateMatch.id || student.id,
         name: classmateMatch.name || student.name,
         section: classmateMatch.section || student.section,
-        avatar: classmateMatch.avatar || student.avatar,
+        avatar: normalizeAvatar(classmateMatch.avatar || student.avatar),
         frame: classmateMatch.frame || student.frame,
         nameFx: classmateMatch.nameFx || student.nameFx,
         tagline: classmateMatch.tagline || student.tagline,
@@ -68,7 +68,10 @@ export function StudentProfileModal({ student, onClose }) {
         fastestBlitz: classmateMatch.fastestBlitz ?? student.fastestBlitz,
         highestPercent: classmateMatch.highestPercent ?? student.highestPercent,
       }
-    : student;
+    : {
+        ...student,
+        avatar: normalizeAvatar(student.avatar),
+      };
 
   const levelInfo = getLevelInfo(activeStudent.xp || 0);
   const secKey = normalizeSectionKey(activeStudent.section || "4D");

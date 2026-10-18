@@ -1,14 +1,23 @@
-import React from "react";
-import { getAvatarFrame } from "../utils/gamification";
+import React, { useState, useEffect } from "react";
+import { getAvatarFrame, normalizeAvatar, DEFAULT_AVATAR } from "../utils/gamification";
 
 export function StudentAvatar({
-  avatar = "/avatars/bean-female-debugging.jpg",
+  avatar = DEFAULT_AVATAR,
   customPhoto = null,
   frameId = "default",
   size = "md", // "xs" | "sm" | "md" | "lg" | "xl"
   className = "",
   onClick,
 }) {
+  const [photoError, setPhotoError] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+  const resolvedAvatar = normalizeAvatar(avatar);
+
+  useEffect(() => {
+    setPhotoError(false);
+    setAvatarError(false);
+  }, [avatar, customPhoto]);
+
   const frame = getAvatarFrame(frameId);
   const isCircular = frame?.shape === "circle";
   const hasAsset = Boolean(frame?.assetUrl);
@@ -37,7 +46,7 @@ export function StudentAvatar({
   const scale = frame?.scale || 1.65;
 
   const isImageAvatar = Boolean(
-    avatar && (avatar.startsWith("/") || avatar.startsWith("http") || avatar.includes("."))
+    resolvedAvatar && (resolvedAvatar.startsWith("/") || resolvedAvatar.startsWith("http") || resolvedAvatar.includes("."))
   );
 
   return (
@@ -52,22 +61,26 @@ export function StudentAvatar({
         <div
           className={`w-full h-full ${innerRoundedClass} bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-2xs select-none`}
         >
-          {customPhoto ? (
+          {customPhoto && !photoError ? (
             <img
               src={customPhoto}
               alt="Avatar"
               className="w-full h-full object-cover"
               loading="lazy"
+              onError={() => setPhotoError(true)}
             />
           ) : isImageAvatar ? (
             <img
-              src={avatar}
+              src={avatarError ? DEFAULT_AVATAR : resolvedAvatar}
               alt="Avatar"
               className="w-full h-full object-cover"
               loading="lazy"
+              onError={() => {
+                if (!avatarError) setAvatarError(true);
+              }}
             />
           ) : (
-            <span className="leading-none flex items-center justify-center">{avatar || "🤖"}</span>
+            <span className="leading-none flex items-center justify-center">{avatar || "🎓"}</span>
           )}
         </div>
       </div>

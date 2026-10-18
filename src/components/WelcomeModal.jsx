@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { AVATAR_PRESETS, AVATAR_FRAMES, VANITY_TAGLINES, NAME_EFFECTS } from "../utils/gamification";
+import { AVATAR_PRESETS, AVATAR_FRAMES, VANITY_TAGLINES, NAME_EFFECTS, normalizeAvatar } from "../utils/gamification";
 import { sound } from "../utils/sound";
 import { StudentAvatar } from "./StudentAvatar";
 import { 
@@ -51,7 +51,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
   const [name, setName] = useState(profile.name || "");
   const [section, setSection] = useState(profile.section || "BSCPE 4D");
   const [pin, setPin] = useState(profile.pin || "");
-  const [selectedAvatar, setSelectedAvatar] = useState(profile.avatar || "/avatars/bean-female-debugging.jpg");
+  const [selectedAvatar, setSelectedAvatar] = useState(normalizeAvatar(profile.avatar));
   const [customPhoto, setCustomPhoto] = useState(profile.customPhoto || null);
   const [selectedFrame, setSelectedFrame] = useState(profile.frame || "default");
   const [selectedNameFx, setSelectedNameFx] = useState(profile.nameFx || "none");
@@ -77,7 +77,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
       setName(profile.name || "");
       setSection(profile.section || "BSCPE 4D");
       setPin(profile.pin || "");
-      setSelectedAvatar(profile.avatar || "/avatars/bean-female-debugging.jpg");
+      setSelectedAvatar(normalizeAvatar(profile.avatar));
       setCustomPhoto(profile.customPhoto || null);
       setSelectedFrame(profile.frame || "default");
       setSelectedNameFx(profile.nameFx || "none");

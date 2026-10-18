@@ -39,6 +39,25 @@ export const AVATAR_PRESETS = [
   },
 ];
 
+export const DEFAULT_AVATAR = "/avatars/bean-female-debugging.jpg";
+
+export const normalizeAvatar = (avatar) => {
+  if (!avatar || typeof avatar !== "string") return DEFAULT_AVATAR;
+  if (avatar.startsWith("data:image")) return avatar;
+  // If it's the old robot emoji or another single emoji without an image path, return it as emoji
+  if (!avatar.startsWith("/") && !avatar.startsWith("http") && !avatar.includes(".")) {
+    return avatar;
+  }
+  // If it was truncated by the old .slice(0, 10) bug: e.g. "/avatars/b"
+  if (
+    avatar === "/avatars/b" ||
+    (avatar.startsWith("/avatars/") && !avatar.endsWith(".jpg") && !avatar.endsWith(".png"))
+  ) {
+    return DEFAULT_AVATAR;
+  }
+  return avatar;
+};
+
 export const AVATAR_FRAMES = [
   { 
     id: "default", 
@@ -536,7 +555,7 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
     id: "me",
     name: currentUser.name || (currentUser.isAnon ? "You (Anonymous)" : "You"),
     section: currentUser.section || "BSCPE 4D",
-    avatar: currentUser.avatar || "🤖",
+    avatar: normalizeAvatar(currentUser.avatar),
     customPhoto: currentUser.customPhoto || null,
     frame: currentUser.frame || "default",
     tagline: currentUser.tagline || "",
@@ -552,13 +571,13 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
   const otherClassmates = roster
     .filter((c) => c.name !== currentUser.name && c.id !== "me")
     .map((c) => {
-      if (isAll) return c;
-      const cSub = c.subjectStats?.[subjectFilter] || {};
+      const cSub = isAll ? {} : (c.subjectStats?.[subjectFilter] || {});
       return {
         ...c,
-        xp: cSub.xp || 0,
-        fastestBlitz: cSub.fastestBlitz || null,
-        highestPercent: cSub.highestPercent || 0,
+        avatar: normalizeAvatar(c.avatar),
+        xp: isAll ? (c.xp || 0) : (cSub.xp || 0),
+        fastestBlitz: isAll ? (c.fastestBlitz || null) : (cSub.fastestBlitz || null),
+        highestPercent: isAll ? (c.highestPercent || 0) : (cSub.highestPercent || 0),
       };
     });
 
@@ -578,7 +597,7 @@ export function encodeScorecard(profile, includePin = false) {
     const payload = {
       n: profile.name || "Student",
       s: profile.section || "BSCPE 4D",
-      a: profile.avatar || "🤖",
+      a: profile.avatar || DEFAULT_AVATAR,
       fr: profile.frame || "default",
       tg: profile.tagline || "",
       fx: profile.nameFx || "none",
@@ -638,7 +657,7 @@ export function decodeScorecard(codeStr) {
       id: "classmate-" + Math.random().toString(36).substr(2, 9),
       name: data.n,
       section: data.s || "BSCPE 4D",
-      avatar: data.a || "🤖",
+      avatar: normalizeAvatar(data.a),
       frame: data.fr || "default",
       tagline: data.tg || "🎓 4th Year Candidate",
       nameFx: data.fx || "none",

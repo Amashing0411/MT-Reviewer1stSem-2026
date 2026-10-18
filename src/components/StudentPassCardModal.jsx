@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
-import { createSyncUrl, AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
+import { createSyncUrl, AVATAR_FRAMES, NAME_EFFECTS, normalizeAvatar, DEFAULT_AVATAR } from "../utils/gamification";
 import { StudentAvatar } from "./StudentAvatar";
 import { 
   Download, 
@@ -38,10 +38,11 @@ export function StudentPassCardModal({ isOpen, onClose }) {
     canvas.height = height;
 
     // Load avatar image if it's customPhoto or an image path
+    const resolvedAvatar = normalizeAvatar(profile.avatar);
     const imageSrc = profile.customPhoto || (
-      profile.avatar && (profile.avatar.startsWith("/") || profile.avatar.startsWith("http") || profile.avatar.includes(".")) 
-        ? profile.avatar 
-        : null
+      resolvedAvatar && (resolvedAvatar.startsWith("/") || resolvedAvatar.startsWith("http") || resolvedAvatar.includes(".")) 
+        ? resolvedAvatar 
+        : DEFAULT_AVATAR
     );
 
     let avatarImg = null;

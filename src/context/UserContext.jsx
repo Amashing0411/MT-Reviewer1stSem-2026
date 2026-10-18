@@ -9,7 +9,9 @@ import {
   saveClassRoster,
   decodeScorecard,
   mergeCloudRoster,
-  getNewlyUnlockedRewards
+  getNewlyUnlockedRewards,
+  normalizeAvatar,
+  DEFAULT_AVATAR
 } from "../utils/gamification";
 import { sound } from "../utils/sound";
 import confetti from "canvas-confetti";
@@ -278,7 +280,7 @@ export function UserProvider({ children }) {
       studentId: profile.id,
       studentName: profile.name,
       studentSection: profile.section || "BSCPE 4D",
-      avatar: profile.avatar || "🤖",
+      avatar: normalizeAvatar(profile.avatar),
       frame: profile.frame || "default",
       nameFx: profile.nameFx || "none",
       tagline: profile.tagline || "",
@@ -354,7 +356,7 @@ export function UserProvider({ children }) {
     if (!messageId || !emoji) return;
     const myId = profile.id;
     const myName = profile.name || "Student";
-    const myAvatar = profile.avatar || "/avatars/bean-female-debugging.jpg";
+    const myAvatar = normalizeAvatar(profile.avatar);
     const myPhoto = profile.customPhoto || null;
     const mySection = profile.section || "BSCPE 4D";
 
@@ -455,7 +457,7 @@ export function UserProvider({ children }) {
             id: entry.id || profile.id,
             name: entry.name,
             section: entry.section || "BSCPE 4D",
-            avatar: entry.avatar || "🤖",
+            avatar: normalizeAvatar(entry.avatar),
             frame: entry.frame || "default",
             tagline: entry.tagline || "🎓 4th Year Candidate",
             nameFx: entry.nameFx || "none",

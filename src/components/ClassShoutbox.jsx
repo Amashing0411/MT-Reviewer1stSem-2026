@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame, getLevelInfo } from "../utils/gamification";
+import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame, getLevelInfo, LEVELS, normalizeAvatar, DEFAULT_AVATAR } from "../utils/gamification";
 import { StudentAvatar } from "./StudentAvatar";
 import { 
   MessageSquare, 
@@ -244,28 +244,33 @@ export function ClassShoutbox() {
         id: live.id || msg.studentId,
         name: live.name || msg.studentName,
         section: live.section || msg.studentSection,
-        avatar: live.avatar || msg.avatar,
+        avatar: normalizeAvatar(live.avatar || msg.avatar),
         frame: live.frame || msg.frame,
         nameFx: live.nameFx || msg.nameFx,
         tagline: live.tagline || msg.tagline,
         customPhoto: live.customPhoto || msg.customPhoto,
-        xp: live.xp ?? msg.xp,
+        xp: typeof live.xp === "number" ? live.xp : (typeof msg.xp === "number" ? msg.xp : 0),
         fastestBlitz: live.fastestBlitz ?? msg.fastestBlitz,
         highestPercent: live.highestPercent ?? msg.highestPercent,
       });
       return;
     }
 
+    // Fallback XP: use msg.xp if present; if missing, look up minXp for msg.level, else 0
+    const fallbackXp = typeof msg.xp === "number" 
+      ? msg.xp 
+      : (msg.level ? (LEVELS.find((l) => l.level === msg.level)?.minXp || 0) : 0);
+
     setInspectedStudent({
       id: msg.studentId,
       name: msg.studentName,
       section: msg.studentSection,
-      avatar: msg.avatar,
+      avatar: normalizeAvatar(msg.avatar),
       frame: msg.frame,
       nameFx: msg.nameFx,
       tagline: msg.tagline,
       customPhoto: msg.customPhoto,
-      xp: msg.xp || (msg.level ? msg.level * 800 : 0),
+      xp: fallbackXp,
       fastestBlitz: msg.fastestBlitz || null,
       highestPercent: msg.highestPercent || 0,
     });
@@ -378,13 +383,14 @@ export function ClassShoutbox() {
                     )
                   : null;
 
-                const displayAvatar = isMe ? profile.avatar : (liveClassmate?.avatar || msg.avatar);
+                const displayAvatar = isMe ? profile.avatar : normalizeAvatar(liveClassmate?.avatar || msg.avatar);
                 const displayPhoto = isMe ? profile.customPhoto : (liveClassmate?.customPhoto || msg.customPhoto);
                 const displayFrame = isMe ? profile.frame : (liveClassmate?.frame || msg.frame);
                 const displayNameFx = isMe ? profile.nameFx : (liveClassmate?.nameFx || msg.nameFx);
                 const displayTagline = isMe ? profile.tagline : (liveClassmate?.tagline || msg.tagline);
                 const displaySection = isMe ? profile.section : (liveClassmate?.section || msg.studentSection || "4D");
-                const displayLevel = isMe ? getLevelInfo(profile.xp || 0).level : (liveClassmate?.levelInfo?.level || msg.level || 1);
+                const displayXp = isMe ? (profile.xp || 0) : (typeof liveClassmate?.xp === "number" ? liveClassmate.xp : (typeof msg.xp === "number" ? msg.xp : 0));
+                const displayLevel = isMe ? getLevelInfo(profile.xp || 0).level : (liveClassmate?.levelInfo?.level || msg.level || getLevelInfo(displayXp).level || 1);
                 const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === displayNameFx)?.cssClass || "";
 
                 const reactionsMap = {};
