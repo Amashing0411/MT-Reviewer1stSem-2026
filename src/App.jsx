@@ -52,6 +52,7 @@ function AppContent() {
 
   const [leaderboardSubject, setLeaderboardSubject] = useState("all");
   const [leaderboardFilter, setLeaderboardFilter] = useState("xp");
+  const [leaderboardSection, setLeaderboardSection] = useState("all"); // "all" | "4A" | "4B" | "4C" | "4D"
   const [copied, setCopied] = useState(false);
 
   const activeSubject = SUBJECTS_MAP[activeSubjectId] || SUBJECTS_MAP["cpe414"];
@@ -66,7 +67,13 @@ function AppContent() {
 
   const currentLeaderboardList = getLeaderboard ? getLeaderboard(leaderboardSubject) : leaderboard;
 
-  const sortedLeaderboard = [...currentLeaderboardList].sort((a, b) => {
+  const sectionFilteredLeaderboard = currentLeaderboardList.filter((item) => {
+    if (leaderboardSection === "all") return true;
+    const secStr = (item.section || "").toUpperCase();
+    return secStr.includes(leaderboardSection.toUpperCase());
+  });
+
+  const sortedLeaderboard = [...sectionFilteredLeaderboard].sort((a, b) => {
     if (leaderboardFilter === "xp") return b.xp - a.xp;
     if (leaderboardFilter === "speed") return (a.fastestBlitz || 999) - (b.fastestBlitz || 999);
     if (leaderboardFilter === "score") return b.highestPercent - a.highestPercent;
@@ -77,12 +84,12 @@ function AppContent() {
   const currentUserRank = sortedLeaderboard.findIndex((item) => item.isCurrentUser) + 1;
 
   const handleShare = () => {
-    const text = `🎓 BSCPE 4D Midterm Reviewer • Room 106\n` +
+    const text = `🎓 BSCPE 4th Year Midterm Reviewer\n` +
       `👤 Student: ${profile.name} (${profile.section})\n` +
       `⭐ Level: ${levelInfo.level} — ${levelInfo.title}\n` +
       `⚡ Total XP: ${profile.xp.toLocaleString()} XP\n` +
       `⏱️ Fastest Blitz: ${profile.fastestBlitzSeconds ? profile.fastestBlitzSeconds + "s" : "N/A"}\n` +
-      `🏆 Room 106 Rank: #${currentUserRank || 1}\n` +
+      `🏆 Standings Rank: #${currentUserRank || 1}\n` +
       `Join the battle: https://mt-reviewer2026.vercel.app`;
 
     navigator.clipboard.writeText(text);
@@ -116,12 +123,14 @@ function AppContent() {
         {currentMode === "flashcards" && (
           <Flashcards 
             subject={activeSubject} 
+            onSelectMode={setCurrentMode}
           />
         )}
 
         {currentMode === "mock" && (
           <MockExam 
             subject={activeSubject} 
+            onSelectMode={setCurrentMode}
           />
         )}
 
@@ -141,7 +150,7 @@ function AppContent() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
                       <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700">
-                        Live Room 106 Standings
+                        Live 4th Year Standings
                       </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
@@ -229,13 +238,13 @@ function AppContent() {
                     {[
                       { id: "all", label: "Overall (All 8)", icon: "🌐" },
                       { id: "cpe414", label: "CPE414 • DSP", icon: "📡" },
-                      { id: "cpe411", label: "CPE411 • Embedded", icon: "⚡" },
-                      { id: "cpe416", label: "CPE416 • Comp Arch", icon: "💻" },
-                      { id: "cpe415", label: "CPE415 • Networks", icon: "🛡️" },
-                      { id: "cpe412", label: "CPE412 • Robotics", icon: "🤖" },
-                      { id: "elect3", label: "ELECT3 • Data Sci", icon: "📊" },
-                      { id: "cpe413", label: "CPE413 • InfoSec", icon: "🔒" },
-                      { id: "engwork", label: "ENGWORK • Mgt", icon: "⚙️" },
+                      { id: "cpe411", label: "CPE411 • Design 2", icon: "🔨" },
+                      { id: "cpe416", label: "CPE416 • Laws", icon: "⚖️" },
+                      { id: "cpe415", label: "CPE415 • Eng Mgt", icon: "💼" },
+                      { id: "cpe412", label: "CPE412 • Seminars", icon: "🧭" },
+                      { id: "elect3", label: "ELECT3 • Elective 3", icon: "⚡" },
+                      { id: "cpe413", label: "CPE413 • Comp Arch", icon: "💻" },
+                      { id: "engwork", label: "ENGWORK • Workplace", icon: "📝" },
                     ].map((tab) => {
                       const isCur = leaderboardSubject === tab.id;
                       return (
@@ -254,6 +263,25 @@ function AppContent() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* 4th Year Section Filter Bar */}
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Section:</span>
+                  {["all", "4A", "4B", "4C", "4D"].map((sec) => (
+                    <button
+                      key={sec}
+                      type="button"
+                      onClick={() => setLeaderboardSection(sec)}
+                      className={`btn-haptic px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                        leaderboardSection === sec
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/80"
+                      }`}
+                    >
+                      {sec === "all" ? "All 4th Year" : `BSCPE ${sec}`}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Filter Selector */}
@@ -459,7 +487,7 @@ function AppContent() {
           <div className="flex items-center gap-2 font-medium">
             <span>Official Midterm Platform for</span>
             <strong className="text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
-              BSCPE 4D • Room 106
+              BSCPE 4th Year • Sections 4A - 4D
             </strong>
           </div>
         </div>

@@ -1,24 +1,32 @@
-import React from "react";
-import { SCHEDULE_DATA } from "../data/scheduleData";
-import { X, Calendar, Clock, User, MapPin, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
+import { SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
+import { useUser } from "../context/UserContext";
+import { X, Calendar, Clock, User, MapPin, ArrowRight, ShieldCheck } from "lucide-react";
 
 export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectId }) {
+  const { profile } = useUser();
+  const userSectionKey = normalizeSectionKey(profile?.section || "4D");
+  const [activeSectionKey, setActiveSectionKey] = useState(userSectionKey);
+
   if (!isOpen) return null;
 
+  const currentSection = SECTIONS[activeSectionKey] || SECTIONS["4D"];
+  const scheduleData = getScheduleForSection(activeSectionKey);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fadeIn">
       <div 
         className="double-bezel-outer w-full max-w-4xl max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="double-bezel-inner p-6 sm:p-9 relative">
+        <div className="double-bezel-inner p-5 sm:p-8 relative">
           {/* Top DLSP Branding exactly matching official poster */}
           <div className="text-center pb-5 border-b border-slate-100">
             <div className="inline-flex items-center justify-center gap-2 mb-2 p-1 bg-slate-100/90 rounded-full border border-slate-200/80 shadow-2xs">
               <span className="w-6 h-6 rounded-full bg-blue-700 text-white flex items-center justify-center text-[9px] font-bold">DLSP</span>
               <span className="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-[9px] font-bold">COE</span>
               <span className="w-6 h-6 rounded-full bg-cyan-700 text-white flex items-center justify-center text-[9px] font-bold">CPE</span>
-              <span className="w-6 h-6 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[9px] font-bold">4D</span>
+              <span className="w-6 h-6 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[9px] font-bold">4th</span>
             </div>
 
             <div className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">
@@ -32,14 +40,46 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
               Bachelor of Science in Computer Engineering
             </h2>
 
-            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-900 border border-blue-200/80 rounded-full font-bold text-xs">
+            {/* Interactive Section Switcher Tabs */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+              {Object.keys(SECTIONS).map((key) => {
+                const sec = SECTIONS[key];
+                const isSelected = activeSectionKey === key;
+                const isUserSection = userSectionKey === key;
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveSectionKey(key)}
+                    className={`btn-haptic px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      isSelected
+                        ? "bg-blue-700 text-white shadow-md shadow-blue-700/25 scale-102"
+                        : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/70"
+                    }`}
+                  >
+                    <span>{sec.name}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
+                      isSelected ? "bg-white/20 text-white" : "bg-white text-slate-600 border border-slate-200"
+                    }`}>
+                      {sec.room}
+                    </span>
+                    {isUserSection && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Your Profile Section" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-900 border border-blue-200/80 rounded-full font-bold text-xs">
               <MapPin className="w-3.5 h-3.5 text-blue-600" />
-              <span>BSCPE 4D — Room 106 Official Timetable</span>
+              <span>{currentSection.name} • {currentSection.room} Official Timetable</span>
             </div>
 
             <button
               onClick={onClose}
-              className="btn-haptic absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+              className="btn-haptic absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -47,17 +87,22 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
           </div>
 
           {/* Schedule Tables */}
-          <div className="mt-6 space-y-8">
-            {SCHEDULE_DATA.map((dayGroup, idx) => (
+          <div className="mt-6 space-y-7">
+            {scheduleData.map((dayGroup, idx) => (
               <div key={idx} className="space-y-3">
-                <div className="flex items-center justify-between pb-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
                   <h3 className="text-sm sm:text-base font-bold text-slate-900 font-serif flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                     {dayGroup.day} — <span className="text-blue-700">{dayGroup.date}</span>
                   </h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200/80">
-                    Room 106
-                  </span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-800 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200/80">
+                      {currentSection.room}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/80">
+                      Proctor: {dayGroup.proctorDefault}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="overflow-x-auto rounded-2xl border border-slate-200/90 shadow-2xs bg-white">
@@ -67,7 +112,7 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                         <th className="py-3 px-4">Time</th>
                         <th className="py-3 px-4">Course Code</th>
                         <th className="py-3 px-4">Course Description</th>
-                        <th className="py-3 px-4">Proctor</th>
+                        <th className="py-3 px-4">Assigned Proctor</th>
                         <th className="py-3 px-4 text-center">Action</th>
                       </tr>
                     </thead>
@@ -87,10 +132,10 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                                 {exam.time}
                               </span>
                             </td>
-                            <td className="py-3 px-4 font-black text-blue-700">
+                            <td className="py-3 px-4 font-black text-blue-700 whitespace-nowrap">
                               {exam.code}
                             </td>
-                            <td className="py-3 px-4 text-slate-900 font-medium">
+                            <td className="py-3 px-4 text-slate-900 font-medium min-w-[200px]">
                               {exam.title}
                             </td>
                             <td className="py-3 px-4 text-slate-600 text-xs whitespace-nowrap">
@@ -124,8 +169,11 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
             ))}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-            <span>Official Midterm Examination Schedule AY 2026-2027</span>
+          <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              Official Midterm Examination Schedule AY 2026-2027 • DLSP COE
+            </span>
             <button
               onClick={onClose}
               className="btn-haptic px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl"
@@ -138,3 +186,5 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
     </div>
   );
 }
+
+export default ScheduleModal;

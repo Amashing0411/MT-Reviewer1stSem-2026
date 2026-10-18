@@ -20,7 +20,7 @@ import { FormattedText } from "./MathView";
 import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
 
-export function MockExam({ subject }) {
+export function MockExam({ subject, onSelectMode }) {
   const { recordExamResult, setIsLeaderboardOpen, addXp } = useUser();
   const rawQuestions = subject.mockQuestions || [];
 
@@ -77,6 +77,38 @@ export function MockExam({ subject }) {
   }, [isTimerRunning, timeLeft, isSubmitted]);
 
   if (rawQuestions.length === 0) {
+    if (subject.isGraphSubject) {
+      return (
+        <div className="double-bezel-outer max-w-2xl mx-auto">
+          <div className="double-bezel-inner p-8 sm:p-12 text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm text-2xl">
+              📐
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full font-bold text-xs uppercase tracking-wider">
+              Manual Graph Practice Subject
+            </div>
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900">
+              DSP Midterm is Graph & Computation Centric
+            </h3>
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+              Per official course guidelines and student request, {subject.code} does not use an artificial multiple-choice quiz.
+              DSP exams evaluate your ability to sketch discrete waveforms ($x[n]$), slide graphical convolution strips, and plot Z-plane pole-zero ROC constellations on engineering paper.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => onSelectMode?.("reviewer")}
+                className="btn-haptic px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-700/25 inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>Open DSP 6 Paper Problems & Formulas</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="double-bezel-outer max-w-xl mx-auto">
         <div className="double-bezel-inner p-12 text-center">

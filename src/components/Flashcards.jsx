@@ -6,14 +6,15 @@ import {
   CheckCircle, 
   Shuffle, 
   HelpCircle,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { FormattedText } from "./MathView";
 import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
 
-export function Flashcards({ subject }) {
+export function Flashcards({ subject, onSelectMode }) {
   const { addXp } = useUser();
   const rawCards = subject.flashcards || [];
   const [cards, setCards] = useState(rawCards);
@@ -29,6 +30,37 @@ export function Flashcards({ subject }) {
   }, [subject.id]);
 
   if (cards.length === 0) {
+    if (subject.isGraphSubject) {
+      return (
+        <div className="double-bezel-outer max-w-2xl mx-auto">
+          <div className="double-bezel-inner p-8 sm:p-12 text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm text-2xl">
+              📐
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full font-bold text-xs uppercase tracking-wider">
+              Manual Graph Practice Subject
+            </div>
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900">
+              DSP Uses Paper Graphing Instead of Flashcards
+            </h3>
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+              Digital Signal Processing is visual and graph-heavy. Memorizing flashcards is not recommended when exams require hand-sketching stem plots, folding signals $x[-n]$, and sliding convolution.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => onSelectMode?.("reviewer")}
+                className="btn-haptic px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-700/25 inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>Open DSP Paper Graph Problems</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="double-bezel-outer max-w-xl mx-auto">
         <div className="double-bezel-inner p-12 text-center">

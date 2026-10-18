@@ -1,8 +1,13 @@
 import React from "react";
 import { Printer, Zap, FileText, CheckCircle2 } from "lucide-react";
 import { FormattedText } from "./MathView";
+import { useUser } from "../context/UserContext";
+import { SECTIONS, normalizeSectionKey } from "../data/scheduleData";
 
 export function CramSheet({ subject }) {
+  const { profile } = useUser();
+  const secKey = normalizeSectionKey(profile?.section || "4D");
+  const currentSec = SECTIONS[secKey] || SECTIONS["4D"];
   const cramNotes = subject.cramNotes || [];
 
   const handlePrint = () => {
@@ -25,13 +30,13 @@ export function CramSheet({ subject }) {
               {subject.title} • Ultra High-Yield Sheet
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Core formulas, definitions, and rules designed for last-minute review right before entering Room 106.
+              Core formulas, definitions, and rules designed for last-minute review right before entering {currentSec.room}.
             </p>
           </div>
 
           <button
             onClick={handlePrint}
-            className="btn-haptic group flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold transition-all shadow-md shrink-0"
+            className="btn-haptic group flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold transition-all shadow-md shrink-0 cursor-pointer"
           >
             <span>Print / Save PDF</span>
             <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-blue-300 group-hover:scale-105 transition-transform">
@@ -75,8 +80,10 @@ export function CramSheet({ subject }) {
 
       {/* Footnote */}
       <div className="text-center text-xs text-slate-500 pt-2 font-medium">
-        <p>Dalubhasaan ng Lungsod ng San Pablo • College of Engineering • BSCPE 4D • Room 106</p>
+        <p>Dalubhasaan ng Lungsod ng San Pablo • College of Engineering • BSCPE 4th Year ({currentSec.name} • {currentSec.room})</p>
       </div>
     </div>
   );
 }
+
+export default CramSheet;

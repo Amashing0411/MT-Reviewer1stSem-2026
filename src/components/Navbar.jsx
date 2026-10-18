@@ -17,7 +17,7 @@ import {
   Check,
   Trophy
 } from "lucide-react";
-import { SCHEDULE_DATA } from "../data/scheduleData";
+import { SCHEDULE_DATA, SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
 import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
 
@@ -30,9 +30,12 @@ export function Navbar({
   onSearchChange,
   onOpenSchedule,
 }) {
-  const day1 = SCHEDULE_DATA[0];
-  const day2 = SCHEDULE_DATA[1];
   const { profile, levelInfo, setIsWelcomeOpen, setIsLeaderboardOpen } = useUser();
+  const secKey = normalizeSectionKey(profile?.section || "4D");
+  const currentSec = SECTIONS[secKey] || SECTIONS["4D"];
+  const currentSchedule = getScheduleForSection(secKey);
+  const day1 = currentSchedule[0];
+  const day2 = currentSchedule[1];
   const [isSoundOn, setIsSoundOn] = useState(sound.enabled);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dayFilter, setDayFilter] = useState("all"); // "all" | "day1" | "day2"
@@ -67,7 +70,7 @@ export function Navbar({
             {/* Left: Branding & Active Subject Switcher */}
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-blue-600/20 shrink-0">
-                4D
+                {secKey}
               </div>
 
               <div className="min-w-0 relative">
@@ -75,7 +78,7 @@ export function Navbar({
                   <span>DLSP BSCPE</span>
                   <span className="text-slate-300">•</span>
                   <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/60 font-mono">
-                    Room 106
+                    {currentSec.name} • {currentSec.room}
                   </span>
                 </div>
                 
@@ -104,7 +107,7 @@ export function Navbar({
                     <div className="absolute left-0 top-full mt-2 w-72 sm:w-88 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 z-50 animate-scaleIn">
                       <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2 border-b border-slate-100 flex items-center justify-between">
                         <span>Select Subject (8 Total)</span>
-                        <span className="text-blue-600 font-semibold">Room 106</span>
+                        <span className="text-blue-600 font-semibold">{currentSec.room}</span>
                       </div>
 
                       <div className="mt-2 space-y-2.5 max-h-[55vh] overflow-y-auto">
@@ -210,8 +213,8 @@ export function Navbar({
               {/* Leaderboard Button */}
               <button
                 onClick={() => setIsLeaderboardOpen(true)}
-                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all"
-                title="Room 106 Standings"
+                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all cursor-pointer"
+                title={`${currentSec.name} Standings`}
               >
                 <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span className="hidden sm:inline">Rank</span>

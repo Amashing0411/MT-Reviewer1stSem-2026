@@ -48,13 +48,20 @@ export function LeaderboardModal({ isOpen, onClose }) {
   const [importCode, setImportCode] = useState("");
   const [importError, setImportError] = useState(null);
   const [showKvTip, setShowKvTip] = useState(false);
+  const [selectedSection, setSelectedSection] = useState("all");
 
   if (!isOpen) return null;
 
   const currentRoster = getLeaderboard ? getLeaderboard(selectedSubject) : [];
 
+  const sectionFilteredRoster = currentRoster.filter((item) => {
+    if (selectedSection === "all") return true;
+    const secStr = (item.section || "").toUpperCase();
+    return secStr.includes(selectedSection.toUpperCase());
+  });
+
   // Filter & sort leaderboard
-  const sortedList = [...currentRoster].sort((a, b) => {
+  const sortedList = [...sectionFilteredRoster].sort((a, b) => {
     if (filter === "xp") return b.xp - a.xp;
     if (filter === "speed") {
       const aTime = a.fastestBlitz || 999;
@@ -72,12 +79,12 @@ export function LeaderboardModal({ isOpen, onClose }) {
   const handleShare = () => {
     const code = encodeScorecard(profile);
     const link = `${window.location.origin}/?score=${code}`;
-    const text = `🎓 BSCPE 4D Midterm Reviewer • Room 106\n` +
+    const text = `🎓 BSCPE 4th Year Midterm Reviewer\n` +
       `👤 Student: ${profile.name} (${profile.section})\n` +
       `⭐ Level: ${levelInfo.level} — ${levelInfo.title}\n` +
       `⚡ Total XP: ${profile.xp.toLocaleString()} XP\n` +
       `⏱️ Fastest Blitz: ${profile.fastestBlitzSeconds ? profile.fastestBlitzSeconds + "s" : "N/A"}\n` +
-      `🏆 Room 106 Rank: #${currentUserRank || 1}\n` +
+      `🏆 Standings Rank: #${currentUserRank || 1}\n` +
       `Add my score to your leaderboard: ${link}`;
 
     navigator.clipboard.writeText(text);
@@ -123,7 +130,7 @@ export function LeaderboardModal({ isOpen, onClose }) {
             <div className="flex flex-wrap items-center justify-center gap-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-full font-bold text-[10px] uppercase tracking-wider">
                 <Trophy className="w-3 h-3 text-amber-600" />
-                <span>Room 106 Standings</span>
+                <span>4th Year Standings</span>
               </div>
 
               {isCloudConnected ? (
@@ -262,6 +269,25 @@ export function LeaderboardModal({ isOpen, onClose }) {
                 );
               })}
             </div>
+          </div>
+
+          {/* 4th Year Section Filter Bar */}
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Section:</span>
+            {["all", "4A", "4B", "4C", "4D"].map((sec) => (
+              <button
+                key={sec}
+                type="button"
+                onClick={() => setSelectedSection(sec)}
+                className={`btn-haptic px-2.5 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  selectedSection === sec
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/80"
+                }`}
+              >
+                {sec === "all" ? "All 4th Year" : `BSCPE ${sec}`}
+              </button>
+            ))}
           </div>
 
           {/* Action Row: Filter Tabs & Share/Add Buttons */}

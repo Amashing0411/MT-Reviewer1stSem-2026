@@ -16,15 +16,25 @@ import {
   Sparkles,
   Printer,
   FileText,
-  LayoutGrid
+  LayoutGrid,
+  PenTool,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { MathView, FormattedText } from "./MathView";
+import { useUser } from "../context/UserContext";
+import { SECTIONS, normalizeSectionKey } from "../data/scheduleData";
 
 export function ReviewerNotes({ subject, searchQuery }) {
+  const { profile } = useUser();
+  const userSecKey = normalizeSectionKey(profile?.section || "4D");
+  const activeSection = SECTIONS[userSecKey] || SECTIONS["4D"];
+
   const [readingView, setReadingView] = useState("zen"); // "zen" (clean document/PDF) | "cards" (modular cards)
   const [expandedCards, setExpandedCards] = useState({});
   const [selectedUnit, setSelectedUnit] = useState("all");
   const [copiedId, setCopiedId] = useState(null);
+  const [completedProblems, setCompletedProblems] = useState({});
 
   const toggleCard = (id) => {
     setExpandedCards((prev) => ({
@@ -53,6 +63,17 @@ export function ReviewerNotes({ subject, searchQuery }) {
     setTimeout(() => setCopiedId(null), 1800);
   };
 
+  const toggleProblem = (id) => {
+    setCompletedProblems((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  // Determine assigned proctor based on course schedule
+  const isDay2Subject = ["cpe412", "elect3", "cpe413", "engwork"].includes(subject.id);
+  const assignedProctor = isDay2Subject ? activeSection.proctorDay2 : activeSection.proctorDay1;
+
   const filteredTopics = subject.topics
     .filter((unit) => selectedUnit === "all" || unit.unitId === selectedUnit)
     .map((unit) => {
@@ -73,6 +94,9 @@ export function ReviewerNotes({ subject, searchQuery }) {
       };
     })
     .filter((unit) => unit.cards.length > 0);
+
+  const paperProblems = subject.paperProblems || [];
+  const completedCount = Object.values(completedProblems).filter(Boolean).length;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -148,7 +172,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
               </span>
               <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
                 <User className="w-3.5 h-3.5 text-amber-600" />
-                Proctor: {subject.proctor}
+                Proctor: {assignedProctor}
               </span>
               {subject.instructor && (
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-800 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg">
@@ -157,7 +181,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
               )}
               <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">
                 <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                Room 106
+                {activeSection.name} • {activeSection.room}
               </span>
             </div>
 
@@ -217,6 +241,143 @@ export function ReviewerNotes({ subject, searchQuery }) {
         </div>
       </div>
 
+      {/* DSP GRAPH PRACTICE ADVISORY BANNER */}
+      {subject.graphNotice && (
+        <div className="double-bezel-outer bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-blue-500/10">
+          <div className="double-bezel-inner p-5 sm:p-7 space-y-3">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20 text-lg">
+                <PenTool className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-100 text-amber-900 rounded-md font-bold text-[10px] uppercase tracking-wider border border-amber-200">
+                  Official Course Notice
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                  {subject.graphNotice.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                  <FormattedText text={subject.graphNotice.body} />
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ESSENTIAL GRAPH & PAPER PROBLEMS CHECKLIST (For Graph Subjects like DSP) */}
+      {paperProblems.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+            <div>
+              <h3 className="text-lg sm:text-xl font-serif font-bold text-slate-900 flex items-center gap-2">
+                <PenTool className="w-5 h-5 text-blue-600" />
+                <span>The 6 Essential Paper Graph Problems</span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Solve these by hand on engineering scratch paper using stem/needle plots before Monday.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                {completedCount} of {paperProblems.length} Practiced on Paper
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {paperProblems.map((prob) => {
+              const isDone = !!completedProblems[prob.id];
+
+              return (
+                <div 
+                  key={prob.id} 
+                  className={`double-bezel-outer transition-all ${
+                    isDone ? "opacity-80 ring-1 ring-emerald-500/30" : ""
+                  }`}
+                >
+                  <div className="double-bezel-inner p-4 sm:p-6 space-y-4">
+                    <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleProblem(prob.id)}
+                          className={`btn-haptic p-1 rounded-lg transition-colors cursor-pointer ${
+                            isDone ? "text-emerald-600" : "text-slate-400 hover:text-slate-600"
+                          }`}
+                          title={isDone ? "Mark as unpracticed" : "Mark as solved on scratch paper"}
+                        >
+                          {isDone ? (
+                            <CheckSquare className="w-5 h-5 text-emerald-600" />
+                          ) : (
+                            <Square className="w-5 h-5" />
+                          )}
+                        </button>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/80">
+                              Problem {prob.number}
+                            </span>
+                            <span className="text-xs font-semibold text-slate-500">
+                              {prob.category}
+                            </span>
+                          </div>
+                          <h4 className={`text-base font-bold text-slate-900 mt-1 ${isDone ? "line-through text-slate-500" : ""}`}>
+                            {prob.title}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0">
+                        {prob.difficulty}
+                      </span>
+                    </div>
+
+                    {/* Problem Prompt */}
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                      <strong className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                        Pencil-and-Paper Prompt:
+                      </strong>
+                      <FormattedText text={prob.prompt} />
+                    </div>
+
+                    {/* Step-by-Step Method */}
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+                        Step-by-Step Hand Solution Method:
+                      </span>
+                      <div className="space-y-1.5 pl-1">
+                        {prob.method.map((step, sIdx) => (
+                          <div key={sIdx} className="text-xs sm:text-sm text-slate-700 leading-relaxed flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-2" />
+                            <span className="flex-1">
+                              <FormattedText text={step} />
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Exam Tip */}
+                    {prob.examTip && (
+                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/80 border border-blue-200/80 text-xs text-blue-900">
+                        <Zap className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-bold">Instructor Sketching Tip: </strong>
+                          <FormattedText text={prob.examTip} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* VIEW A: ZEN DOCUMENT / PDF TEXTBOOK VIEW (Clean, Linear, Zero-Clutter) */}
       {readingView === "zen" && (
         <div className="space-y-12">
@@ -258,45 +419,35 @@ export function ReviewerNotes({ subject, searchQuery }) {
                         <FormattedText text={card.content} />
                       </div>
 
-                      {/* Formula Block in Document Flow */}
+                      {/* Display LaTeX Formula If Present */}
                       {card.formula && (
-                        <div className="my-4 p-4 sm:p-5 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                          <div className="flex items-center justify-between mb-2 text-xs font-bold text-blue-900 uppercase tracking-wider">
-                            <span className="flex items-center gap-1.5">
-                              <Zap className="w-3.5 h-3.5 text-amber-500" /> Formula & Derivation:
-                            </span>
-                            <button
-                              onClick={() => copyFormula(card.formula, card.id)}
-                              className="no-print btn-haptic flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-bold text-slate-600 bg-white border border-slate-200 shadow-2xs"
-                            >
-                              {copiedId === card.id ? (
-                                <>
-                                  <Check className="w-3 h-3 text-emerald-600" />
-                                  <span>Copied!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3 h-3" />
-                                  <span>Copy LaTeX</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                          <MathView math={card.formula} block={true} />
+                        <div className="my-4 p-4 rounded-xl bg-slate-50 border border-slate-200/80 relative group">
+                          <MathView math={card.formula} display={true} />
+                          <button
+                            onClick={() => copyFormula(card.formula, card.id)}
+                            className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white border border-slate-200 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Copy LaTeX"
+                          >
+                            {copiedId === card.id ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                         </div>
                       )}
 
-                      {/* Key Takeaways Enumerations */}
+                      {/* Key Takeaways & Slide Points */}
                       {card.keyPoints && card.keyPoints.length > 0 && (
-                        <div className="space-y-2.5 pt-2 pl-1">
-                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                            Core Enumeration & Key Details:
-                          </span>
-                          <ul className="space-y-2">
-                            {card.keyPoints.map((pt, i) => (
-                              <li key={i} className="text-sm text-slate-700 flex items-start gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                                <span className="leading-relaxed">
+                        <div className="space-y-2 pt-2">
+                          <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Key Core Principles
+                          </h5>
+                          <ul className="space-y-2.5">
+                            {card.keyPoints.map((pt, pIdx) => (
+                              <li key={pIdx} className="flex items-start gap-2.5 text-sm text-slate-700 leading-relaxed">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-2" />
+                                <span>
                                   <FormattedText text={pt} />
                                 </span>
                               </li>
@@ -305,17 +456,13 @@ export function ReviewerNotes({ subject, searchQuery }) {
                         </div>
                       )}
 
-                      {/* Exam Trap Callout */}
+                      {/* Exam Trap Alert Box */}
                       {card.examTrap && (
-                        <div className="mt-4 flex items-start gap-3 p-4 sm:p-5 rounded-2xl bg-amber-50/90 border border-amber-200 text-sm text-amber-950">
-                          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50/90 border border-amber-200 text-xs sm:text-sm text-amber-950 mt-4">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                           <div>
-                            <strong className="font-bold text-amber-950 block mb-1">
-                              ⚠️ Exam Trap / Crucial Distinction:
-                            </strong>
-                            <span className="leading-relaxed text-amber-900">
-                              <FormattedText text={card.examTrap} />
-                            </span>
+                            <strong className="font-bold block mb-0.5">Exam Trap / Common Mistake:</strong>
+                            <FormattedText text={card.examTrap} />
                           </div>
                         </div>
                       )}
@@ -328,105 +475,91 @@ export function ReviewerNotes({ subject, searchQuery }) {
         </div>
       )}
 
-      {/* VIEW B: MODULAR STUDY CARDS (Collapsible Boxes) */}
+      {/* VIEW B: MODULAR STUDY CARDS VIEW */}
       {readingView === "cards" && (
         <div className="space-y-8">
           {filteredTopics.map((unit) => (
             <div key={unit.unitId} className="space-y-4">
-              {/* Unit Header with Guaranteed No-Wrap Pill */}
-              <div className="flex items-center justify-between px-2 gap-3">
-                <div className="min-w-0">
-                  <h3 className="text-lg sm:text-xl font-serif font-bold text-slate-900 flex items-center gap-2.5 truncate">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0"></span>
-                    <span className="truncate">{unit.unitTitle}</span>
-                  </h3>
-                  {unit.summary && (
-                    <p className="text-xs text-slate-500 mt-1 pl-5 truncate">{unit.summary}</p>
-                  )}
-                </div>
-                <span className="text-xs font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200/80 shadow-2xs whitespace-nowrap shrink-0">
-                  {unit.cards.length} {unit.cards.length === 1 ? "Concept" : "Concepts"}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 font-serif">
+                  {unit.unitTitle}
+                </h3>
+                <span className="text-xs text-slate-500 font-semibold">
+                  {unit.cards.length} cards
                 </span>
               </div>
 
-              {/* Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 gap-4">
                 {unit.cards.map((card) => {
-                  const isExpanded = expandedCards[card.id] ?? true;
+                  const isExpanded = expandedCards[card.id] ?? false;
 
                   return (
                     <div key={card.id} className="double-bezel-outer">
-                      <div className="double-bezel-inner overflow-hidden">
-                        {/* Card Title Header */}
-                        <div
+                      <div className="double-bezel-inner p-4 sm:p-6 space-y-4">
+                        <div 
+                          className="flex items-start justify-between gap-4 cursor-pointer"
                           onClick={() => toggleCard(card.id)}
-                          className="p-3.5 sm:p-5 flex items-start justify-between gap-3 cursor-pointer select-none bg-slate-50/60 hover:bg-slate-100/60 transition-colors border-b border-slate-100"
                         >
-                          <div className="space-y-1.5 min-w-0">
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] rounded-md bg-blue-100/90 text-blue-800 border border-blue-200 whitespace-nowrap shrink-0">
+                              <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded border border-blue-200/80">
                                 {card.category}
                               </span>
                               {card.badge && (
-                                <span className="px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] rounded-md bg-amber-100/90 text-amber-800 border border-amber-200 whitespace-nowrap shrink-0">
+                                <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80">
                                   {card.badge}
                                 </span>
                               )}
                             </div>
-                            <h4 className="text-base font-bold text-slate-900 leading-snug">
+                            <h4 className="text-base sm:text-lg font-bold text-slate-900">
                               {card.title}
                             </h4>
                           </div>
-                          <button className="text-slate-400 hover:text-slate-700 p-1 rounded-lg shrink-0">
+
+                          <button 
+                            className="btn-haptic p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                            aria-label={isExpanded ? "Collapse" : "Expand"}
+                          >
                             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                           </button>
                         </div>
 
-                        {/* Card Content Body */}
-                        {isExpanded && (
-                          <div className="p-3.5 sm:p-5 space-y-4 bg-white">
-                            <div className="text-sm text-slate-700 leading-relaxed font-normal">
+                        {/* Collapsed Preview vs Expanded Content */}
+                        {!isExpanded ? (
+                          <div className="text-xs sm:text-sm text-slate-600 line-clamp-2">
+                            <FormattedText text={card.content} />
+                          </div>
+                        ) : (
+                          <div className="space-y-4 pt-2 border-t border-slate-100 animate-fadeIn">
+                            <div className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                               <FormattedText text={card.content} />
                             </div>
 
-                            {/* Block Math Display */}
                             {card.formula && (
-                              <div className="relative group p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 shadow-2xs">
-                                <div className="flex items-center justify-between mb-1 pb-1.5 border-b border-slate-200/60 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                  <span className="flex items-center gap-1.5 text-blue-700">
-                                    <Zap className="w-3.5 h-3.5 text-amber-500" /> Formula & Derivation:
-                                  </span>
-                                  <button
-                                    onClick={() => copyFormula(card.formula, card.id)}
-                                    className="btn-haptic flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold text-slate-600 hover:text-blue-700 bg-white border border-slate-200 shadow-2xs"
-                                    title="Copy LaTeX Formula"
-                                  >
-                                    {copiedId === card.id ? (
-                                      <>
-                                        <Check className="w-3 h-3 text-emerald-600" />
-                                        <span>Copied!</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Copy className="w-3 h-3" />
-                                        <span>Copy LaTeX</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                                <MathView math={card.formula} block={true} />
+                              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 relative group">
+                                <MathView math={card.formula} display={true} />
+                                <button
+                                  onClick={() => copyFormula(card.formula, card.id)}
+                                  className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white border border-slate-200 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Copy LaTeX"
+                                >
+                                  {copiedId === card.id ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
                               </div>
                             )}
 
-                            {/* Key Points */}
                             {card.keyPoints && card.keyPoints.length > 0 && (
-                              <div className="space-y-2 pt-1">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] block">
-                                  Key Takeaways:
+                              <div className="space-y-2">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                                  Core Principles:
                                 </span>
-                                <ul className="space-y-1.5">
-                                  {card.keyPoints.map((pt, i) => (
-                                    <li key={i} className="text-xs sm:text-sm text-slate-700 flex items-start gap-2.5 bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
+                                <ul className="space-y-2 pl-1">
+                                  {card.keyPoints.map((pt, pIdx) => (
+                                    <li key={pIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
                                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                                       <span className="leading-relaxed">
                                         <FormattedText text={pt} />
@@ -437,7 +570,6 @@ export function ReviewerNotes({ subject, searchQuery }) {
                               </div>
                             )}
 
-                            {/* Exam Trap Alert */}
                             {card.examTrap && (
                               <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50/90 border border-amber-200 text-xs sm:text-sm text-amber-950">
                                 <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -465,3 +597,5 @@ export function ReviewerNotes({ subject, searchQuery }) {
     </div>
   );
 }
+
+export default ReviewerNotes;
