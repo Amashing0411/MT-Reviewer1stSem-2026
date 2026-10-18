@@ -15,35 +15,12 @@ export function TwitchSpectatorChat({
   onBurstEmote,
 }) {
   const [inputText, setInputText] = useState("");
-  const [floatingBubbles, setFloatingBubbles] = useState([]);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll chat to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
-
-  // When new recent emotes arrive, spawn floating animations
-  useEffect(() => {
-    if (recentEmotes && recentEmotes.length > 0) {
-      const latest = recentEmotes[recentEmotes.length - 1];
-      if (latest) {
-        spawnBubble(latest.emoji);
-      }
-    }
-  }, [recentEmotes?.length]);
-
-  const spawnBubble = (emoji) => {
-    const id = Date.now() + "_" + Math.random().toString(36).substr(2, 4);
-    const randomLeft = Math.floor(Math.random() * 70) + 15; // 15% to 85%
-    const newBubble = { id, emoji, left: randomLeft };
-
-    setFloatingBubbles((prev) => [...prev.slice(-15), newBubble]);
-
-    setTimeout(() => {
-      setFloatingBubbles((prev) => prev.filter((b) => b.id !== id));
-    }, 2400);
-  };
 
   const handleSend = (e) => {
     e?.preventDefault();
@@ -54,25 +31,11 @@ export function TwitchSpectatorChat({
   };
 
   const handleEmojiClick = (emoji) => {
-    onBurstEmote(emoji);
-    spawnBubble(emoji);
-    sound.playPop();
+    onBurstEmote?.(emoji);
   };
 
   return (
     <div className="relative flex flex-col h-[420px] sm:h-[580px] w-full rounded-2xl bg-slate-900/90 dark:bg-slate-950/95 border border-slate-700/80 shadow-xl overflow-hidden backdrop-blur-md">
-      {/* Floating Spectator Reactions Layer */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-30">
-        {floatingBubbles.map((bubble) => (
-          <div
-            key={bubble.id}
-            className="absolute bottom-16 text-3xl sm:text-4xl animate-floatUp select-none filter drop-shadow-md"
-            style={{ left: `${bubble.left}%` }}
-          >
-            {bubble.emoji}
-          </div>
-        ))}
-      </div>
 
       {/* Top Header: Twitch Live Bar */}
       <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-800/80 border-b border-slate-700/80 text-white shrink-0">

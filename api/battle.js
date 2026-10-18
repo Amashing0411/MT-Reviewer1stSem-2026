@@ -587,18 +587,18 @@ export default async function handler(req, res) {
 
       // 8. BURST EMOTE REACTION
       if (action === "burst_emote") {
-        const { roomId, emoji, senderName } = body;
+        const { roomId, emoji, senderName, emoteId } = body;
         const room = rooms.find((r) => r.id === roomId);
         if (!room) return res.status(404).json({ ok: false, error: "Room not found" });
 
         const emoteObj = {
-          id: "em_" + now + "_" + Math.random().toString(36).substr(2, 4),
+          id: emoteId || ("em_" + now + "_" + Math.random().toString(36).substr(2, 4)),
           emoji: emoji || "🔥",
           senderName: senderName || "Audience",
           createdAt: now,
         };
 
-        room.recentEmotes = [...(room.recentEmotes || []).slice(-20), emoteObj];
+        room.recentEmotes = [...(room.recentEmotes || []).slice(-30), emoteObj];
         room.updatedAt = now;
         await saveRooms(rooms);
         return res.status(200).json({ ok: true, emote: emoteObj });

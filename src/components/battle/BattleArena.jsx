@@ -68,11 +68,26 @@ export function BattleArena({ onBackToReviewer }) {
   const [mobileMatchTab, setMobileMatchTab] = useState("stage"); // "stage" | "chat" on mobile
   const [liveClocks, setLiveClocks] = useState({ host: 60, guest: 60 });
   const [countdownSeconds, setCountdownSeconds] = useState(5);
+  const [floatingReactions, setFloatingReactions] = useState([]);
+  const seenEmoteIdsRef = useRef(new Set());
 
   // Polling ref for cloud rooms
   const pollTimerRef = useRef(null);
   const clockIntervalRef = useRef(null);
   const botTurnTimeoutRef = useRef(null);
+
+  // Spawn floating reactions on the global arena overlay
+  const spawnFloatingReaction = useCallback((emoji, senderName) => {
+    const id = "bubble_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+    const randomLeft = Math.floor(Math.random() * 75) + 12; // 12% to 87%
+    const newBubble = { id, emoji, senderName, left: randomLeft };
+
+    setFloatingReactions((prev) => [...prev.slice(-25), newBubble]);
+
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((b) => b.id !== id));
+    }, 2400);
+  }, []);
 
   // Helper roles
   const isHost = activeRoom?.host?.id === profile.id;
@@ -201,7 +216,31 @@ export function BattleArena({ onBackToReviewer }) {
     return () => clearInterval(timer);
   }, [activeRoom?.status, activeRoom?.countdownEnd, isHost, isBotMatch]);
 
-  // 5. Bot Match Simulation Loop
+  // 5. Synchronized Floating Emotes from all peers & spectators across all screens
+  useEffect(() => {
+    if (!activeRoom?.recentEmotes || activeRoom.recentEmotes.length === 0) return;
+
+    const now = Date.now();
+    activeRoom.recentEmotes.forEach((em) => {
+      if (!em || !em.id) return;
+
+      if (!seenEmoteIdsRef.current.has(em.id)) {
+        seenEmoteIdsRef.current.add(em.id);
+        // Only trigger float animation if emitted within the last 7 seconds
+        if (now - (em.createdAt || now) < 7000) {
+          spawnFloatingReaction(em.emoji, em.senderName);
+          sound.playPop();
+        }
+      }
+    });
+
+    if (seenEmoteIdsRef.current.size > 200) {
+      const arr = Array.from(seenEmoteIdsRef.current);
+      seenEmoteIdsRef.current = new Set(arr.slice(-100));
+    }
+  }, [activeRoom?.recentEmotes, spawnFloatingReaction]);
+
+  // 6. Bot Match Simulation Loop
   useEffect(() => {
     if (!isBotMatch || screen !== "playing") return;
     if (activeRoom?.gameState?.activePlayerId !== BOT_PLAYER.id) return;
@@ -752,16 +791,39 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  // 15. Burst Reaction Emotes
+  // 15. Burst Reaction Emotes (Instant local preview + server sync to all participants)
   const handleBurstEmote = async (emoji) => {
     if (!activeRoom) return;
-    const newEmote = { id: "em_" + Date.now(), emoji, senderName: profile.name, createdAt: Date.now() };
+
+    const emoteId = "em_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+    const senderName = profile.name || "Contender";
+    const newEmote = { id: emoteId, emoji, senderName, createdAt: Date.now() };
+
+    // Register locally immediately so incoming poll doesn't duplicate it
+    seenEmoteIdsRef.current.add(emoteId);
+    spawnFloatingReaction(emoji, senderName);
+    sound.playPop();
+
+    // Optimistically update local activeRoom
     setActiveRoom((r) => ({
       ...r,
-      recentEmotes: [...(r.recentEmotes || []).slice(-15), newEmote],
+      recentEmotes: [...(r.recentEmotes || []).slice(-25), newEmote],
     }));
 
-    if (!isBotMatch && activeRoom?.id) {
+    // If bot match, simulated bot or audience response
+    if (isBotMatch) {
+      if (Math.random() < 0.45) {
+        setTimeout(() => {
+          const botEmotes = ["🔥", "⚡", "🤖", "👏", "😱"];
+          const botPick = botEmotes[Math.floor(Math.random() * botEmotes.length)];
+          spawnFloatingReaction(botPick, BOT_PLAYER.name);
+          sound.playPop();
+        }, 800 + Math.random() * 1200);
+      }
+      return;
+    }
+
+    if (activeRoom?.id) {
       try {
         fetch("/api/battle", {
           method: "POST",
@@ -770,7 +832,8 @@ export function BattleArena({ onBackToReviewer }) {
             action: "burst_emote",
             roomId: activeRoom.id,
             emoji,
-            senderName: profile.name,
+            senderName,
+            emoteId,
           }),
         }).catch(() => {});
       } catch (e) {}
@@ -794,7 +857,27 @@ export function BattleArena({ onBackToReviewer }) {
   const amIReady = isHost ? activeRoom?.hostReady : isGuest ? activeRoom?.guestReady : false;
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn relative">
+      {/* GLOBAL SYNCHRONIZED FLOATING REACTIONS OVERLAY (Visible across ALL participants & spectators) */}
+      <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+        {floatingReactions.map((reaction) => (
+          <div
+            key={reaction.id}
+            className="absolute bottom-16 sm:bottom-20 flex flex-col items-center animate-floatUp select-none filter drop-shadow-2xl"
+            style={{ left: `${reaction.left}%` }}
+          >
+            <span className="text-4xl sm:text-5xl filter drop-shadow-md">
+              {reaction.emoji}
+            </span>
+            {reaction.senderName && (
+              <span className="mt-1 px-2.5 py-0.5 rounded-full bg-slate-900/95 border border-amber-500/50 text-[10px] sm:text-xs font-black text-amber-300 tracking-wide shadow-xl whitespace-nowrap backdrop-blur-md">
+                {reaction.senderName}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
       {/* 5-SECOND SYNCHRONIZED COUNTDOWN OVERLAY (Both Players & Spectators see this) */}
       {activeRoom?.status === "countdown" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
@@ -1120,6 +1203,24 @@ export function BattleArena({ onBackToReviewer }) {
                 </div>
               )}
             </div>
+
+            {/* Quick Cheer Reaction Dock in Match Lobby */}
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-2">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                <span>Cheer & Hype:</span>
+              </span>
+              {["🔥", "💀", "⚡", "🍿", "👏", "😱", "🎯", "🧠"].map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => handleBurstEmote(emoji)}
+                  className="p-1.5 hover:scale-125 active:scale-90 text-xl transition-transform focus:outline-none"
+                  title={`Cheer with ${emoji}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -1388,13 +1489,13 @@ export function BattleArena({ onBackToReviewer }) {
                 </div>
               </div>
 
-              {/* Mobile Quick Emote Reaction Bar */}
-              <div className="lg:hidden p-2 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-1 overflow-x-auto shadow-md">
+              {/* Quick Emote Reaction Bar */}
+              <div className="p-2 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-1 overflow-x-auto shadow-md">
                 <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wider pl-1.5 flex items-center gap-1">
                   <Flame className="w-3 h-3 text-amber-400" />
                   <span>Cheer:</span>
                 </span>
-                {["🔥", "💀", "⚡", "🍿", "👏", "😱"].map((emoji) => (
+                {["🔥", "💀", "⚡", "🍿", "👏", "😱", "🎯", "🧠"].map((emoji) => (
                   <button
                     key={emoji}
                     onClick={() => handleBurstEmote(emoji)}
