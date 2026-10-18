@@ -870,7 +870,7 @@ export function BattleArena({ onBackToReviewer }) {
               {reaction.emoji}
             </span>
             {reaction.senderName && (
-              <span className="mt-1 px-2.5 py-0.5 rounded-full bg-slate-900/95 border border-amber-500/50 text-[10px] sm:text-xs font-black text-amber-300 tracking-wide shadow-xl whitespace-nowrap backdrop-blur-md">
+              <span className="mt-1 px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-amber-400/60 dark:border-amber-500/50 text-[10px] sm:text-xs font-black text-slate-900 dark:text-amber-300 tracking-wide shadow-xl whitespace-nowrap backdrop-blur-md">
                 {reaction.senderName}
               </span>
             )}
@@ -880,19 +880,19 @@ export function BattleArena({ onBackToReviewer }) {
 
       {/* 5-SECOND SYNCHRONIZED COUNTDOWN OVERLAY (Both Players & Spectators see this) */}
       {activeRoom?.status === "countdown" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
-          <div className="text-center text-white space-y-4 max-w-sm">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase animate-pulse">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 dark:bg-slate-950/90 backdrop-blur-md animate-fadeIn">
+          <div className="text-center space-y-4 max-w-sm p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-700 dark:text-amber-300 text-xs font-black uppercase animate-pulse">
               <Flame className="w-4 h-4 fill-amber-400 text-amber-500" />
               <span>Both Players Ready!</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
               Tossing Coin In...
             </h2>
-            <div className="text-7xl sm:text-8xl font-black font-mono text-amber-400 animate-ping">
+            <div className="text-7xl sm:text-8xl font-black font-mono text-amber-500 dark:text-amber-400 animate-ping">
               {countdownSeconds}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {isSpectator ? "👀 Spectator View: Get ready to watch the 3D coin toss!" : "Who will face Question 1? Coin spinning shortly!"}
             </p>
           </div>
@@ -1015,7 +1015,7 @@ export function BattleArena({ onBackToReviewer }) {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400/80 shrink-0 bg-slate-900">
+                            <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400/80 shrink-0 bg-slate-100 dark:bg-slate-900">
                               <StudentAvatar avatar={room.host?.avatar} className="w-full h-full object-cover" />
                             </div>
                             <div className="min-w-0">
@@ -1081,50 +1081,50 @@ export function BattleArena({ onBackToReviewer }) {
       {/* SCREEN 2: ROOM SETUP / MATCHMAKING (With Synchronized Ready Protocol) */}
       {screen === "room_setup" && activeRoom && (
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="relative rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 p-6 sm:p-8 text-white text-center shadow-2xl">
+          <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white text-center shadow-xl">
             {/* Header Badges */}
             <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-black uppercase">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-400/30 text-blue-800 dark:text-blue-300 text-xs font-black uppercase">
+                <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Match Lobby #{activeRoom.id?.slice(-4)}</span>
               </span>
 
               {isSpectator && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-black uppercase">
-                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-400/30 text-emerald-800 dark:text-emerald-300 text-xs font-black uppercase">
+                  <Eye className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span>Live Audience Spectator Mode</span>
                 </span>
               )}
             </div>
 
-            <h2 className="text-xl sm:text-3xl font-black mb-1">{activeRoom.title}</h2>
-            <p className="text-xs sm:text-sm text-slate-400 mb-8">
-              Subject: <span className="text-amber-400 font-bold">{activeRoom.subject === "all" ? "All 8 Subjects Mixed" : activeRoom.subject.toUpperCase()}</span> • Total Pot: <span className="text-emerald-400 font-bold">{activeRoom.wager * 2} XP</span>
+            <h2 className="text-xl sm:text-3xl font-black mb-1 text-slate-900 dark:text-white">{activeRoom.title}</h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-8">
+              Subject: <span className="text-amber-600 dark:text-amber-400 font-bold">{activeRoom.subject === "all" ? "All 8 Subjects Mixed" : activeRoom.subject.toUpperCase()}</span> • Total Pot: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{activeRoom.wager * 2} XP</span>
             </p>
 
             {/* Versus Cards with Clear Ready Status Badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative items-center max-w-xl mx-auto mb-8">
               {/* Host Card */}
-              <div className={`p-5 rounded-2xl bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-lg ${
-                activeRoom.hostReady ? "border-emerald-400 shadow-emerald-500/20" : "border-amber-400/60 shadow-amber-500/10"
+              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-sm dark:shadow-lg ${
+                activeRoom.hostReady ? "border-emerald-500 shadow-emerald-500/20" : "border-amber-400/60 shadow-amber-500/10"
               }`}>
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-slate-900">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-slate-100 dark:bg-slate-900">
                   <StudentAvatar avatar={activeRoom.host.avatar} customPhoto={activeRoom.host.customPhoto} className="w-full h-full object-cover" />
                 </div>
-                <span className="text-sm font-black truncate max-w-[160px]">{activeRoom.host.name}</span>
-                <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/40">
+                <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.host.name}</span>
+                <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-500/40">
                   HOST • {activeRoom.host.section}
                 </span>
 
                 {/* Readiness Indicator */}
                 <div className="mt-1">
                   {activeRoom.hostReady ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                       <span>READY!</span>
                     </span>
                   ) : (
-                    <span className="text-[11px] font-bold text-amber-300/80 bg-amber-950/50 px-3 py-1 rounded-full border border-amber-500/30">
+                    <span className="text-[11px] font-bold text-slate-600 dark:text-amber-300/80 bg-slate-200/80 dark:bg-amber-950/50 px-3 py-1 rounded-full border border-slate-300 dark:border-amber-500/30">
                       Waiting to Ready...
                     </span>
                   )}
@@ -1132,43 +1132,43 @@ export function BattleArena({ onBackToReviewer }) {
               </div>
 
               {/* VS Pill Center */}
-              <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-red-600 items-center justify-center font-black text-xs text-white shadow-xl z-10 border-2 border-slate-900">
+              <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-red-600 items-center justify-center font-black text-xs text-white shadow-xl z-10 border-2 border-white dark:border-slate-900">
                 VS
               </div>
 
               {/* Guest / Challenger Card */}
-              <div className={`p-5 rounded-2xl bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-lg ${
-                activeRoom.guestReady ? "border-emerald-400 shadow-emerald-500/20" : "border-indigo-400/60 shadow-indigo-500/10"
+              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-sm dark:shadow-lg ${
+                activeRoom.guestReady ? "border-emerald-500 shadow-emerald-500/20" : "border-indigo-400/60 shadow-indigo-500/10"
               }`}>
                 {activeRoom.guest ? (
                   <>
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-400 shadow-md bg-slate-900">
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-400 shadow-md bg-slate-100 dark:bg-slate-900">
                       <StudentAvatar avatar={activeRoom.guest.avatar} customPhoto={activeRoom.guest.customPhoto} className="w-full h-full object-cover" />
                     </div>
-                    <span className="text-sm font-black truncate max-w-[160px]">{activeRoom.guest.name}</span>
-                    <span className="text-[10px] text-indigo-300 font-bold bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-500/40">
+                    <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.guest.name}</span>
+                    <span className="text-[10px] text-indigo-800 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-300 dark:border-indigo-500/40">
                       {activeRoom.guest.isBot ? "AI BOT" : "CHALLENGER"} • {activeRoom.guest.section}
                     </span>
 
                     {/* Readiness Indicator */}
                     <div className="mt-1">
                       {activeRoom.guestReady ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                           <span>READY!</span>
                         </span>
                       ) : (
-                        <span className="text-[11px] font-bold text-indigo-300/80 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-500/30">
+                        <span className="text-[11px] font-bold text-slate-600 dark:text-indigo-300/80 bg-slate-200/80 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-slate-300 dark:border-indigo-500/30">
                           Waiting to Ready...
                         </span>
                       )}
                     </div>
                   </>
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center py-6 text-slate-500">
-                    <Users className="w-10 h-10 mb-2 animate-pulse text-indigo-400" />
-                    <p className="text-xs font-bold text-slate-300">Waiting for Challenger...</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Classmates can join from the lobby!</p>
+                  <div className="h-full flex flex-col items-center justify-center py-6 text-slate-500 dark:text-slate-400">
+                    <Users className="w-10 h-10 mb-2 animate-pulse text-indigo-500 dark:text-indigo-400" />
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Waiting for Challenger...</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Classmates can join from the lobby!</p>
                   </div>
                 )}
               </div>
@@ -1178,7 +1178,7 @@ export function BattleArena({ onBackToReviewer }) {
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 onClick={() => setScreen("lobby")}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold"
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors"
               >
                 Leave Lobby
               </button>
@@ -1197,17 +1197,17 @@ export function BattleArena({ onBackToReviewer }) {
                   <span>{amIReady ? "✓ You are Ready! (Tap to Cancel)" : "Ready for Battle ⚡"}</span>
                 </button>
               ) : (
-                <div className="px-6 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-xs font-black text-slate-300 flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-emerald-400" />
+                <div className="px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   <span>Waiting for {activeRoom.host.name} & {activeRoom.guest?.name || "Challenger"} to press Ready...</span>
                 </div>
               )}
             </div>
 
             {/* Quick Cheer Reaction Dock in Match Lobby */}
-            <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-1">
-                <Flame className="w-3.5 h-3.5 text-amber-400" />
+            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-center gap-2">
+              <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+                <Flame className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Cheer & Hype:</span>
               </span>
               {["🔥", "💀", "⚡", "🍿", "👏", "😱", "🎯", "🧠"].map((emoji) => (
@@ -1230,25 +1230,25 @@ export function BattleArena({ onBackToReviewer }) {
         <div className="space-y-4">
           {/* Spectator Mode Top Notice Bar */}
           {isSpectator && (
-            <div className="px-4 py-2.5 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center justify-between shadow-lg">
+            <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm dark:shadow-lg">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
                 <span>👀 Spectator Mode Active • Watching {activeRoom.host.name} vs {activeRoom.guest?.name}</span>
               </div>
-              <span className="text-[10px] text-emerald-400 uppercase tracking-wider font-mono">
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-mono">
                 {activeRoom.spectators?.length || 1} Watching
               </span>
             </div>
           )}
 
           {/* Mobile Tab Switcher (< lg) */}
-          <div className="lg:hidden flex items-center justify-center p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg">
+          <div className="lg:hidden flex items-center justify-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-lg">
             <button
               onClick={() => setMobileMatchTab("stage")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 mobileMatchTab === "stage"
                   ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               <Swords className="w-3.5 h-3.5" />
@@ -1259,10 +1259,10 @@ export function BattleArena({ onBackToReviewer }) {
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 mobileMatchTab === "chat"
                   ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
-              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <Eye className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
               <span>Audience Chat ({(activeRoom.spectators || []).length})</span>
             </button>
           </div>
@@ -1276,21 +1276,21 @@ export function BattleArena({ onBackToReviewer }) {
                 <div
                   className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
                     activeRoom.gameState?.activePlayerId === activeRoom.host.id
-                      ? "bg-slate-900 border-amber-400 shadow-xl shadow-amber-500/20"
-                      : "bg-slate-900/60 border-slate-800 opacity-70"
+                      ? "bg-amber-50/80 dark:bg-slate-900 border-amber-400 shadow-md dark:shadow-xl dark:shadow-amber-500/20"
+                      : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-80 dark:opacity-70"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-amber-400 bg-slate-900 shrink-0">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-amber-400 bg-slate-100 dark:bg-slate-900 shrink-0">
                         <StudentAvatar avatar={activeRoom.host.avatar} className="w-full h-full object-cover" />
                       </div>
-                      <span className="text-xs sm:text-sm font-black text-white truncate max-w-[70px] sm:max-w-none">
+                      <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate max-w-[70px] sm:max-w-none">
                         {activeRoom.host.name}
                       </span>
                     </div>
                     {activeRoom.gameState?.activePlayerId === activeRoom.host.id && (
-                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 animate-pulse bg-amber-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-amber-500/40 shrink-0">
+                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-400 animate-pulse bg-amber-100 dark:bg-amber-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-500/40 shrink-0">
                         ON CLOCK
                       </span>
                     )}
@@ -1299,21 +1299,21 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        liveClocks.host <= 10 ? "text-red-500 animate-ping" : "text-amber-400"
+                        liveClocks.host <= 10 ? "text-red-500 animate-ping" : "text-amber-600 dark:text-amber-400"
                       }`}
                     >
                       {Math.ceil(liveClocks.host)}s
                     </span>
-                    <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                       POT: {activeRoom.wager * 2} XP
                     </span>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        liveClocks.host <= 10 ? "bg-red-500" : "bg-amber-400"
+                        liveClocks.host <= 10 ? "bg-red-500" : "bg-amber-500 dark:bg-amber-400"
                       }`}
                       style={{ width: `${(liveClocks.host / 60) * 100}%` }}
                     />
@@ -1324,21 +1324,21 @@ export function BattleArena({ onBackToReviewer }) {
                 <div
                   className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
                     activeRoom.gameState?.activePlayerId === activeRoom.guest?.id
-                      ? "bg-slate-900 border-indigo-400 shadow-xl shadow-indigo-500/20"
-                      : "bg-slate-900/60 border-slate-800 opacity-70"
+                      ? "bg-indigo-50/80 dark:bg-slate-900 border-indigo-400 shadow-md dark:shadow-xl dark:shadow-indigo-500/20"
+                      : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-80 dark:opacity-70"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-indigo-400 bg-slate-900 shrink-0">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-indigo-400 bg-slate-100 dark:bg-slate-900 shrink-0">
                         <StudentAvatar avatar={activeRoom.guest?.avatar} className="w-full h-full object-cover" />
                       </div>
-                      <span className="text-xs sm:text-sm font-black text-white truncate max-w-[70px] sm:max-w-none">
+                      <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate max-w-[70px] sm:max-w-none">
                         {activeRoom.guest?.name}
                       </span>
                     </div>
                     {activeRoom.gameState?.activePlayerId === activeRoom.guest?.id && (
-                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-400 animate-pulse bg-indigo-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-500/40 shrink-0">
+                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-400 animate-pulse bg-indigo-100 dark:bg-indigo-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-300 dark:border-indigo-500/40 shrink-0">
                         ON CLOCK
                       </span>
                     )}
@@ -1347,21 +1347,21 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        liveClocks.guest <= 10 ? "text-red-500 animate-ping" : "text-indigo-400"
+                        liveClocks.guest <= 10 ? "text-red-500 animate-ping" : "text-indigo-600 dark:text-indigo-400"
                       }`}
                     >
                       {Math.ceil(liveClocks.guest)}s
                     </span>
-                    <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                       {activeRoom.guest?.isBot ? "AI BOT" : "RIVAL"}
                     </span>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        liveClocks.guest <= 10 ? "bg-red-500" : "bg-indigo-400"
+                        liveClocks.guest <= 10 ? "bg-red-500" : "bg-indigo-500 dark:bg-indigo-400"
                       }`}
                       style={{ width: `${(liveClocks.guest / 60) * 100}%` }}
                     />
@@ -1467,7 +1467,7 @@ export function BattleArena({ onBackToReviewer }) {
 
                 {/* Tactical Action Bar: Pass Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                     {isSpectator
                       ? "👀 Spectators cannot click choices. Cheer in the live Twitch feed!"
                       : isMyTurn
@@ -1490,9 +1490,9 @@ export function BattleArena({ onBackToReviewer }) {
               </div>
 
               {/* Quick Emote Reaction Bar */}
-              <div className="p-2 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-1 overflow-x-auto shadow-md">
-                <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wider pl-1.5 flex items-center gap-1">
-                  <Flame className="w-3 h-3 text-amber-400" />
+              <div className="p-2 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-1 overflow-x-auto shadow-sm dark:shadow-md">
+                <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 shrink-0 uppercase tracking-wider pl-1.5 flex items-center gap-1">
+                  <Flame className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                   <span>Cheer:</span>
                 </span>
                 {["🔥", "💀", "⚡", "🍿", "👏", "😱", "🎯", "🧠"].map((emoji) => (
@@ -1534,7 +1534,7 @@ export function BattleArena({ onBackToReviewer }) {
       {/* SCREEN 4: GAME OVER / VICTORY PODIUM */}
       {screen === "game_over" && winnerInfo && (
         <div className="max-w-md mx-auto text-center space-y-6 animate-scaleIn">
-          <div className="rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-400/80 p-6 sm:p-8 text-white shadow-2xl shadow-amber-500/20">
+          <div className="rounded-3xl bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-2 border-amber-400/80 p-6 sm:p-8 text-slate-900 dark:text-white shadow-2xl shadow-amber-500/10 dark:shadow-amber-500/20">
             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center mx-auto mb-4 text-slate-950 shadow-xl shadow-amber-400/30">
               <Trophy className="w-8 h-8 fill-slate-950" />
             </div>
@@ -1543,7 +1543,7 @@ export function BattleArena({ onBackToReviewer }) {
               {winnerInfo.isCurrentUser ? "VICTORY ROYALE! 🏆" : "MATCH CONCLUDED! ⚔️"}
             </h2>
 
-            <p className="text-xs sm:text-sm text-slate-400 mb-6">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6">
               {winnerInfo.isCurrentUser
                 ? `You outlasted your opponent on the clock!`
                 : `${winnerInfo.winnerName} claimed the match crown!`}
@@ -1554,8 +1554,8 @@ export function BattleArena({ onBackToReviewer }) {
               <div
                 className={`p-4 rounded-2xl mb-6 border ${
                   winnerInfo.isCurrentUser
-                    ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                    : "bg-red-950/60 border-red-500/40 text-red-300"
+                    ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300"
+                    : "bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-500/40 text-red-800 dark:text-red-300"
                 }`}
               >
                 <div className="text-xs font-bold uppercase tracking-wider mb-1">Wager Payout</div>
@@ -1600,7 +1600,7 @@ export function BattleArena({ onBackToReviewer }) {
                   setScreen("lobby");
                   setActiveRoom(null);
                 }}
-                className="w-full py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                className="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold text-xs transition-colors"
               >
                 Return to Arena Lobby
               </button>

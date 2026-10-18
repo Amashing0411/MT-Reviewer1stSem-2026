@@ -62,29 +62,29 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
   const finalRotation = isHostWinner ? 1800 : 1980;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 dark:bg-slate-950/85 backdrop-blur-md animate-fadeIn">
       {/* Background Spotlight FX */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-gradient-to-b from-blue-600/30 via-indigo-600/20 to-transparent rounded-full blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 rounded-3xl p-5 sm:p-8 text-center shadow-2xl shadow-blue-500/10 text-white max-h-[92vh] overflow-y-auto">
+      <div className="relative w-full max-w-md bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-700/80 rounded-3xl p-5 sm:p-8 text-center shadow-2xl text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto">
         
         {/* Header Tag */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-xs font-black tracking-wider uppercase mb-3 sm:mb-5">
-          <Zap className="w-3.5 h-3.5 text-amber-400" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-500/15 border border-blue-200 dark:border-blue-400/30 text-blue-800 dark:text-blue-300 text-xs font-black tracking-wider uppercase mb-3 sm:mb-5">
+          <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
           <span>Coin Toss Protocol</span>
-          <Zap className="w-3.5 h-3.5 text-amber-400" />
+          <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
         </div>
 
-        <h3 className="text-lg sm:text-2xl font-black tracking-tight text-white mb-1.5 sm:mb-2">
+        <h3 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-1.5 sm:mb-2">
           {phase === "intro" && "Preparing The Coin..."}
           {phase === "flipping" && "Tossing in the Air! 🪙"}
           {phase === "landed" && `${winner?.name} Lands First!`}
           {phase === "countdown" && "Match Commencing In..."}
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-400 mb-4 sm:mb-8 max-w-xs mx-auto">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4 sm:mb-8 max-w-xs mx-auto">
           {phase !== "landed" && phase !== "countdown"
             ? "Each face carries a player avatar. The side that lands faces the 60-second hot seat first!"
             : `${winner?.name} won the coin flip and takes Question 1!`}
@@ -111,7 +111,7 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
               className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 p-2 shadow-2xl shadow-amber-500/40 border-4 border-amber-300 flex flex-col items-center justify-center [backface-visibility:hidden]"
               style={{ WebkitBackfaceVisibility: "hidden" }}
             >
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-900">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-100 dark:bg-slate-900">
                 <StudentAvatar
                   avatar={host.avatar}
                   customPhoto={host.customPhoto}
@@ -131,7 +131,7 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
               className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 via-purple-600 to-purple-800 p-2 shadow-2xl shadow-purple-500/40 border-4 border-indigo-300 flex flex-col items-center justify-center [backface-visibility:hidden]"
               style={{ transform: "rotateY(180deg)", WebkitBackfaceVisibility: "hidden" }}
             >
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-900">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-100 dark:bg-slate-900">
                 <StudentAvatar
                   avatar={guest.avatar}
                   customPhoto={guest.customPhoto}
@@ -152,21 +152,21 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
         <div className="mt-6 min-h-[44px] flex items-center justify-center">
           {phase === "countdown" ? (
             <div className="inline-flex items-center gap-3">
-              <span className="text-3xl sm:text-4xl font-black text-amber-400 animate-ping">
+              <span className="text-3xl sm:text-4xl font-black text-amber-500 dark:text-amber-400 animate-ping">
                 {countdown}
               </span>
-              <span className="text-sm font-bold text-slate-300">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Starting 60s Blitz Clock...
               </span>
             </div>
           ) : phase === "landed" ? (
-            <div className="inline-flex items-center gap-2 text-emerald-400 font-extrabold text-sm sm:text-base animate-bounce">
+            <div className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-extrabold text-sm sm:text-base animate-bounce">
               <Sparkles className="w-4 h-4" />
               <span>{winner?.name} has first turn!</span>
             </div>
           ) : (
-            <div className="text-xs text-slate-500 font-mono flex items-center justify-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center justify-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 animate-ping" />
               Spinning physics active...
             </div>
           )}

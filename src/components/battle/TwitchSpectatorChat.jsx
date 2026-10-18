@@ -35,33 +35,33 @@ export function TwitchSpectatorChat({
   };
 
   return (
-    <div className="relative flex flex-col h-[420px] sm:h-[580px] w-full rounded-2xl bg-slate-900/90 dark:bg-slate-950/95 border border-slate-700/80 shadow-xl overflow-hidden backdrop-blur-md">
+    <div className="relative flex flex-col h-[420px] sm:h-[580px] w-full rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden backdrop-blur-md">
 
       {/* Top Header: Twitch Live Bar */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-800/80 border-b border-slate-700/80 text-white shrink-0">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative flex items-center justify-center">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 relative" />
           </div>
-          <span className="text-xs font-black tracking-wider uppercase bg-gradient-to-r from-red-400 to-amber-300 bg-clip-text text-transparent">
+          <span className="text-xs font-black tracking-wider uppercase bg-gradient-to-r from-red-600 via-amber-600 to-amber-500 dark:from-red-400 dark:to-amber-300 bg-clip-text text-transparent">
             Twitch Arena Feed
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 text-[11px] font-mono font-bold text-slate-300">
-          <Eye className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 shadow-2xs">
+          <Eye className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
           <span>{spectatorCount} Watching</span>
         </div>
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs font-sans scrollbar-thin scrollbar-thumb-slate-700">
+      <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs font-sans scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
         {chat.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 p-4">
-            <MessageSquare className="w-8 h-8 mb-2 opacity-40 text-blue-400" />
-            <p className="text-xs font-semibold">Spectator Chat is Live!</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+          <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400 p-4">
+            <MessageSquare className="w-8 h-8 mb-2 opacity-40 text-blue-500 dark:text-blue-400" />
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Spectator Chat is Live!</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               Send comments and tap emoji reactions to cheer your classmates!
             </p>
           </div>
@@ -71,9 +71,9 @@ export function TwitchSpectatorChat({
               return (
                 <div
                   key={msg.id}
-                  className="px-2.5 py-1.5 rounded-lg bg-blue-950/40 border border-blue-500/30 text-blue-200 text-[11px] font-medium leading-relaxed"
+                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-blue-900 dark:text-blue-200 text-[11px] font-medium leading-relaxed"
                 >
-                  <span className="font-bold text-blue-400 mr-1.5">⚡ ARENA:</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400 mr-1.5">⚡ ARENA:</span>
                   {msg.text}
                 </div>
               );
@@ -85,10 +85,10 @@ export function TwitchSpectatorChat({
               <div
                 key={msg.id}
                 className={`flex items-start gap-2 ${
-                  isMe ? "bg-slate-800/40" : ""
+                  isMe ? "bg-slate-100 dark:bg-slate-800/40" : ""
                 } p-1.5 rounded-lg transition-colors`}
               >
-                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 mt-0.5 border border-slate-600 bg-slate-800">
+                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 mt-0.5 border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800">
                   <StudentAvatar avatar={msg.avatar} className="w-full h-full object-cover" />
                 </div>
 
@@ -96,12 +96,12 @@ export function TwitchSpectatorChat({
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`font-black text-[11px] truncate ${
-                        isMe ? "text-amber-400" : "text-indigo-300"
+                        isMe ? "text-amber-600 dark:text-amber-400" : "text-indigo-600 dark:text-indigo-300"
                       }`}
                     >
                       {msg.senderName}
                     </span>
-                    <span className="text-[9px] text-slate-500 font-mono">
+                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono">
                       {new Date(msg.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -109,7 +109,7 @@ export function TwitchSpectatorChat({
                       })}
                     </span>
                   </div>
-                  <p className="text-slate-200 text-xs break-words mt-0.5">{msg.text}</p>
+                  <p className="text-slate-800 dark:text-slate-200 text-xs break-words mt-0.5">{msg.text}</p>
                 </div>
               </div>
             );
@@ -119,7 +119,7 @@ export function TwitchSpectatorChat({
       </div>
 
       {/* Quick Emoji Reaction Dock */}
-      <div className="px-2 py-1.5 bg-slate-950/80 border-t border-slate-800/80 flex items-center justify-between gap-1 overflow-x-auto shrink-0">
+      <div className="px-2 py-1.5 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-1 overflow-x-auto shrink-0">
         {REACTION_EMOJIS.map((emoji) => (
           <button
             key={emoji}
@@ -135,7 +135,7 @@ export function TwitchSpectatorChat({
       {/* Chat Input Form */}
       <form
         onSubmit={handleSend}
-        className="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-2 shrink-0"
+        className="p-2.5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0"
       >
         <input
           type="text"
@@ -143,7 +143,7 @@ export function TwitchSpectatorChat({
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Send spectator message..."
           maxLength={140}
-          className="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-base sm:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+          className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700/80 rounded-xl px-3 py-2 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
         />
         <button
           type="submit"
