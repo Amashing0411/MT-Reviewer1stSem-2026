@@ -881,7 +881,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               }}
               className="btn-haptic w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-full shadow-lg shadow-blue-600/30 transition text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer mt-1"
             >
-              <span>Next: Choose Avatar (Netflix Style)</span>
+              <span>Next: Choose Avatar</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
