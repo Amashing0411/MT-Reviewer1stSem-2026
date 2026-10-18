@@ -23,7 +23,8 @@ import {
   BookOpen,
   Layers,
   CheckSquare,
-  FileText
+  FileText,
+  RefreshCw
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { sound } from "./utils/sound";
@@ -42,7 +43,10 @@ function AppContent() {
     isWelcomeOpen, 
     setIsWelcomeOpen, 
     isLeaderboardOpen, 
-    setIsLeaderboardOpen 
+    setIsLeaderboardOpen,
+    isCloudConnected,
+    isSyncing,
+    syncWithCloud
   } = useUser();
 
   const [leaderboardFilter, setLeaderboardFilter] = useState("xp");
@@ -140,13 +144,25 @@ function AppContent() {
                     </h2>
                   </div>
 
-                  <button
-                    onClick={handleShare}
-                    className="btn-haptic flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20"
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                    <span>{copied ? "Copied to Clipboard!" : "Share My Scorecard"}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={syncWithCloud}
+                      disabled={isSyncing}
+                      className="btn-haptic flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 rounded-xl text-xs font-bold transition-all"
+                      title={isCloudConnected ? "Cloud Sync Active • Click to Refresh" : "Local Mode • Click to check Cloud"}
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${isSyncing ? "animate-spin" : ""}`} />
+                      <span>{isSyncing ? "Syncing..." : isCloudConnected ? "Cloud Synced" : "Local Mode"}</span>
+                    </button>
+
+                    <button
+                      onClick={handleShare}
+                      className="btn-haptic flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20"
+                    >
+                      {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                      <span>{copied ? "Copied to Clipboard!" : "Share My Scorecard"}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Current Student Highlight Card */}

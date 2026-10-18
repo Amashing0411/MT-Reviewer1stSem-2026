@@ -7,7 +7,8 @@ import {
   buildLeaderboard,
   loadClassRoster,
   saveClassRoster,
-  decodeScorecard
+  decodeScorecard,
+  mergeCloudRoster
 } from "../utils/gamification";
 import { sound } from "../utils/sound";
 import confetti from "canvas-confetti";
@@ -28,11 +29,76 @@ export function UserProvider({ children }) {
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [rosterVersion, setRosterVersion] = useState(0);
   const [xpToast, setXpToast] = useState(null);
+  const [isCloudConnected, setIsCloudConnected] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Background helper to upload profile to Vercel KV cloud
+  const pushProfileToCloud = async (currentProfile) => {
+    if (!currentProfile || !currentProfile.id) return;
+    try {
+      const payload = {
+        id: currentProfile.id,
+        name: currentProfile.name,
+        section: currentProfile.section || "BSCPE 4D",
+        avatar: currentProfile.avatar || "🤖",
+        customPhoto: currentProfile.customPhoto || null,
+        xp: currentProfile.xp || 0,
+        levelInfo: getLevelInfo(currentProfile.xp),
+        fastestBlitz: currentProfile.fastestBlitzSeconds || null,
+        highestPercent: currentProfile.highestScorePercent || 0,
+      };
+      await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {}
+  };
+
+  // Synchronize with Vercel KV cloud database
+  const syncWithCloud = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch("/api/leaderboard");
+      if (!res.ok) {
+        setIsCloudConnected(false);
+        return false;
+      }
+      const data = await res.json();
+      if (data.isCloudConnected) {
+        setIsCloudConnected(true);
+        if (Array.isArray(data.roster)) {
+          const localRoster = loadClassRoster();
+          const merged = mergeCloudRoster(localRoster, data.roster, profile.id);
+          saveClassRoster(merged);
+          setRosterVersion((v) => v + 1);
+        }
+        await pushProfileToCloud(profile);
+        return true;
+      } else {
+        setIsCloudConnected(false);
+        return false;
+      }
+    } catch (err) {
+      setIsCloudConnected(false);
+      return false;
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Sync to localStorage whenever profile changes
   useEffect(() => {
     saveProfile(profile);
-  }, [profile]);
+    if (isCloudConnected) {
+      pushProfileToCloud(profile);
+    }
+  }, [profile, isCloudConnected]);
+
+  // Initial cloud sync check on mount
+  useEffect(() => {
+    syncWithCloud();
+  }, []);
 
   // Import score from URL query parameter (if someone shared a link)
   useEffect(() => {
@@ -145,6 +211,9 @@ export function UserProvider({ children }) {
         recordExamResult,
         updateProfile,
         importScorecard,
+        isCloudConnected,
+        isSyncing,
+        syncWithCloud,
       }}
     >
       {children}

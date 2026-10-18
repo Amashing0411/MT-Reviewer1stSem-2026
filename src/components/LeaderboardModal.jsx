@@ -12,17 +12,29 @@ import {
   Check, 
   X,
   UserPlus,
-  Users
+  Users,
+  RefreshCw,
+  Cloud,
+  Info
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
 export function LeaderboardModal({ isOpen, onClose }) {
-  const { profile, levelInfo, leaderboard, importScorecard } = useUser();
+  const { 
+    profile, 
+    levelInfo, 
+    leaderboard, 
+    importScorecard,
+    isCloudConnected,
+    isSyncing,
+    syncWithCloud
+  } = useUser();
   const [filter, setFilter] = useState("xp"); // "xp" | "speed" | "score"
   const [copied, setCopied] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [importCode, setImportCode] = useState("");
   const [importError, setImportError] = useState(null);
+  const [showKvTip, setShowKvTip] = useState(false);
 
   if (!isOpen) return null;
 
@@ -91,17 +103,73 @@ export function LeaderboardModal({ isOpen, onClose }) {
           </button>
 
           {/* Header */}
-          <div className="text-center space-y-1.5 pt-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-full font-bold text-[10px] uppercase tracking-wider">
-              <Trophy className="w-3 h-3 text-amber-600" />
-              <span>Room 106 Verified Standings</span>
+          <div className="text-center space-y-2 pt-1">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-full font-bold text-[10px] uppercase tracking-wider">
+                <Trophy className="w-3 h-3 text-amber-600" />
+                <span>Room 106 Standings</span>
+              </div>
+
+              {isCloudConnected ? (
+                <button
+                  onClick={syncWithCloud}
+                  disabled={isSyncing}
+                  className="btn-haptic inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full font-bold text-[10px] uppercase tracking-wider hover:bg-emerald-100 transition-colors"
+                  title="Click to sync cloud leaderboard"
+                >
+                  <RefreshCw className={`w-3 h-3 text-emerald-600 ${isSyncing ? "animate-spin" : ""}`} />
+                  <span>Cloud Synced</span>
+                </button>
+              ) : (
+                <button
+                  onClick={syncWithCloud}
+                  disabled={isSyncing}
+                  className="btn-haptic inline-flex items-center gap-1 px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200/80 rounded-full font-bold text-[10px] uppercase tracking-wider hover:bg-slate-200 transition-colors"
+                  title="Click to check cloud sync"
+                >
+                  <RefreshCw className={`w-3 h-3 text-slate-500 ${isSyncing ? "animate-spin" : ""}`} />
+                  <span>Local Mode</span>
+                </button>
+              )}
             </div>
+
             <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 tracking-tight">
               Class Midterm Standings
             </h2>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               Real student scores only. Take quizzes and master flashcards to level up your rank!
             </p>
+
+            {/* Vercel KV Cross-Device Sync Helper Banner */}
+            {!isCloudConnected && (
+              <div className="pt-1">
+                <button
+                  onClick={() => setShowKvTip(!showKvTip)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/70 px-3 py-1 rounded-xl transition-all text-left"
+                >
+                  <Cloud className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>How to sync laptop & phone automatically?</span>
+                  <span className="text-[10px] font-bold text-blue-500 ml-1">{showKvTip ? "Hide ▲" : "View ▼"}</span>
+                </button>
+
+                {showKvTip && (
+                  <div className="mt-2 p-3 text-left bg-blue-50/50 border border-blue-200 rounded-2xl text-[11px] text-slate-700 space-y-1.5 animate-fadeIn">
+                    <p className="font-bold text-blue-900 flex items-center gap-1">
+                      <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      Automatic 1-Click Vercel KV Setup (Free):
+                    </p>
+                    <ol className="list-decimal pl-4 space-y-1 text-slate-600">
+                      <li>Go to your project on <strong className="text-slate-900">vercel.com</strong></li>
+                      <li>Click the <strong className="text-slate-900">Storage</strong> tab &gt; <strong className="text-slate-900">Create Database</strong> &gt; Choose <strong className="text-blue-700">KV</strong></li>
+                      <li>Click <strong className="text-slate-900">Connect to Project</strong> (<code className="bg-white px-1 rounded border">mt-reviewer2026</code>)</li>
+                    </ol>
+                    <p className="text-[10px] text-slate-500 italic pt-1">
+                      Once connected, every device in Room 106 syncs live automatically without sharing links!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Current Student Highlight Card */}

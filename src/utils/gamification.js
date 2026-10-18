@@ -55,7 +55,12 @@ export function loadProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed.id) {
+      parsed.id = "student_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 6);
+      saveProfile(parsed);
+    }
+    return parsed;
   } catch (e) {
     console.error("Failed to read user profile:", e);
     return null;
@@ -90,7 +95,9 @@ export function saveClassRoster(roster) {
 
 export function createDefaultProfile() {
   const randomSuffix = Math.floor(100 + Math.random() * 900);
+  const uniqueId = "student_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 6);
   return {
+    id: uniqueId,
     isConfigured: false,
     name: `Student #${randomSuffix}`,
     section: "BSCPE 4D",
@@ -107,6 +114,40 @@ export function createDefaultProfile() {
     completedUnits: {},
     joinedAt: new Date().toISOString(),
   };
+}
+
+// Merges cloud roster with local roster, preserving highest XP and records
+export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
+  const mergedMap = new Map();
+
+  // Index local entries
+  (localRoster || []).forEach((item) => {
+    if (item && item.id && item.id !== currentUserId && item.id !== "me") {
+      mergedMap.set(item.id, item);
+    }
+  });
+
+  // Merge cloud entries
+  (cloudRoster || []).forEach((item) => {
+    if (item && item.id && item.id !== currentUserId && item.id !== "me") {
+      const existing = mergedMap.get(item.id);
+      if (existing) {
+        mergedMap.set(item.id, {
+          ...existing,
+          ...item,
+          xp: Math.max(existing.xp || 0, item.xp || 0),
+          fastestBlitz: item.fastestBlitz
+            ? (existing.fastestBlitz ? Math.min(existing.fastestBlitz, item.fastestBlitz) : item.fastestBlitz)
+            : existing.fastestBlitz,
+          highestPercent: Math.max(existing.highestPercent || 0, item.highestPercent || 0),
+        });
+      } else {
+        mergedMap.set(item.id, item);
+      }
+    }
+  });
+
+  return Array.from(mergedMap.values());
 }
 
 // Builds leaderboard containing ONLY real user submissions (Zero fake benchmark people!)
