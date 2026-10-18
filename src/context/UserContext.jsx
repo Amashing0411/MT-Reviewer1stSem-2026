@@ -48,11 +48,20 @@ export function UserProvider({ children }) {
         highestPercent: currentProfile.highestScorePercent || 0,
         subjectStats: currentProfile.subjectStats || {},
       };
-      await fetch("/api/leaderboard", {
+      const res = await fetch("/api/leaderboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.isCloudConnected && Array.isArray(data.roster)) {
+          const localRoster = loadClassRoster();
+          const merged = mergeCloudRoster(localRoster, data.roster, currentProfile.id);
+          saveClassRoster(merged);
+          setRosterVersion((v) => v + 1);
+        }
+      }
     } catch (e) {}
   };
 

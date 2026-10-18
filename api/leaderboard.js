@@ -16,35 +16,70 @@ export default async function handler(req, res) {
     return;
   }
 
-  const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Detect Upstash / Vercel KV REST Credentials
+  const rawUrl =
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.REDIS_REST_API_URL;
+
+  const kvToken =
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.REDIS_REST_API_TOKEN;
+
+  const kvUrl = rawUrl ? rawUrl.replace(/\/$/, "") : null;
 
   // If KV is not configured yet in Vercel Dashboard
   if (!kvUrl || !kvToken) {
+    const presentKeys = Object.keys(process.env).filter((k) =>
+      k.includes("KV") || k.includes("REDIS") || k.includes("UPSTASH")
+    );
+
     if (req.method === "GET") {
       return res.status(200).json({
         ok: false,
         isCloudConnected: false,
-        message: "Vercel KV not connected yet. Add KV database in Vercel Storage tab to sync across devices.",
+        detectedKeys: presentKeys,
+        message:
+          "Upstash Redis / Vercel KV environment variables not detected. Please trigger a redeploy in Vercel to load the newly connected database.",
         roster: []
       });
     }
     return res.status(200).json({
       ok: false,
       isCloudConnected: false,
-      message: "Vercel KV not connected"
+      detectedKeys: presentKeys,
+      message: "Upstash Redis not connected"
     });
   }
 
   const KEY = "room106_leaderboard_2026";
 
+  // Helper to execute Upstash command via body array
+  async function upstashCommand(commandArray) {
+    const resp = await fetch(kvUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${kvToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(commandArray)
+    });
+    return await resp.json();
+  }
+
   try {
     // 1. GET: Fetch the current class leaderboard
     if (req.method === "GET") {
-      const resp = await fetch(`${kvUrl}/get/${KEY}`, {
-        headers: { Authorization: `Bearer ${kvToken}` }
-      });
-      const data = await resp.json();
+      let data = await upstashCommand(["GET", KEY]);
+
+      // Fallback to path-based GET if array format failed
+      if (!data || data.error) {
+        const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
+          headers: { Authorization: `Bearer ${kvToken}` }
+        });
+        data = await pathResp.json();
+      }
 
       let roster = [];
       if (data && data.result) {
@@ -78,10 +113,14 @@ export default async function handler(req, res) {
       }
 
       // Fetch current roster
-      const getResp = await fetch(`${kvUrl}/get/${KEY}`, {
-        headers: { Authorization: `Bearer ${kvToken}` }
-      });
-      const getData = await getResp.json();
+      let getData = await upstashCommand(["GET", KEY]);
+      if (!getData || getData.error) {
+        const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
+          headers: { Authorization: `Bearer ${kvToken}` }
+        });
+        getData = await pathResp.json();
+      }
+
       let roster = [];
       if (getData && getData.result) {
         try {
@@ -133,7 +172,7 @@ export default async function handler(req, res) {
               fastestBlitz: newSub.fastestBlitz
                 ? (prevSub.fastestBlitz ? Math.min(prevSub.fastestBlitz, newSub.fastestBlitz) : newSub.fastestBlitz)
                 : prevSub.fastestBlitz,
-              quizzesTaken: Math.max(prevSub.quizzesTaken || 0, newSub.quizzesTaken || 0),
+              quizzesTaken: Math.max(prevSub.quizzesTaken || 0, newSub.quizzesTaken || 0)
             };
           });
         }
@@ -158,15 +197,8 @@ export default async function handler(req, res) {
       roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
       if (roster.length > 150) roster = roster.slice(0, 150);
 
-      // Save updated roster to KV
-      await fetch(`${kvUrl}/set/${KEY}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${kvToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(JSON.stringify(roster))
-      });
+      // Save updated roster to Upstash Redis using array-based SET
+      await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
 
       return res.status(200).json({
         ok: true,
