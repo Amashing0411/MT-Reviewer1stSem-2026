@@ -48,17 +48,19 @@ export const AVATAR_FRAMES = [
     name: "Cyber Glitch", 
     minLevel: 4, 
     cssClass: "avatar-frame-cyber", 
+    assetUrl: "/frames/cyberpunk.gif",
     label: "Glitch",
     desc: "RGB chromatic aberration & twitching scanlines",
     tier: "Epic"
   },
   { 
     id: "emerald", 
-    name: "Matrix Phosphor", 
+    name: "DSP Fourier Frequency", 
     minLevel: 5, 
     cssClass: "avatar-frame-emerald", 
-    label: "Matrix",
-    desc: "Streaming terminal green code rain & CRT glow",
+    assetUrl: "/frames/dsp-fourier.gif",
+    label: "DSP Fourier",
+    desc: "Streaming frequency harmonics & glowing emerald waveform",
     tier: "Epic"
   },
   { 
@@ -66,7 +68,8 @@ export const AVATAR_FRAMES = [
     name: "High-Voltage Overload", 
     minLevel: 7, 
     cssClass: "avatar-frame-lightning", 
-    label: "Lightning",
+    assetUrl: "/frames/lightning.gif",
+    label: "Lightning Arc",
     desc: "Crackling electric arcs & blue spark bursts",
     tier: "Legendary"
   },
@@ -75,9 +78,20 @@ export const AVATAR_FRAMES = [
     name: "Inferno Overclock 🔥", 
     minLevel: 8, 
     cssClass: "avatar-frame-ruby", 
+    assetUrl: "/frames/inferno.gif",
     label: "Burning Fire",
     desc: "Roaring animated hellfire flames & incandescent heat",
     tier: "Mythic"
+  },
+  { 
+    id: "deans-lister", 
+    name: "Room 106 Dean's Lister 🎖️", 
+    minLevel: 9, 
+    cssClass: "avatar-frame-honor", 
+    assetUrl: "/frames/deans-lister.gif",
+    label: "Dean's Crest",
+    desc: "Official academic honor crest for Room 106 top students",
+    tier: "Ascended"
   },
   { 
     id: "cosmic", 
@@ -93,6 +107,7 @@ export const AVATAR_FRAMES = [
     name: "Prismatic Valkyrie 🌈", 
     minLevel: 10, 
     cssClass: "avatar-frame-valkyrie", 
+    assetUrl: "/frames/valkyrie.gif",
     label: "Rainbow Bifrost",
     desc: "Hyper-prismatic shifting aurora crystal halo",
     tier: "Ascended"
@@ -102,6 +117,7 @@ export const AVATAR_FRAMES = [
     name: "Eternal Deity Corona ⚡", 
     minLevel: 12, 
     cssClass: "avatar-frame-deity", 
+    assetUrl: "/frames/solar-corona.gif",
     label: "Godlike Solar",
     desc: "Blinding solar flare god-rays & pulsating divinity",
     tier: "Godlike"

@@ -282,16 +282,25 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               {/* Live Avatar Preview with Equipped Prestige Border */}
               <div className="flex flex-col items-center justify-center gap-2 py-1 text-center">
                 <div className="relative group">
-                  <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center ${
-                    AVATAR_FRAMES.find(f => f.id === selectedFrame)?.cssClass || "avatar-frame-default"
-                  }`}>
-                    <div className="w-full h-full rounded-[14px] bg-white flex items-center justify-center overflow-hidden">
-                      {customPhoto ? (
-                        <img src={customPhoto} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-3xl sm:text-4xl">{selectedAvatar}</span>
-                      )}
+                  <div className="relative flex items-center justify-center">
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center ${
+                      AVATAR_FRAMES.find(f => f.id === selectedFrame)?.cssClass || "avatar-frame-default"
+                    }`}>
+                      <div className="w-full h-full rounded-[14px] bg-white flex items-center justify-center overflow-hidden">
+                        {customPhoto ? (
+                          <img src={customPhoto} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-3xl sm:text-4xl">{selectedAvatar}</span>
+                        )}
+                      </div>
                     </div>
+                    {AVATAR_FRAMES.find(f => f.id === selectedFrame)?.assetUrl && (
+                      <img 
+                        src={AVATAR_FRAMES.find(f => f.id === selectedFrame).assetUrl} 
+                        alt="" 
+                        className="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] max-w-none pointer-events-none object-contain z-10" 
+                      />
+                    )}
                   </div>
 
                   <button

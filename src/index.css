@@ -156,14 +156,14 @@
 .aurora-animate,
 .animate-aurora,
 [class*="animate-aurora"] {
-  animation: aurora 25s linear infinite !important;
+  animation: aurora 75s linear infinite !important;
   will-change: background-position;
 }
 
 .aurora-animate::after,
 [class*="after:animate-aurora"]::after {
   background-attachment: scroll !important;
-  animation: aurora 18s linear infinite reverse !important;
+  animation: aurora 95s linear infinite reverse !important;
   will-change: background-position;
 }
 

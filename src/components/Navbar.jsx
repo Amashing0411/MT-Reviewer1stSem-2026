@@ -207,11 +207,18 @@ export function Navbar({
                 className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold transition-all text-slate-800 dark:text-slate-100 cursor-pointer"
                 title={`Profile: ${profile.name} • Lv. ${levelInfo.level} ${levelInfo.title} (${activeFrame.name})`}
               >
-                <div className={`w-6 h-6 rounded-lg bg-white flex items-center justify-center text-xs overflow-hidden shrink-0 transition-all ${frameClass}`}>
+                <div className={`relative w-6 h-6 rounded-lg bg-white flex items-center justify-center text-xs overflow-hidden shrink-0 transition-all ${frameClass}`}>
                   {profile.customPhoto ? (
                     <img src={profile.customPhoto} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <span>{profile.avatar || "🤖"}</span>
+                  )}
+                  {activeFrame?.assetUrl && (
+                    <img 
+                      src={activeFrame.assetUrl} 
+                      alt="" 
+                      className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] max-w-none pointer-events-none object-contain z-10" 
+                    />
                   )}
                 </div>
                 <div className="flex flex-col text-left leading-tight hidden lg:flex">

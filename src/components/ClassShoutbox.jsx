@@ -175,8 +175,8 @@ export function ClassShoutbox() {
               </div>
             ) : (
               feedMessages.map((msg) => {
-                const isMe = msg.studentId === profile.id || msg.studentName === profile.name;
-                const frameClass = AVATAR_FRAMES.find((f) => f.id === msg.frame)?.cssClass || "avatar-frame-default";
+                const frameObj = AVATAR_FRAMES.find((f) => f.id === msg.frame);
+                const frameClass = frameObj?.cssClass || "avatar-frame-default";
                 const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === msg.nameFx)?.cssClass || "";
 
                 return (
@@ -199,13 +199,20 @@ export function ClassShoutbox() {
                         level: msg.level,
                         xp: msg.xp || (msg.level ? msg.level * 800 : 0),
                       })}
-                      className={`w-8 h-8 rounded-xl bg-white flex items-center justify-center text-sm shrink-0 overflow-hidden cursor-pointer transition-transform hover:scale-110 shadow-xs ${frameClass}`}
+                      className={`relative w-8 h-8 rounded-xl bg-white flex items-center justify-center text-sm shrink-0 overflow-hidden cursor-pointer transition-transform hover:scale-110 shadow-xs ${frameClass}`}
                       title={`Inspect ${msg.studentName}'s Profile`}
                     >
                       {msg.customPhoto ? (
                         <img src={msg.customPhoto} alt={msg.studentName} className="w-full h-full object-cover" />
                       ) : (
                         <span>{msg.avatar || "🤖"}</span>
+                      )}
+                      {frameObj?.assetUrl && (
+                        <img 
+                          src={frameObj.assetUrl} 
+                          alt="" 
+                          className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] max-w-none pointer-events-none object-contain z-10" 
+                        />
                       )}
                     </button>
 
