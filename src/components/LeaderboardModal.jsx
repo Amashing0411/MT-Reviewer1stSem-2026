@@ -19,16 +19,29 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
+const SUBJECT_TABS = [
+  { id: "all", label: "Overall (All 8)", icon: "🌐" },
+  { id: "cpe414", label: "CPE414 • DSP", icon: "📡" },
+  { id: "cpe411", label: "CPE411 • Embedded", icon: "⚡" },
+  { id: "cpe416", label: "CPE416 • Comp Arch", icon: "💻" },
+  { id: "cpe415", label: "CPE415 • Networks", icon: "🛡️" },
+  { id: "cpe412", label: "CPE412 • Robotics", icon: "🤖" },
+  { id: "elect3", label: "ELECT3 • Data Sci", icon: "📊" },
+  { id: "cpe413", label: "CPE413 • InfoSec", icon: "🔒" },
+  { id: "engwork", label: "ENGWORK • Mgt", icon: "⚙️" },
+];
+
 export function LeaderboardModal({ isOpen, onClose }) {
   const { 
     profile, 
     levelInfo, 
-    leaderboard, 
+    getLeaderboard,
     importScorecard,
     isCloudConnected,
     isSyncing,
     syncWithCloud
   } = useUser();
+  const [selectedSubject, setSelectedSubject] = useState("all");
   const [filter, setFilter] = useState("xp"); // "xp" | "speed" | "score"
   const [copied, setCopied] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -38,8 +51,10 @@ export function LeaderboardModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const currentRoster = getLeaderboard ? getLeaderboard(selectedSubject) : [];
+
   // Filter & sort leaderboard
-  const sortedList = [...leaderboard].sort((a, b) => {
+  const sortedList = [...currentRoster].sort((a, b) => {
     if (filter === "xp") return b.xp - a.xp;
     if (filter === "speed") {
       const aTime = a.fastestBlitz || 999;
@@ -50,6 +65,7 @@ export function LeaderboardModal({ isOpen, onClose }) {
     return b.xp - a.xp;
   });
 
+  const currentUserItem = sortedList.find((item) => item.isCurrentUser) || {};
   const currentUserRank = sortedList.findIndex((item) => item.isCurrentUser) + 1;
 
   // Share scorecard link
@@ -197,21 +213,54 @@ export function LeaderboardModal({ isOpen, onClose }) {
 
             <div className="flex items-center gap-4 text-center sm:text-right border-t sm:border-t-0 border-white/10 pt-2.5 sm:pt-0 w-full sm:w-auto justify-around sm:justify-end">
               <div>
-                <span className="text-[9px] uppercase font-bold text-blue-300 block">Rank</span>
+                <span className="text-[9px] uppercase font-bold text-blue-300 block">
+                  {selectedSubject === "all" ? "Class Rank" : "Subject Rank"}
+                </span>
                 <span className="text-lg sm:text-xl font-black text-amber-400">#{currentUserRank}</span>
               </div>
               <div className="w-px h-7 bg-white/10"></div>
               <div>
-                <span className="text-[9px] uppercase font-bold text-blue-300 block">Total XP</span>
-                <span className="text-xs sm:text-sm font-black text-emerald-400">+{profile.xp.toLocaleString()}</span>
+                <span className="text-[9px] uppercase font-bold text-blue-300 block">
+                  {selectedSubject === "all" ? "Total XP" : "Subject XP"}
+                </span>
+                <span className="text-xs sm:text-sm font-black text-emerald-400">+{(currentUserItem.xp || 0).toLocaleString()}</span>
               </div>
               <div className="w-px h-7 bg-white/10"></div>
               <div>
                 <span className="text-[9px] uppercase font-bold text-blue-300 block">Fastest</span>
                 <span className="text-xs sm:text-sm font-black text-cyan-300">
-                  {profile.fastestBlitzSeconds ? `${profile.fastestBlitzSeconds}s` : "—"}
+                  {currentUserItem.fastestBlitz ? `${currentUserItem.fastestBlitz}s` : "—"}
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Per-Subject Filter Ribbon */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 px-0.5">
+              <span>View Leaderboard For:</span>
+              <span className="text-blue-700 font-extrabold">
+                {SUBJECT_TABS.find((t) => t.id === selectedSubject)?.label || "Overall"}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+              {SUBJECT_TABS.map((tab) => {
+                const isCur = selectedSubject === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSelectedSubject(tab.id)}
+                    className={`btn-haptic px-2.5 py-1 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
+                      isCur
+                        ? "bg-blue-600 text-white shadow-xs"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/70"
+                    }`}
+                  >
+                    <span>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

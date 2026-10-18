@@ -69,10 +69,10 @@ export function Flashcards({ subject }) {
       } else {
         next.add(id);
         sound.playCorrect();
-        addXp(25, `${subject.code} Flashcard Mastered`);
+        addXp(25, `${subject.code} Flashcard Mastered`, subject.id);
         if (next.size === cards.length) {
           sound.playStreak();
-          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`);
+          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`, subject.id);
           confetti({
             particleCount: 100,
             spread: 80,

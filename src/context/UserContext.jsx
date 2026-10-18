@@ -46,6 +46,7 @@ export function UserProvider({ children }) {
         levelInfo: getLevelInfo(currentProfile.xp),
         fastestBlitz: currentProfile.fastestBlitzSeconds || null,
         highestPercent: currentProfile.highestScorePercent || 0,
+        subjectStats: currentProfile.subjectStats || {},
       };
       await fetch("/api/leaderboard", {
         method: "POST",
@@ -130,7 +131,7 @@ export function UserProvider({ children }) {
   };
 
   // Add XP with optional celebratory sound & toast
-  const addXp = (amount, reason = "Study Reward") => {
+  const addXp = (amount, reason = "Study Reward", subjectId = null) => {
     setProfile((prev) => {
       const prevLevel = getLevelInfo(prev.xp).level;
       const newXp = prev.xp + amount;
@@ -151,16 +152,29 @@ export function UserProvider({ children }) {
         setTimeout(() => setXpToast(null), 2200);
       }
 
-      return {
+      const updated = {
         ...prev,
         xp: newXp,
       };
+
+      if (subjectId) {
+        const stats = { ...(prev.subjectStats || {}) };
+        const sub = stats[subjectId] || { xp: 0, highestPercent: 0, fastestBlitz: null, quizzesTaken: 0 };
+        stats[subjectId] = {
+          ...sub,
+          xp: (sub.xp || 0) + amount,
+        };
+        updated.subjectStats = stats;
+      }
+
+      return updated;
     });
   };
 
   // Record an exam completion
   const recordExamResult = ({ subjectId, score, total, timeSeconds, mode }) => {
     const percent = Math.round((score / total) * 100);
+    const earnedXp = score * 100 + (percent >= 80 ? 300 : percent >= 60 ? 150 : 50);
 
     setProfile((prev) => {
       const updated = { ...prev };
@@ -176,12 +190,24 @@ export function UserProvider({ children }) {
         }
       }
 
+      // Update per-subject stats
+      const stats = { ...(prev.subjectStats || {}) };
+      const curSub = stats[subjectId] || { xp: 0, highestPercent: 0, fastestBlitz: null, quizzesTaken: 0 };
+      stats[subjectId] = {
+        xp: (curSub.xp || 0) + earnedXp,
+        highestPercent: Math.max(curSub.highestPercent || 0, percent),
+        fastestBlitz: mode === "blitz"
+          ? (curSub.fastestBlitz ? Math.min(curSub.fastestBlitz, timeSeconds) : timeSeconds)
+          : curSub.fastestBlitz,
+        quizzesTaken: (curSub.quizzesTaken || 0) + 1,
+      };
+      updated.subjectStats = stats;
+
       return updated;
     });
 
     // Award XP
-    const earnedXp = score * 100 + (percent >= 80 ? 300 : percent >= 60 ? 150 : 50);
-    addXp(earnedXp, `${mode === "blitz" ? "Rapid Blitz" : "Midterm Sim"} (${score}/${total})`);
+    addXp(earnedXp, `${mode === "blitz" ? "Rapid Blitz" : "Midterm Sim"} (${score}/${total})`, subjectId);
   };
 
   // Update profile details
@@ -195,7 +221,8 @@ export function UserProvider({ children }) {
 
   const levelInfo = getLevelInfo(profile.xp);
   // Leaderboard rebuilds with real submissions only
-  const leaderboard = buildLeaderboard(profile);
+  const leaderboard = buildLeaderboard(profile, "all");
+  const getLeaderboard = (subjectFilter = "all") => buildLeaderboard(profile, subjectFilter);
 
   return (
     <UserContext.Provider
@@ -203,6 +230,7 @@ export function UserProvider({ children }) {
         profile,
         levelInfo,
         leaderboard,
+        getLeaderboard,
         isWelcomeOpen,
         setIsWelcomeOpen,
         isLeaderboardOpen,

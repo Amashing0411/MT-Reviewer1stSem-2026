@@ -112,6 +112,7 @@ export default async function handler(req, res) {
         },
         fastestBlitz: student.fastestBlitz ? Number(student.fastestBlitz) : null,
         highestPercent: Number(student.highestPercent) || 0,
+        subjectStats: student.subjectStats && typeof student.subjectStats === "object" ? student.subjectStats : {},
         updatedAt: Date.now()
       };
 
@@ -119,6 +120,24 @@ export default async function handler(req, res) {
       const existingIdx = roster.findIndex((item) => item.id === cleanRecord.id);
       if (existingIdx >= 0) {
         const existing = roster[existingIdx];
+
+        // Merge subject stats
+        const mergedSubjectStats = { ...(existing.subjectStats || {}) };
+        if (cleanRecord.subjectStats) {
+          Object.keys(cleanRecord.subjectStats).forEach((subKey) => {
+            const prevSub = mergedSubjectStats[subKey] || {};
+            const newSub = cleanRecord.subjectStats[subKey] || {};
+            mergedSubjectStats[subKey] = {
+              xp: Math.max(prevSub.xp || 0, newSub.xp || 0),
+              highestPercent: Math.max(prevSub.highestPercent || 0, newSub.highestPercent || 0),
+              fastestBlitz: newSub.fastestBlitz
+                ? (prevSub.fastestBlitz ? Math.min(prevSub.fastestBlitz, newSub.fastestBlitz) : newSub.fastestBlitz)
+                : prevSub.fastestBlitz,
+              quizzesTaken: Math.max(prevSub.quizzesTaken || 0, newSub.quizzesTaken || 0),
+            };
+          });
+        }
+
         roster[existingIdx] = {
           ...cleanRecord,
           xp: Math.max(existing.xp || 0, cleanRecord.xp),
@@ -128,7 +147,8 @@ export default async function handler(req, res) {
               : cleanRecord.fastestBlitz
             : existing.fastestBlitz,
           highestPercent: Math.max(existing.highestPercent || 0, cleanRecord.highestPercent),
-          customPhoto: cleanRecord.customPhoto || existing.customPhoto || null
+          customPhoto: cleanRecord.customPhoto || existing.customPhoto || null,
+          subjectStats: mergedSubjectStats
         };
       } else {
         roster.push(cleanRecord);

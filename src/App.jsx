@@ -40,6 +40,7 @@ function AppContent() {
     profile, 
     levelInfo, 
     leaderboard, 
+    getLeaderboard,
     isWelcomeOpen, 
     setIsWelcomeOpen, 
     isLeaderboardOpen, 
@@ -49,6 +50,7 @@ function AppContent() {
     syncWithCloud
   } = useUser();
 
+  const [leaderboardSubject, setLeaderboardSubject] = useState("all");
   const [leaderboardFilter, setLeaderboardFilter] = useState("xp");
   const [copied, setCopied] = useState(false);
 
@@ -62,13 +64,16 @@ function AppContent() {
     setSearchQuery("");
   };
 
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
+  const currentLeaderboardList = getLeaderboard ? getLeaderboard(leaderboardSubject) : leaderboard;
+
+  const sortedLeaderboard = [...currentLeaderboardList].sort((a, b) => {
     if (leaderboardFilter === "xp") return b.xp - a.xp;
     if (leaderboardFilter === "speed") return (a.fastestBlitz || 999) - (b.fastestBlitz || 999);
     if (leaderboardFilter === "score") return b.highestPercent - a.highestPercent;
     return b.xp - a.xp;
   });
 
+  const currentUserItem = sortedLeaderboard.find((item) => item.isCurrentUser) || {};
   const currentUserRank = sortedLeaderboard.findIndex((item) => item.isCurrentUser) + 1;
 
   const handleShare = () => {
@@ -190,21 +195,64 @@ function AppContent() {
 
                   <div className="flex items-center gap-6 text-center sm:text-right border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0 w-full sm:w-auto justify-around sm:justify-end">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-300 block">Class Rank</span>
+                      <span className="text-[10px] uppercase font-bold text-blue-300 block">
+                        {leaderboardSubject === "all" ? "Class Rank" : "Subject Rank"}
+                      </span>
                       <span className="text-2xl sm:text-3xl font-black text-amber-400">#{currentUserRank}</span>
                     </div>
                     <div className="w-px h-10 bg-white/10 hidden sm:block"></div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-300 block">Total Experience</span>
-                      <span className="text-base sm:text-lg font-black text-emerald-400">+{profile.xp.toLocaleString()} XP</span>
+                      <span className="text-[10px] uppercase font-bold text-blue-300 block">
+                        {leaderboardSubject === "all" ? "Total Experience" : "Subject XP"}
+                      </span>
+                      <span className="text-base sm:text-lg font-black text-emerald-400">+{(currentUserItem.xp || 0).toLocaleString()} XP</span>
                     </div>
                     <div className="w-px h-10 bg-white/10 hidden sm:block"></div>
                     <div>
                       <span className="text-[10px] uppercase font-bold text-blue-300 block">Fastest Blitz</span>
                       <span className="text-base sm:text-lg font-black text-cyan-300">
-                        {profile.fastestBlitzSeconds ? `${profile.fastestBlitzSeconds}s` : "No Record"}
+                        {currentUserItem.fastestBlitz ? `${currentUserItem.fastestBlitz}s` : "No Record"}
                       </span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Per-Subject Selector Ribbon */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 px-0.5">
+                    <span>Leaderboard Scope:</span>
+                    <span className="text-blue-700 font-extrabold">
+                      {leaderboardSubject === "all" ? "Overall (All 8 Subjects)" : SUBJECTS_MAP[leaderboardSubject]?.title || leaderboardSubject.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                    {[
+                      { id: "all", label: "Overall (All 8)", icon: "🌐" },
+                      { id: "cpe414", label: "CPE414 • DSP", icon: "📡" },
+                      { id: "cpe411", label: "CPE411 • Embedded", icon: "⚡" },
+                      { id: "cpe416", label: "CPE416 • Comp Arch", icon: "💻" },
+                      { id: "cpe415", label: "CPE415 • Networks", icon: "🛡️" },
+                      { id: "cpe412", label: "CPE412 • Robotics", icon: "🤖" },
+                      { id: "elect3", label: "ELECT3 • Data Sci", icon: "📊" },
+                      { id: "cpe413", label: "CPE413 • InfoSec", icon: "🔒" },
+                      { id: "engwork", label: "ENGWORK • Mgt", icon: "⚙️" },
+                    ].map((tab) => {
+                      const isCur = leaderboardSubject === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setLeaderboardSubject(tab.id)}
+                          className={`btn-haptic px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                            isCur
+                              ? "bg-blue-600 text-white shadow-xs ring-2 ring-blue-500/30"
+                              : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/70"
+                          }`}
+                        >
+                          <span>{tab.icon}</span>
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

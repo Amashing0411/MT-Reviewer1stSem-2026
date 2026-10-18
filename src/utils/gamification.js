@@ -112,6 +112,7 @@ export function createDefaultProfile() {
     totalQuizzesTaken: 0,
     masteredFlashcards: {},
     completedUnits: {},
+    subjectStats: {},
     joinedAt: new Date().toISOString(),
   };
 }
@@ -132,6 +133,23 @@ export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
     if (item && item.id && item.id !== currentUserId && item.id !== "me") {
       const existing = mergedMap.get(item.id);
       if (existing) {
+        // Merge subjectStats
+        const mergedSubjectStats = { ...(existing.subjectStats || {}) };
+        if (item.subjectStats) {
+          Object.keys(item.subjectStats).forEach((subKey) => {
+            const prevSub = mergedSubjectStats[subKey] || {};
+            const newSub = item.subjectStats[subKey] || {};
+            mergedSubjectStats[subKey] = {
+              xp: Math.max(prevSub.xp || 0, newSub.xp || 0),
+              highestPercent: Math.max(prevSub.highestPercent || 0, newSub.highestPercent || 0),
+              fastestBlitz: newSub.fastestBlitz
+                ? (prevSub.fastestBlitz ? Math.min(prevSub.fastestBlitz, newSub.fastestBlitz) : newSub.fastestBlitz)
+                : prevSub.fastestBlitz,
+              quizzesTaken: Math.max(prevSub.quizzesTaken || 0, newSub.quizzesTaken || 0),
+            };
+          });
+        }
+
         mergedMap.set(item.id, {
           ...existing,
           ...item,
@@ -140,6 +158,7 @@ export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
             ? (existing.fastestBlitz ? Math.min(existing.fastestBlitz, item.fastestBlitz) : item.fastestBlitz)
             : existing.fastestBlitz,
           highestPercent: Math.max(existing.highestPercent || 0, item.highestPercent || 0),
+          subjectStats: mergedSubjectStats,
         });
       } else {
         mergedMap.set(item.id, item);
@@ -150,26 +169,38 @@ export function mergeCloudRoster(localRoster, cloudRoster, currentUserId) {
   return Array.from(mergedMap.values());
 }
 
-// Builds leaderboard containing ONLY real user submissions (Zero fake benchmark people!)
-export function buildLeaderboard(currentUser) {
+// Builds leaderboard containing ONLY real user submissions (Overall or Per-Subject!)
+export function buildLeaderboard(currentUser, subjectFilter = "all") {
   const roster = loadClassRoster();
-  
+  const isAll = !subjectFilter || subjectFilter === "all";
+
+  const mySub = isAll ? null : (currentUser.subjectStats?.[subjectFilter] || {});
   const userEntry = {
     id: "me",
     name: currentUser.name || (currentUser.isAnon ? "You (Anonymous)" : "You"),
     section: currentUser.section || "BSCPE 4D",
     avatar: currentUser.avatar || "🤖",
     customPhoto: currentUser.customPhoto || null,
-    xp: currentUser.xp || 0,
-    fastestBlitz: currentUser.fastestBlitzSeconds || null,
-    highestPercent: currentUser.highestScorePercent || 0,
+    xp: isAll ? (currentUser.xp || 0) : (mySub?.xp || 0),
+    fastestBlitz: isAll ? (currentUser.fastestBlitzSeconds || null) : (mySub?.fastestBlitz || null),
+    highestPercent: isAll ? (currentUser.highestScorePercent || 0) : (mySub?.highestPercent || 0),
+    subjectStats: currentUser.subjectStats || {},
     isCurrentUser: true,
   };
 
   // Filter out any duplicates matching current user name or id
-  const otherClassmates = roster.filter(
-    (c) => c.name !== currentUser.name && c.id !== "me"
-  );
+  const otherClassmates = roster
+    .filter((c) => c.name !== currentUser.name && c.id !== "me")
+    .map((c) => {
+      if (isAll) return c;
+      const cSub = c.subjectStats?.[subjectFilter] || {};
+      return {
+        ...c,
+        xp: cSub.xp || 0,
+        fastestBlitz: cSub.fastestBlitz || null,
+        highestPercent: cSub.highestPercent || 0,
+      };
+    });
 
   // Sort by XP descending
   const list = [userEntry, ...otherClassmates].sort((a, b) => b.xp - a.xp);
@@ -181,7 +212,7 @@ export function buildLeaderboard(currentUser) {
   }));
 }
 
-// Encodes a student's scorecard for sharing with classmates
+// Encodes a student's scorecard for sharing with classmates (includes all 8 subjects)
 export function encodeScorecard(profile) {
   const payload = {
     n: profile.name,
@@ -190,6 +221,7 @@ export function encodeScorecard(profile) {
     x: profile.xp || 0,
     b: profile.fastestBlitzSeconds || null,
     p: profile.highestScorePercent || 0,
+    st: profile.subjectStats || {},
   };
   return btoa(JSON.stringify(payload));
 }
@@ -209,6 +241,7 @@ export function decodeScorecard(codeStr) {
       xp: data.x || 0,
       fastestBlitz: data.b || null,
       highestPercent: data.p || 0,
+      subjectStats: data.st || {},
       isCurrentUser: false,
     };
   } catch (e) {
