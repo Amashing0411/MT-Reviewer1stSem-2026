@@ -29,6 +29,92 @@ export function Flashcards({ subject, onSelectMode }) {
     setMasteredIds(new Set());
   }, [subject.id]);
 
+  const currentCard = cards[currentIndex] || cards[0] || null;
+  const isMastered = currentCard ? masteredIds.has(currentCard.id) : false;
+  const progressPercent = cards.length > 0 ? Math.round((masteredIds.size / cards.length) * 100) : 0;
+
+  const handleFlip = () => {
+    sound.playFlip();
+    setIsFlipped((prev) => !prev);
+  };
+
+  const handleNext = () => {
+    if (cards.length === 0) return;
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % cards.length);
+    }, 150);
+  };
+
+  const handlePrev = () => {
+    if (cards.length === 0) return;
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+    }, 150);
+  };
+
+  const toggleMastered = (id) => {
+    if (!id || cards.length === 0) return;
+    setMasteredIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        sound.playCorrect();
+        addXp(25, `${subject.code} Flashcard Mastered`, subject.id);
+        if (next.size === cards.length) {
+          sound.playStreak();
+          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`, subject.id);
+          confetti({
+            particleCount: 100,
+            spread: 80,
+            origin: { y: 0.6 },
+          });
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleShuffle = () => {
+    if (cards.length === 0) return;
+    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    setCards(shuffled);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
+
+  // Keyboard Navigation: Declared unconditionally at top level (Rules of Hooks)
+  useEffect(() => {
+    if (cards.length === 0) return;
+
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        handleFlip();
+      } else if (e.code === "ArrowRight" || e.key === "d" || e.key === "D") {
+        e.preventDefault();
+        handleNext();
+      } else if (e.code === "ArrowLeft" || e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        if (currentCard) toggleMastered(currentCard.id);
+      } else if (e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        handleShuffle();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cards, currentIndex, isFlipped, currentCard]);
+
+  // Empty State / DSP Graph Practice Advisory
   if (cards.length === 0) {
     if (subject.isGraphSubject) {
       return (
@@ -69,84 +155,6 @@ export function Flashcards({ subject, onSelectMode }) {
       </div>
     );
   }
-
-  const currentCard = cards[currentIndex] || cards[0];
-  const isMastered = masteredIds.has(currentCard.id);
-  const progressPercent = Math.round((masteredIds.size / cards.length) * 100);
-
-  const handleFlip = () => {
-    sound.playFlip();
-    setIsFlipped((prev) => !prev);
-  };
-
-  const handleNext = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % cards.length);
-    }, 150);
-  };
-
-  const handlePrev = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
-    }, 150);
-  };
-
-  const toggleMastered = (id) => {
-    setMasteredIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-        sound.playCorrect();
-        addXp(25, `${subject.code} Flashcard Mastered`, subject.id);
-        if (next.size === cards.length) {
-          sound.playStreak();
-          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`, subject.id);
-          confetti({
-            particleCount: 100,
-            spread: 80,
-            origin: { y: 0.6 },
-          });
-        }
-      }
-      return next;
-    });
-  };
-
-  const handleShuffle = () => {
-    const shuffled = [...cards].sort(() => Math.random() - 0.5);
-    setCards(shuffled);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-      if (e.code === "Space" || e.key === " ") {
-        e.preventDefault();
-        handleFlip();
-      } else if (e.code === "ArrowRight" || e.key === "d" || e.key === "D") {
-        e.preventDefault();
-        handleNext();
-      } else if (e.code === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        e.preventDefault();
-        handlePrev();
-      } else if (e.key === "m" || e.key === "M") {
-        e.preventDefault();
-        if (currentCard) toggleMastered(currentCard.id);
-      } else if (e.key === "s" || e.key === "S") {
-        e.preventDefault();
-        handleShuffle();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [cards, currentIndex, isFlipped, currentCard]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
