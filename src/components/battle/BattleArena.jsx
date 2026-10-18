@@ -80,6 +80,7 @@ export function BattleArena({ onBackToReviewer }) {
   const pollTimerRef = useRef(null);
   const clockIntervalRef = useRef(null);
   const botTurnTimeoutRef = useRef(null);
+  const hasTriggeredCoinTossRef = useRef(false);
 
   // Auto-reconnect across page refresh if player was in an active battle match
   useEffect(() => {
@@ -248,7 +249,10 @@ export function BattleArena({ onBackToReviewer }) {
 
   // 4. Synchronized 5-Second Countdown Logic
   useEffect(() => {
-    if (activeRoom?.status !== "countdown" || !activeRoom.countdownEnd) return;
+    if (activeRoom?.status !== "countdown" || !activeRoom.countdownEnd) {
+      hasTriggeredCoinTossRef.current = false;
+      return;
+    }
 
     const updateCountdown = () => {
       const remaining = Math.max(0, Math.ceil((activeRoom.countdownEnd - Date.now()) / 1000));
@@ -256,7 +260,8 @@ export function BattleArena({ onBackToReviewer }) {
 
       if (remaining > 0) {
         sound.playClockTick();
-      } else if (remaining === 0) {
+      } else if (remaining === 0 && !hasTriggeredCoinTossRef.current) {
+        hasTriggeredCoinTossRef.current = true;
         // Trigger coin toss
         if (isHost || isBotMatch) {
           triggerCoinToss();
@@ -695,10 +700,48 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
+  // 8.5 Fill AI Bot as Challenger in current lobby
+  const handleFillAIBot = async () => {
+    sound.playTap();
+    if (!activeRoom) return;
+
+    if (isBotMatch) return;
+
+    try {
+      const res = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "fill_ai_bot",
+          roomId: activeRoom.id,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.room) {
+          setActiveRoom(data.room);
+          sound.playStreak();
+        }
+      }
+    } catch (e) {
+      setActiveRoom((prev) => ({
+        ...prev,
+        guest: BOT_PLAYER,
+        guestReady: true,
+      }));
+    }
+  };
+
   // 9. Toggle Ready Status
   const handleToggleReady = async () => {
     if (!isPlayer) return;
     sound.playTap();
+
+    // If host presses ready but guest is missing, auto-fill with bot so host can start immediately
+    if (isHost && !activeRoom.guest) {
+      await handleFillAIBot();
+      return;
+    }
 
     if (isBotMatch) {
       const nextHostReady = !activeRoom.hostReady;
@@ -1070,24 +1113,24 @@ export function BattleArena({ onBackToReviewer }) {
       {screen === "lobby" && (
         <div className="space-y-6">
           {/* Hero Banner */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-700/80 p-6 sm:p-8 text-white shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50 via-blue-50/70 to-amber-50/40 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-slate-200 dark:border-slate-700/80 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm dark:shadow-2xl">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-purple-500/10 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="space-y-2 max-w-xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black tracking-wider uppercase">
-                  <Zap className="w-3.5 h-3.5 fill-amber-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-400/20 border border-amber-300 dark:border-amber-400/40 text-amber-800 dark:text-amber-300 text-xs font-black tracking-wider uppercase">
+                  <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
                   <span>Real-Time 1v1 Battle Exam Arena</span>
-                  <Flame className="w-3.5 h-3.5 text-red-400" />
+                  <Flame className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+                <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                   Put Your XP on the Line. <br />
-                  <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 dark:from-amber-300 dark:via-yellow-200 dark:to-amber-400 bg-clip-text text-transparent">
                     Double Your Wager or Walk Away Empty-Handed.
                   </span>
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   Enter dynamic public showdown lobbies, ready up with your opponent, watch the 3D coin toss, 
                   and battle on synchronized 60-second chess clocks with live Twitch spectator chat!
                 </p>
@@ -1097,7 +1140,7 @@ export function BattleArena({ onBackToReviewer }) {
               <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
                 <button
                   onClick={() => setIsCreateOpen(true)}
-                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Host Public Match</span>
@@ -1105,9 +1148,9 @@ export function BattleArena({ onBackToReviewer }) {
 
                 <button
                   onClick={handleStartBotMatch}
-                  className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+                  className="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm dark:shadow-lg cursor-pointer"
                 >
-                  <Bot className="w-4 h-4 text-cyan-400" />
+                  <Bot className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
                   <span>Practice vs AI Bot</span>
                 </button>
               </div>
@@ -1277,79 +1320,114 @@ export function BattleArena({ onBackToReviewer }) {
               Subject: <span className="text-amber-600 dark:text-amber-400 font-bold">{activeRoom.subject === "all" ? "All 8 Subjects Mixed" : activeRoom.subject.toUpperCase()}</span> • Total Pot: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{activeRoom.wager * 2} XP</span>
             </p>
 
-            {/* Versus Cards with Clear Ready Status Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative items-center max-w-xl mx-auto mb-8">
+            {/* Versus Cards with Clear Ready Status Badges & Individual Ready Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative items-stretch max-w-xl mx-auto mb-8">
               {/* Host Card */}
-              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-sm dark:shadow-lg ${
+              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center justify-between gap-3 shadow-sm dark:shadow-lg ${
                 activeRoom.hostReady ? "border-emerald-500 shadow-emerald-500/20" : "border-amber-400/60 shadow-amber-500/10"
               }`}>
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-slate-100 dark:bg-slate-900">
-                  <StudentAvatar avatar={activeRoom.host.avatar} customPhoto={activeRoom.host.customPhoto} className="w-full h-full object-cover" />
+                <div className="flex flex-col items-center gap-2 w-full">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-slate-100 dark:bg-slate-900">
+                    <StudentAvatar avatar={activeRoom.host.avatar} customPhoto={activeRoom.host.customPhoto} className="w-full h-full object-cover" />
+                  </div>
+                  <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.host.name}</span>
+                  <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-500/40">
+                    HOST • {activeRoom.host.section}
+                  </span>
                 </div>
-                <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.host.name}</span>
-                <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-500/40">
-                  HOST • {activeRoom.host.section}
-                </span>
 
-                {/* Readiness Indicator */}
-                <div className="mt-1">
-                  {activeRoom.hostReady ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40">
+                {/* Host Ready Button / Indicator */}
+                <div className="w-full pt-1">
+                  {isHost ? (
+                    <button
+                      onClick={handleToggleReady}
+                      className={`w-full py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 cursor-pointer ${
+                        activeRoom.hostReady
+                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
+                          : "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20"
+                      }`}
+                    >
+                      {activeRoom.hostReady ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Zap className="w-3.5 h-3.5 fill-current" />}
+                      <span>{activeRoom.hostReady ? "Host Ready ✓ (Cancel)" : "Host: Press Ready ⚡"}</span>
+                    </button>
+                  ) : activeRoom.hostReady ? (
+                    <span className="inline-flex w-full items-center justify-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-500/40">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>READY!</span>
+                      <span>HOST READY!</span>
                     </span>
                   ) : (
-                    <span className="text-[11px] font-bold text-slate-600 dark:text-amber-300/80 bg-slate-200/80 dark:bg-amber-950/50 px-3 py-1 rounded-full border border-slate-300 dark:border-amber-500/30">
-                      Waiting to Ready...
+                    <span className="inline-flex w-full items-center justify-center text-[11px] font-bold text-slate-600 dark:text-amber-300/80 bg-slate-200/80 dark:bg-amber-950/50 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-amber-500/30">
+                      Host Waiting to Ready...
                     </span>
                   )}
                 </div>
               </div>
 
               {/* VS Pill Center */}
-              <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-red-600 items-center justify-center font-black text-xs text-white shadow-xl z-10 border-2 border-white dark:border-slate-900">
+              <div className="hidden sm:flex absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-red-600 items-center justify-center font-black text-xs text-white shadow-xl z-10 border-2 border-white dark:border-slate-900">
                 VS
               </div>
 
               {/* Guest / Challenger Card */}
-              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-sm dark:shadow-lg ${
+              <div className={`p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 transition-all flex flex-col items-center justify-between gap-3 shadow-sm dark:shadow-lg ${
                 activeRoom.guestReady ? "border-emerald-500 shadow-emerald-500/20" : "border-indigo-400/60 shadow-indigo-500/10"
               }`}>
                 {activeRoom.guest ? (
                   <>
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-400 shadow-md bg-slate-100 dark:bg-slate-900">
-                      <StudentAvatar avatar={activeRoom.guest.avatar} customPhoto={activeRoom.guest.customPhoto} className="w-full h-full object-cover" />
+                    <div className="flex flex-col items-center gap-2 w-full">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-400 shadow-md bg-slate-100 dark:bg-slate-900">
+                        <StudentAvatar avatar={activeRoom.guest.avatar} customPhoto={activeRoom.guest.customPhoto} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.guest.name}</span>
+                      <span className="text-[10px] text-indigo-800 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-300 dark:border-indigo-500/40">
+                        {activeRoom.guest.isBot ? "AI BOT" : "CHALLENGER"} • {activeRoom.guest.section}
+                      </span>
                     </div>
-                    <span className="text-sm font-black truncate max-w-[160px] text-slate-900 dark:text-white">{activeRoom.guest.name}</span>
-                    <span className="text-[10px] text-indigo-800 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-300 dark:border-indigo-500/40">
-                      {activeRoom.guest.isBot ? "AI BOT" : "CHALLENGER"} • {activeRoom.guest.section}
-                    </span>
 
-                    {/* Readiness Indicator */}
-                    <div className="mt-1">
-                      {activeRoom.guestReady ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40">
+                    {/* Challenger Ready Button / Indicator */}
+                    <div className="w-full pt-1">
+                      {isGuest ? (
+                        <button
+                          onClick={handleToggleReady}
+                          className={`w-full py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 cursor-pointer ${
+                            activeRoom.guestReady
+                              ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
+                              : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20"
+                          }`}
+                        >
+                          {activeRoom.guestReady ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Zap className="w-3.5 h-3.5 fill-current" />}
+                          <span>{activeRoom.guestReady ? "Challenger Ready ✓ (Cancel)" : "Challenger: Press Ready ⚡"}</span>
+                        </button>
+                      ) : activeRoom.guestReady ? (
+                        <span className="inline-flex w-full items-center justify-center gap-1 text-[11px] font-black text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-500/40">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>READY!</span>
+                          <span>CHALLENGER READY!</span>
                         </span>
                       ) : (
-                        <span className="text-[11px] font-bold text-slate-600 dark:text-indigo-300/80 bg-slate-200/80 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-slate-300 dark:border-indigo-500/30">
-                          Waiting to Ready...
+                        <span className="inline-flex w-full items-center justify-center text-[11px] font-bold text-slate-600 dark:text-indigo-300/80 bg-slate-200/80 dark:bg-indigo-950/50 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-indigo-500/30">
+                          Challenger Waiting to Ready...
                         </span>
                       )}
                     </div>
                   </>
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center py-6 text-slate-500 dark:text-slate-400">
+                  <div className="h-full w-full flex flex-col items-center justify-center py-4 text-slate-500 dark:text-slate-400 text-center">
                     <Users className="w-10 h-10 mb-2 animate-pulse text-indigo-500 dark:text-indigo-400" />
                     <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Waiting for Challenger...</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Classmates can join from the lobby!</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-3">Classmates can join from the lobby!</p>
+                    <button
+                      onClick={handleFillAIBot}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-indigo-500/20 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Bot className="w-3.5 h-3.5" />
+                      <span>Summon AI Bot 🤖</span>
+                    </button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Action Bar (Players get READY button, Spectators get live status) */}
+            {/* Action Bar (Players get READY button or Summon Bot, Spectators get live status) */}
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 onClick={handleLeaveLobby}
@@ -1359,18 +1437,27 @@ export function BattleArena({ onBackToReviewer }) {
               </button>
 
               {isPlayer ? (
-                <button
-                  onClick={handleToggleReady}
-                  disabled={!activeRoom.guest}
-                  className={`px-8 py-3.5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 ${
-                    amIReady
-                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
-                      : "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-amber-500/25 disabled:opacity-40"
-                  }`}
-                >
-                  <Zap className="w-4 h-4 fill-current" />
-                  <span>{amIReady ? "✓ You are Ready! (Tap to Cancel)" : "Ready for Battle ⚡"}</span>
-                </button>
+                !activeRoom.guest ? (
+                  <button
+                    onClick={handleFillAIBot}
+                    className="px-7 py-3.5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-indigo-500/25 cursor-pointer"
+                  >
+                    <Bot className="w-4 h-4" />
+                    <span>Summon Dean's Lister AI & Battle Now ⚡</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleToggleReady}
+                    className={`px-8 py-3.5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 cursor-pointer ${
+                      amIReady
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
+                        : "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-amber-500/25"
+                    }`}
+                  >
+                    <Zap className="w-4 h-4 fill-current" />
+                    <span>{amIReady ? "✓ You are Ready! (Tap to Cancel)" : "Ready for Battle ⚡"}</span>
+                  </button>
+                )
               ) : (
                 <div className="px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Eye className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />

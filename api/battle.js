@@ -226,10 +226,13 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, isCloudConnected: true, room, serverTime: now });
       }
 
+      // Only return open/active lobbies so finished matches disappear from lobby
+      const openRooms = rooms.filter((r) => r.status !== "finished");
+
       return res.status(200).json({
         ok: true,
         isCloudConnected: true,
-        rooms: rooms.map((r) => ({
+        rooms: openRooms.map((r) => ({
           id: r.id,
           title: r.title,
           subject: r.subject,
@@ -252,7 +255,14 @@ export default async function handler(req, res) {
   // POST: Room mutations & Game Actions
   if (req.method === "POST") {
     try {
-      const body = req.body || {};
+      let body = req.body || {};
+      if (typeof body === "string") {
+        try {
+          body = JSON.parse(body);
+        } catch (e) {
+          body = {};
+        }
+      }
       const { action } = body;
       const rooms = await getRooms();
       const now = Date.now();
@@ -419,9 +429,10 @@ export default async function handler(req, res) {
       if (action === "start_coin_toss") {
         const { roomId } = body;
         const room = rooms.find((r) => r.id === roomId);
-        if (!room || !room.guest) return res.status(400).json({ ok: false, error: "Missing players" });
+        if (!room) return res.status(404).json({ ok: false, error: "Room not found" });
+        if (!room.guest) return res.status(200).json({ ok: false, ignored: true, error: "Missing players", room });
 
-        if (room.status !== "tossing_coin") {
+        if (room.status !== "tossing_coin" && room.status !== "in_battle") {
           const isHost = Math.random() < 0.5;
           const winnerId = isHost ? room.host.id : room.guest.id;
           const winnerName = isHost ? room.host.name : room.guest.name;
@@ -739,6 +750,36 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true, deleted: true });
         }
 
+        room.updatedAt = now;
+        await saveRooms(rooms);
+        return res.status(200).json({ ok: true, room });
+      }
+
+      // 11. FILL AI BOT AS CHALLENGER
+      if (action === "fill_ai_bot") {
+        const { roomId } = body;
+        const room = rooms.find((r) => r.id === roomId);
+        if (!room) return res.status(404).json({ ok: false, error: "Room not found" });
+
+        room.guest = {
+          id: "bot_deans_lister",
+          name: "Dean's Lister AI 🤖",
+          section: "BSCPE 4D • DLSP",
+          avatar: "/avatars/bean-male-vr.jpg",
+          customPhoto: null,
+          level: 10,
+          xp: 4500,
+          frame: "godlike",
+          isBot: true,
+        };
+        room.guestReady = true; // Bot ready immediately!
+        room.chat.push({
+          id: "c_" + now,
+          type: "event",
+          text: `🤖 Dean's Lister AI entered as Challenger and is READY! Press READY to start 5s countdown!`,
+          senderName: "Arena System",
+          createdAt: now,
+        });
         room.updatedAt = now;
         await saveRooms(rooms);
         return res.status(200).json({ ok: true, room });
