@@ -109,9 +109,8 @@ function renderMarkdownChunk(textChunk, keyPrefix) {
  * 3. Markdown bold (**bold**), italic (*italic*), code (`code`), and newlines
  */
 export function FormattedText({ text, className = "" }) {
-  if (!text) return null;
-
   const tokens = useMemo(() => {
+    if (!text) return [];
     const list = [];
     // Match $$...$$ or $...$
     const regex = /(\$\$[\s\S]*?\$\$|\$[^$\n]+\$)/g;
@@ -140,6 +139,8 @@ export function FormattedText({ text, className = "" }) {
 
     return list;
   }, [text]);
+
+  if (!text) return null;
 
   return (
     <span className={className}>

@@ -323,6 +323,19 @@ export function UserProvider({ children }) {
     syncWithCloud();
   }, []);
 
+  // Import a classmate's scorecard code
+  const importScorecard = (code) => {
+    const entry = decodeScorecard(code);
+    if (!entry) return false;
+    const roster = loadClassRoster();
+    // Avoid duplicate entries with same name
+    const filtered = roster.filter((c) => c.name.toLowerCase() !== entry.name.toLowerCase() && c.id !== "me");
+    filtered.push(entry);
+    saveClassRoster(filtered);
+    setRosterVersion((v) => v + 1);
+    return true;
+  };
+
   // Handle URL query parameters: 1-Tap Sync (?sync=...) or Classmate Scorecard (?score=...)
   useEffect(() => {
     try {
@@ -374,19 +387,6 @@ export function UserProvider({ children }) {
       }
     } catch (e) {}
   }, []);
-
-  // Import a classmate's scorecard code
-  const importScorecard = (code) => {
-    const entry = decodeScorecard(code);
-    if (!entry) return false;
-    const roster = loadClassRoster();
-    // Avoid duplicate entries with same name
-    const filtered = roster.filter((c) => c.name.toLowerCase() !== entry.name.toLowerCase() && c.id !== "me");
-    filtered.push(entry);
-    saveClassRoster(filtered);
-    setRosterVersion((v) => v + 1);
-    return true;
-  };
 
   // Add XP with optional celebratory sound & toast
   const addXp = (amount, reason = "Study Reward", subjectId = null) => {
