@@ -1,5 +1,5 @@
 // api/battle.js
-// Vercel Serverless Function supporting Real-Time 1v1 Battle Exam Arenas & Twitch Spectator Chat via Upstash Redis
+// Vercel Serverless Function supporting Real-Time 1v1 Battle Exam Arenas, 5s Ready Countdown, Synchronized Coin Toss, & Live Twitch Spectator Mode via Upstash Redis
 
 // Silence cosmetic Node.js DEP0169 warning emitted by Vercel runtime's legacy bridge
 if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
@@ -39,7 +39,6 @@ export default async function handler(req, res) {
   const kvUrl = rawUrl ? rawUrl.replace(/\/$/, "") : null;
   const BATTLE_ROOMS_KEY = "bscpe4th_battle_rooms_2026";
 
-  // Check KV availability
   if (!kvUrl || !kvToken) {
     if (req.method === "GET") {
       return res.status(200).json({
@@ -100,9 +99,7 @@ export default async function handler(req, res) {
 
     // Filter out inactive rooms older than 2 hours
     const now = Date.now();
-    const activeRooms = rooms.filter((r) => now - (r.updatedAt || r.createdAt || 0) < 1000 * 60 * 120);
-
-    return activeRooms;
+    return rooms.filter((r) => now - (r.updatedAt || r.createdAt || 0) < 1000 * 60 * 120);
   }
 
   // Save rooms back to Upstash
@@ -110,18 +107,106 @@ export default async function handler(req, res) {
     await upstashCommand(["SET", BATTLE_ROOMS_KEY, JSON.stringify(rooms)]);
   }
 
-  // GET: Return room list or single room details
+  // GET: Return room list or single room details (with live clock sync)
   if (req.method === "GET") {
     try {
       const { roomId } = req.query;
       const rooms = await getRooms();
+      const now = Date.now();
 
       if (roomId) {
         const room = rooms.find((r) => r.id === roomId);
         if (!room) {
           return res.status(404).json({ ok: false, error: "Room not found" });
         }
-        return res.status(200).json({ ok: true, isCloudConnected: true, room });
+
+        let hasRoomChanged = false;
+
+        // Auto-advance countdown -> tossing_coin
+        if (room.status === "countdown" && room.countdownEnd && now >= room.countdownEnd) {
+          const isHost = Math.random() < 0.5;
+          const winnerId = isHost ? room.host.id : room.guest.id;
+          const winnerName = isHost ? room.host.name : room.guest.name;
+
+          room.status = "tossing_coin";
+          room.coinToss = {
+            winnerId,
+            flippedAt: now,
+            sideLand: isHost ? "host" : "guest",
+            flipDuration: 4200,
+          };
+          room.gameState.activePlayerId = winnerId;
+          room.gameState.hostClock = 60;
+          room.gameState.guestClock = 60;
+          room.gameState.turnStartedAt = now + 4200;
+          room.updatedAt = now;
+
+          room.chat.push({
+            id: "c_" + now,
+            type: "event",
+            text: `🪙 Coin Toss: Lands on ${winnerName}! ${winnerName} takes Question 1!`,
+            senderName: "Coin Toss Referee",
+            createdAt: now,
+          });
+          hasRoomChanged = true;
+        }
+
+        // Auto-advance tossing_coin -> in_battle
+        if (
+          room.status === "tossing_coin" &&
+          room.coinToss?.flippedAt &&
+          now >= room.coinToss.flippedAt + 4200
+        ) {
+          room.status = "in_battle";
+          room.gameState.turnStartedAt = now;
+          room.updatedAt = now;
+          hasRoomChanged = true;
+        }
+
+        // Authoritative server-side clock evaluation in active match
+        if (room.status === "in_battle" && !room.gameState.winnerId) {
+          const elapsed = (now - (room.gameState.turnStartedAt || now)) / 1000;
+
+          if (room.gameState.activePlayerId === room.host.id) {
+            const currentHost = Math.max(0, +(room.gameState.hostClock - elapsed).toFixed(1));
+            if (currentHost <= 0) {
+              room.status = "finished";
+              room.gameState.winnerId = room.guest?.id;
+              room.gameState.finishReason = "timeout";
+              room.gameState.hostClock = 0;
+              room.chat.push({
+                id: "c_" + now,
+                type: "event",
+                text: `⏱️ BUZZER! ${room.host.name}'s clock ran out! ${room.guest?.name} WINS!`,
+                senderName: "Victory Announcer",
+                createdAt: now,
+              });
+              hasRoomChanged = true;
+            }
+          } else if (room.gameState.activePlayerId === room.guest?.id) {
+            const currentGuest = Math.max(0, +(room.gameState.guestClock - elapsed).toFixed(1));
+            if (currentGuest <= 0) {
+              room.status = "finished";
+              room.gameState.winnerId = room.host.id;
+              room.gameState.finishReason = "timeout";
+              room.gameState.guestClock = 0;
+              room.chat.push({
+                id: "c_" + now,
+                type: "event",
+                text: `⏱️ BUZZER! ${room.guest?.name}'s clock ran out! ${room.host.name} WINS!`,
+                senderName: "Victory Announcer",
+                createdAt: now,
+              });
+              hasRoomChanged = true;
+            }
+          }
+        }
+
+        if (hasRoomChanged) {
+          await saveRooms(rooms);
+        }
+
+        return res.status(200).json({ ok: true, isCloudConnected: true, room, serverTime: now });
       }
 
       return res.status(200).json({
@@ -135,9 +220,12 @@ export default async function handler(req, res) {
           status: r.status,
           host: r.host,
           guest: r.guest,
+          hostReady: r.hostReady || false,
+          guestReady: r.guestReady || false,
           spectatorCount: (r.spectators || []).length,
           createdAt: r.createdAt,
         })),
+        serverTime: now,
       });
     } catch (err) {
       return res.status(500).json({ ok: false, error: err.message });
@@ -152,9 +240,9 @@ export default async function handler(req, res) {
       const rooms = await getRooms();
       const now = Date.now();
 
-      // 1. CREATE ROOM
+      // 1. CREATE ROOM (Stores host details & synchronized question bank)
       if (action === "create_room") {
-        const { title, subject = "all", wager = 250, host } = body;
+        const { title, subject = "all", wager = 250, host, questions = [] } = body;
         if (!host || !host.id || !host.name) {
           return res.status(400).json({ ok: false, error: "Missing host details" });
         }
@@ -164,7 +252,7 @@ export default async function handler(req, res) {
           title: title || `${host.name}'s Showdown Arena`,
           subject: subject || "all",
           wager: Math.max(50, Math.min(2500, Number(wager) || 250)),
-          status: "waiting", // "waiting", "tossing_coin", "in_battle", "finished"
+          status: "waiting", // "waiting" | "countdown" | "tossing_coin" | "in_battle" | "finished"
           createdAt: now,
           updatedAt: now,
           host: {
@@ -178,29 +266,32 @@ export default async function handler(req, res) {
             frame: host.frame || "default",
           },
           guest: null,
+          hostReady: false,
+          guestReady: false,
+          countdownEnd: null,
           spectators: [],
+          questions: Array.isArray(questions) ? questions : [],
           coinToss: {
             winnerId: null,
             flippedAt: null,
-            sideLand: null, // "host" or "guest"
+            sideLand: null,
           },
           gameState: {
             activePlayerId: null,
             questionIndex: 0,
-            seed: Math.floor(Math.random() * 900000) + 100000,
             hostClock: 60,
             guestClock: 60,
-            lastClockTick: null,
             turnStartedAt: null,
             haltUntil: 0,
             winnerId: null,
             finishReason: null,
+            lastAnswer: null, // Broadcasts choice made so spectators see live highlight
           },
           chat: [
             {
               id: "c_" + Date.now(),
               type: "event",
-              text: `🎮 Room opened! Wager set to ${wager} XP. Waiting for a challenger...`,
+              text: `🎮 Room opened! Wager set to ${wager} XP. Waiting for a challenger to enter...`,
               senderName: "Arena System",
               createdAt: now,
             },
@@ -213,7 +304,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, room: newRoom });
       }
 
-      // 2. JOIN ROOM
+      // 2. JOIN ROOM (As Challenger Player or Spectator)
       if (action === "join_room") {
         const { roomId, student, asPlayer } = body;
         const roomIdx = rooms.findIndex((r) => r.id === roomId);
@@ -224,7 +315,6 @@ export default async function handler(req, res) {
         const room = rooms[roomIdx];
         room.updatedAt = now;
 
-        // Clean student info
         const playerInfo = {
           id: student.id,
           name: student.name,
@@ -238,22 +328,23 @@ export default async function handler(req, res) {
 
         if (asPlayer && room.status === "waiting" && !room.guest && room.host.id !== student.id) {
           room.guest = playerInfo;
+          room.guestReady = false;
           room.chat.push({
             id: "c_" + now,
             type: "event",
-            text: `⚔️ ${playerInfo.name} entered as Player 2! Ready to toss coin!`,
+            text: `⚔️ ${playerInfo.name} entered as Challenger! Both players press READY to start 5s countdown!`,
             senderName: "Arena System",
             createdAt: now,
           });
         } else {
           // Join as spectator
-          room.spectators = room.spectators.filter((s) => s.id !== student.id);
+          room.spectators = (room.spectators || []).filter((s) => s.id !== student.id);
           room.spectators.push(playerInfo);
           room.chat.push({
             id: "c_" + now,
             type: "event",
-            text: `👀 ${playerInfo.name} joined the audience.`,
-            senderName: "Twitch Chat",
+            text: `👀 ${playerInfo.name} joined as a live spectator.`,
+            senderName: "Audience Feed",
             createdAt: now,
           });
         }
@@ -263,66 +354,96 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, room });
       }
 
-      // 3. START MATCH / COIN TOSS
-      if (action === "start_match") {
+      // 3. TOGGLE READY (Both players must press ready -> triggers 5s countdown)
+      if (action === "toggle_ready") {
         const { roomId, studentId } = body;
         const room = rooms.find((r) => r.id === roomId);
-        if (!room || !room.guest) {
-          return res.status(400).json({ ok: false, error: "Room needs 2 players to start" });
+        if (!room) return res.status(404).json({ ok: false, error: "Room not found" });
+
+        const isHost = room.host.id === studentId;
+        const isGuest = room.guest?.id === studentId;
+
+        if (!isHost && !isGuest) {
+          return res.status(403).json({ ok: false, error: "Spectators cannot toggle ready." });
         }
 
-        if (room.host.id !== studentId && room.guest.id !== studentId) {
-          return res.status(403).json({ ok: false, error: "Only players can initiate match" });
+        if (isHost) {
+          room.hostReady = !room.hostReady;
+        } else if (isGuest) {
+          room.guestReady = !room.guestReady;
         }
 
-        // Toss coin: 50/50 chance
-        const isHost = Math.random() < 0.5;
-        const winnerId = isHost ? room.host.id : room.guest.id;
-        const winnerName = isHost ? room.host.name : room.guest.name;
+        // Check if BOTH are ready
+        if (room.hostReady && room.guestReady && room.status === "waiting") {
+          room.status = "countdown";
+          room.countdownEnd = now + 5000; // 5-second synchronized countdown
+          room.chat.push({
+            id: "c_" + now,
+            type: "event",
+            text: `🔥 BOTH PLAYERS READY! Coin toss begins in 5 seconds!`,
+            senderName: "Arena Referee",
+            createdAt: now,
+          });
+        } else if (room.status === "countdown" && (!room.hostReady || !room.guestReady)) {
+          // One player cancelled ready
+          room.status = "waiting";
+          room.countdownEnd = null;
+        }
 
-        room.status = "tossing_coin";
         room.updatedAt = now;
-        room.coinToss = {
-          winnerId,
-          flippedAt: now,
-          sideLand: isHost ? "host" : "guest",
-        };
-        room.gameState.activePlayerId = winnerId;
-        room.gameState.turnStartedAt = now + 4200; // starts right after coin flip animation (4.2s)
-        room.gameState.hostClock = 60;
-        room.gameState.guestClock = 60;
-
-        room.chat.push({
-          id: "c_" + now,
-          type: "event",
-          text: `🪙 Coin Toss: Lands on ${winnerName}! ${winnerName} answers first!`,
-          senderName: "Coin Toss Referee",
-          createdAt: now,
-        });
-
         await saveRooms(rooms);
         return res.status(200).json({ ok: true, room });
       }
 
-      // 4. FINISH TOSS ANIMATION (Transition to in_battle)
-      if (action === "finish_toss") {
+      // 4. TRIGGER COIN TOSS (Invoked when 5s countdown completes)
+      if (action === "start_coin_toss") {
         const { roomId } = body;
         const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status === "tossing_coin") {
-          room.status = "in_battle";
+        if (!room || !room.guest) return res.status(400).json({ ok: false, error: "Missing players" });
+
+        if (room.status !== "tossing_coin") {
+          const isHost = Math.random() < 0.5;
+          const winnerId = isHost ? room.host.id : room.guest.id;
+          const winnerName = isHost ? room.host.name : room.guest.name;
+
+          room.status = "tossing_coin";
+          room.coinToss = {
+            winnerId,
+            flippedAt: now,
+            sideLand: isHost ? "host" : "guest",
+            flipDuration: 4200,
+          };
+          room.gameState.activePlayerId = winnerId;
+          room.gameState.hostClock = 60;
+          room.gameState.guestClock = 60;
+          room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
-          room.gameState.turnStartedAt = now;
+
+          room.chat.push({
+            id: "c_" + now,
+            type: "event",
+            text: `🪙 Coin Toss: Lands on ${winnerName}! ${winnerName} takes Question 1!`,
+            senderName: "Coin Toss Referee",
+            createdAt: now,
+          });
+
           await saveRooms(rooms);
         }
+
         return res.status(200).json({ ok: true, room });
       }
 
-      // 5. SUBMIT ANSWER (Correct saves timer & passes turn; Incorrect halts 3s)
+      // 5. SUBMIT ANSWER (Authoritative timer deduction + turn pass + spectator broadcast)
       if (action === "submit_answer") {
-        const { roomId, studentId, isCorrect, remainingClock } = body;
+        const { roomId, studentId, isCorrect, choiceIndex } = body;
         const room = rooms.find((r) => r.id === roomId);
         if (!room || room.status !== "in_battle") {
           return res.status(400).json({ ok: false, error: "Match not active" });
+        }
+
+        // Only active player can answer!
+        if (room.gameState.activePlayerId !== studentId) {
+          return res.status(403).json({ ok: false, error: "Not your turn or spectator." });
         }
 
         const isHost = room.host.id === studentId;
@@ -330,15 +451,24 @@ export default async function handler(req, res) {
         const opponentId = isHost ? room.guest?.id : room.host.id;
         const opponentName = isHost ? room.guest?.name : room.host.name;
 
-        room.updatedAt = now;
+        // Calculate exact elapsed seconds during this turn
+        const elapsed = Math.max(0, (now - (room.gameState.turnStartedAt || now)) / 1000);
 
         if (isCorrect) {
-          // Update clock for player who answered correctly
+          // Deduct elapsed time from player's clock and FREEZE it
           if (isHost) {
-            room.gameState.hostClock = Math.max(1, Number(remainingClock) || room.gameState.hostClock);
+            room.gameState.hostClock = Math.max(1, +(room.gameState.hostClock - elapsed).toFixed(1));
           } else {
-            room.gameState.guestClock = Math.max(1, Number(remainingClock) || room.gameState.guestClock);
+            room.gameState.guestClock = Math.max(1, +(room.gameState.guestClock - elapsed).toFixed(1));
           }
+
+          // Broadcast answer choice to spectators
+          room.gameState.lastAnswer = {
+            playerId: studentId,
+            choiceIndex,
+            isCorrect: true,
+            timestamp: now,
+          };
 
           // Switch turn immediately to opponent
           room.gameState.activePlayerId = opponentId;
@@ -346,35 +476,48 @@ export default async function handler(req, res) {
           room.gameState.turnStartedAt = now;
           room.gameState.haltUntil = 0;
 
+          const savedClock = isHost ? room.gameState.hostClock : room.gameState.guestClock;
           room.chat.push({
             id: "c_" + now,
             type: "event",
-            text: `⚡ ${playerName} answered CORRECTLY! Timer frozen at ${Math.round(remainingClock)}s. Turn passed to ${opponentName}!`,
+            text: `⚡ ${playerName} answered CORRECTLY! Timer frozen at ${savedClock}s. Turn passed to ${opponentName}!`,
             senderName: "Arena Referee",
             createdAt: now,
           });
         } else {
-          // Incorrect: 3-second penalty halt
+          // WRONG ANSWER: 3-Second lockout penalty
           room.gameState.haltUntil = now + 3000;
+          room.gameState.lastAnswer = {
+            playerId: studentId,
+            choiceIndex,
+            isCorrect: false,
+            timestamp: now,
+          };
+
           room.chat.push({
             id: "c_" + now,
             type: "event",
-            text: `❌ WRONG CHOICE by ${playerName}! 3-second lockout penalty applied!`,
+            text: `❌ WRONG CHOICE by ${playerName}! 3-second penalty lockout applied!`,
             senderName: "Penalty Box",
             createdAt: now,
           });
         }
 
+        room.updatedAt = now;
         await saveRooms(rooms);
         return res.status(200).json({ ok: true, room });
       }
 
-      // 6. PASS QUESTION (5s penalty + reveals correct answer + passes turn)
+      // 6. PASS QUESTION (5s penalty + pass turn)
       if (action === "pass_question") {
-        const { roomId, studentId, remainingClock } = body;
+        const { roomId, studentId } = body;
         const room = rooms.find((r) => r.id === roomId);
         if (!room || room.status !== "in_battle") {
           return res.status(400).json({ ok: false, error: "Match not active" });
+        }
+
+        if (room.gameState.activePlayerId !== studentId) {
+          return res.status(403).json({ ok: false, error: "Not your turn or spectator." });
         }
 
         const isHost = room.host.id === studentId;
@@ -382,15 +525,14 @@ export default async function handler(req, res) {
         const opponentId = isHost ? room.guest?.id : room.host.id;
         const opponentName = isHost ? room.guest?.name : room.host.name;
 
-        // Apply 5-second penalty
-        const penalizedTime = Math.max(0, (Number(remainingClock) || 60) - 5);
-        if (isHost) {
-          room.gameState.hostClock = penalizedTime;
-        } else {
-          room.gameState.guestClock = penalizedTime;
-        }
+        // Calculate elapsed + 5s penalty
+        const elapsed = Math.max(0, (now - (room.gameState.turnStartedAt || now)) / 1000);
+        const currentClock = isHost ? room.gameState.hostClock : room.gameState.guestClock;
+        const penalizedTime = Math.max(0, +(currentClock - elapsed - 5).toFixed(1));
 
-        // Check if penalty caused timeout
+        if (isHost) room.gameState.hostClock = penalizedTime;
+        else room.gameState.guestClock = penalizedTime;
+
         if (penalizedTime <= 0) {
           room.status = "finished";
           room.gameState.winnerId = opponentId;
@@ -403,12 +545,10 @@ export default async function handler(req, res) {
             createdAt: now,
           });
         } else {
-          // Switch turn to opponent
           room.gameState.activePlayerId = opponentId;
           room.gameState.questionIndex += 1;
           room.gameState.turnStartedAt = now;
           room.gameState.haltUntil = 0;
-
           room.chat.push({
             id: "c_" + now,
             type: "event",
@@ -423,40 +563,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, room });
       }
 
-      // 7. TIME EXPIRED
-      if (action === "time_expired") {
-        const { roomId, loserId } = body;
-        const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status === "in_battle") {
-          const isHostLoser = room.host.id === loserId;
-          const winner = isHostLoser ? room.guest : room.host;
-          const loser = isHostLoser ? room.host : room.guest;
-
-          room.status = "finished";
-          room.updatedAt = now;
-          room.gameState.winnerId = winner ? winner.id : null;
-          room.gameState.finishReason = "timeout";
-
-          if (isHostLoser) {
-            room.gameState.hostClock = 0;
-          } else {
-            room.gameState.guestClock = 0;
-          }
-
-          room.chat.push({
-            id: "c_" + now,
-            type: "event",
-            text: `🏆 BUZZER! ${loser?.name}'s clock ran out! ${winner?.name} is the BATTLE EXAM CHAMPION (+${room.wager * 2} XP pot)!`,
-            senderName: "Victory Announcer",
-            createdAt: now,
-          });
-
-          await saveRooms(rooms);
-        }
-        return res.status(200).json({ ok: true, room });
-      }
-
-      // 8. SEND TWITCH CHAT MESSAGE
+      // 7. SEND TWITCH CHAT
       if (action === "send_chat") {
         const { roomId, message } = body;
         const room = rooms.find((r) => r.id === roomId);
@@ -478,7 +585,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, message: newMsg });
       }
 
-      // 9. BURST EMOTE REACTION
+      // 8. BURST EMOTE REACTION
       if (action === "burst_emote") {
         const { roomId, emoji, senderName } = body;
         const room = rooms.find((r) => r.id === roomId);
@@ -497,17 +604,15 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, emote: emoteObj });
       }
 
-      // 10. LEAVE ROOM
+      // 9. LEAVE ROOM
       if (action === "leave_room") {
         const { roomId, studentId } = body;
         const roomIdx = rooms.findIndex((r) => r.id === roomId);
         if (roomIdx !== -1) {
           const room = rooms[roomIdx];
-          // Remove from spectators
           room.spectators = (room.spectators || []).filter((s) => s.id !== studentId);
 
           if (room.status === "in_battle") {
-            // Surrender
             if (room.host.id === studentId || room.guest?.id === studentId) {
               const winner = room.host.id === studentId ? room.guest : room.host;
               room.status = "finished";
@@ -521,20 +626,23 @@ export default async function handler(req, res) {
                 createdAt: now,
               });
             }
-          } else if (room.status === "waiting") {
+          } else if (room.status === "waiting" || room.status === "countdown") {
             if (room.host.id === studentId) {
               if (room.guest) {
-                // Transfer host to guest
                 room.host = room.guest;
                 room.guest = null;
+                room.hostReady = false;
+                room.guestReady = false;
+                room.status = "waiting";
               } else {
-                // Delete empty room
                 rooms.splice(roomIdx, 1);
                 await saveRooms(rooms);
                 return res.status(200).json({ ok: true, deleted: true });
               }
             } else if (room.guest?.id === studentId) {
               room.guest = null;
+              room.guestReady = false;
+              room.status = "waiting";
             }
           }
 

@@ -28,6 +28,7 @@ import {
   HelpCircle,
   CheckCircle2,
   XCircle,
+  Check,
 } from "lucide-react";
 
 const BOT_PLAYER = {
@@ -45,7 +46,7 @@ const BOT_PLAYER = {
 const WAGER_OPTIONS = [100, 250, 500, 1000];
 
 export function BattleArena({ onBackToReviewer }) {
-  const { profile, addXp, pushProfileToCloud, isCloudConnected } = useUser();
+  const { profile, addXp } = useUser();
 
   // Arena Screen: "lobby" | "room_setup" | "playing" | "game_over"
   const [screen, setScreen] = useState("lobby");
@@ -61,22 +62,23 @@ export function BattleArena({ onBackToReviewer }) {
   const [createWager, setCreateWager] = useState(250);
 
   // Match State
-  const [questions, setQuestions] = useState([]);
-  const [questionIdx, setQuestionIdx] = useState(0);
-  const [activePlayerId, setActivePlayerId] = useState(null);
-  const [hostClock, setHostClock] = useState(60);
-  const [guestClock, setGuestClock] = useState(60);
-  const [haltUntil, setHaltUntil] = useState(0); // timestamp
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState(null); // { isCorrect, correctIndex }
-  const [showCoinToss, setShowCoinToss] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState(null);
   const [mobileMatchTab, setMobileMatchTab] = useState("stage"); // "stage" | "chat" on mobile
+  const [liveClocks, setLiveClocks] = useState({ host: 60, guest: 60 });
+  const [countdownSeconds, setCountdownSeconds] = useState(5);
 
   // Polling ref for cloud rooms
   const pollTimerRef = useRef(null);
   const clockIntervalRef = useRef(null);
   const botTurnTimeoutRef = useRef(null);
+
+  // Helper roles
+  const isHost = activeRoom?.host?.id === profile.id;
+  const isGuest = activeRoom?.guest?.id === profile.id;
+  const isPlayer = isHost || isGuest;
+  const isSpectator = !isPlayer;
 
   // 1. Fetch Rooms from Upstash Redis
   const fetchRooms = useCallback(async () => {
@@ -98,11 +100,11 @@ export function BattleArena({ onBackToReviewer }) {
 
   useEffect(() => {
     fetchRooms();
-    const interval = setInterval(fetchRooms, 4000);
+    const interval = setInterval(fetchRooms, 3500);
     return () => clearInterval(interval);
   }, [fetchRooms]);
 
-  // 2. Poll Active Room State if in a multiplayer room
+  // 2. Poll Active Room State with Synchronized Transitions
   useEffect(() => {
     if (!activeRoom || isBotMatch || screen === "lobby") return;
 
@@ -112,162 +114,217 @@ export function BattleArena({ onBackToReviewer }) {
         if (res.ok) {
           const data = await res.json();
           if (data.room) {
-            setActiveRoom(data.room);
+            const r = data.room;
+            setActiveRoom(r);
 
-            // Sync match status
-            if (data.room.status === "in_battle" && screen === "room_setup") {
+            // Synchronized screen transitions:
+            if (r.status === "in_battle" && screen !== "playing" && screen !== "game_over") {
               setScreen("playing");
-            } else if (data.room.status === "finished" && screen === "playing") {
-              handleMatchEnd(data.room.gameState.winnerId, data.room);
-            }
-
-            // Sync clock
-            if (data.room.gameState) {
-              setHostClock(data.room.gameState.hostClock);
-              setGuestClock(data.room.gameState.guestClock);
-              setActivePlayerId(data.room.gameState.activePlayerId);
-              setQuestionIdx(data.room.gameState.questionIndex);
+            } else if (r.status === "finished" && screen !== "game_over") {
+              handleMatchEnd(r.gameState.winnerId, r);
             }
           }
         }
       } catch (e) {}
     };
 
-    pollTimerRef.current = setInterval(pollActiveRoom, 1800);
+    pollTimerRef.current = setInterval(pollActiveRoom, 1400);
     return () => clearInterval(pollTimerRef.current);
   }, [activeRoom?.id, isBotMatch, screen]);
 
-  // 3. Clock Countdown Loop (100ms precision)
+  // 3. Authoritative Live Clock Evaluation (Derives from turnStartedAt so timer NEVER refills!)
   useEffect(() => {
-    if (screen !== "playing" || showCoinToss) return;
+    if (screen !== "playing" || !activeRoom?.gameState) return;
 
-    clockIntervalRef.current = setInterval(() => {
+    const updateClocks = () => {
+      const gs = activeRoom.gameState;
       const now = Date.now();
 
-      // Check halt penalty
-      if (haltUntil > now) {
+      if (activeRoom.status !== "in_battle" || !gs.turnStartedAt) {
+        setLiveClocks({ host: gs.hostClock ?? 60, guest: gs.guestClock ?? 60 });
         return;
       }
 
-      if (activePlayerId === activeRoom?.host?.id) {
-        setHostClock((prev) => {
-          const next = Math.max(0, +(prev - 0.1).toFixed(1));
-          if (next <= 0) {
-            handleTimeout(activeRoom.host.id);
-          } else if (next <= 10 && Math.round(next * 10) % 10 === 0) {
-            sound.playClockTick();
-          }
-          return next;
-        });
-      } else if (activePlayerId === activeRoom?.guest?.id) {
-        setGuestClock((prev) => {
-          const next = Math.max(0, +(prev - 0.1).toFixed(1));
-          if (next <= 0) {
-            handleTimeout(activeRoom.guest.id);
-          } else if (next <= 10 && Math.round(next * 10) % 10 === 0) {
-            sound.playClockTick();
-          }
-          return next;
-        });
+      // If active player is currently in 3s penalty halt
+      const elapsed = Math.max(0, (now - gs.turnStartedAt) / 1000);
+      const isHostTurn = gs.activePlayerId === activeRoom.host.id;
+      const isGuestTurn = gs.activePlayerId === activeRoom.guest?.id;
+
+      const currentHost = isHostTurn
+        ? Math.max(0, +(gs.hostClock - elapsed).toFixed(1))
+        : (gs.hostClock ?? 60);
+
+      const currentGuest = isGuestTurn
+        ? Math.max(0, +(gs.guestClock - elapsed).toFixed(1))
+        : (gs.guestClock ?? 60);
+
+      setLiveClocks({ host: currentHost, guest: currentGuest });
+
+      // Audio ticks when active player clock < 10s
+      const activeClock = isHostTurn ? currentHost : currentGuest;
+      if (activeClock <= 10 && activeClock > 0 && Math.round(activeClock * 10) % 10 === 0) {
+        sound.playClockTick();
       }
-    }, 100);
 
+      // Timeout check (only trigger once by active player or host)
+      if (activeClock <= 0 && !gs.winnerId) {
+        const loserId = isHostTurn ? activeRoom.host.id : activeRoom.guest?.id;
+        handleTimeout(loserId);
+      }
+    };
+
+    updateClocks();
+    clockIntervalRef.current = setInterval(updateClocks, 100);
     return () => clearInterval(clockIntervalRef.current);
-  }, [screen, showCoinToss, activePlayerId, haltUntil, activeRoom]);
+  }, [screen, activeRoom]);
 
-  // 4. Bot Turn Simulation (when playing against AI bot)
+  // 4. Synchronized 5-Second Countdown Logic
   useEffect(() => {
-    if (!isBotMatch || screen !== "playing" || showCoinToss) return;
-    if (activePlayerId !== BOT_PLAYER.id) return;
+    if (activeRoom?.status !== "countdown" || !activeRoom.countdownEnd) return;
 
-    // AI bot responds after a random hesitation between 2.2s and 4.5s
-    const botThinkTime = Math.floor(Math.random() * 2300) + 2200;
+    const updateCountdown = () => {
+      const remaining = Math.max(0, Math.ceil((activeRoom.countdownEnd - Date.now()) / 1000));
+      setCountdownSeconds(remaining);
+
+      if (remaining > 0) {
+        sound.playClockTick();
+      } else if (remaining === 0) {
+        // Trigger coin toss
+        if (isHost || isBotMatch) {
+          triggerCoinToss();
+        }
+      }
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [activeRoom?.status, activeRoom?.countdownEnd, isHost, isBotMatch]);
+
+  // 5. Bot Match Simulation Loop
+  useEffect(() => {
+    if (!isBotMatch || screen !== "playing") return;
+    if (activeRoom?.gameState?.activePlayerId !== BOT_PLAYER.id) return;
+
+    const botThinkTime = Math.floor(Math.random() * 2200) + 2000;
+    const curQ = activeRoom.questions?.[activeRoom.gameState.questionIndex] || {};
 
     botTurnTimeoutRef.current = setTimeout(() => {
-      // 82% chance bot answers correctly, 10% chance wrong (3s penalty), 8% pass
       const roll = Math.random();
-      const curQ = questions[questionIdx];
 
       if (roll < 0.82) {
-        // Bot answers correct!
+        // Correct answer!
         sound.playCorrect();
-        setAnswerFeedback({ isCorrect: true, correctIndex: curQ.correctAnswer });
+        const elapsed = (Date.now() - activeRoom.gameState.turnStartedAt) / 1000;
+        const newGuestClock = Math.max(1, +(activeRoom.gameState.guestClock - elapsed).toFixed(1));
+
+        setActiveRoom((prev) => ({
+          ...prev,
+          gameState: {
+            ...prev.gameState,
+            guestClock: newGuestClock,
+            activePlayerId: prev.host.id,
+            questionIndex: prev.gameState.questionIndex + 1,
+            turnStartedAt: Date.now(),
+            haltUntil: 0,
+            lastAnswer: {
+              playerId: BOT_PLAYER.id,
+              choiceIndex: curQ.correctAnswer,
+              isCorrect: true,
+              timestamp: Date.now(),
+            },
+          },
+        }));
+
         pushChatMessage({
           senderId: BOT_PLAYER.id,
           senderName: BOT_PLAYER.name,
           avatar: BOT_PLAYER.avatar,
-          text: "Na-solve ko agad sa memory! Your turn, classmate! ⚡",
+          text: "Na-solve ko agad sa memory! Your turn classmate! ⚡",
         });
-
-        setTimeout(() => {
-          setAnswerFeedback(null);
-          setSelectedChoice(null);
-          setQuestionIdx((i) => i + 1);
-          setActivePlayerId(activeRoom.host.id);
-        }, 1100);
       } else if (roll < 0.92) {
-        // Bot picks wrong answer -> 3s halt penalty
+        // Wrong answer -> 3s penalty
         sound.playBuzzer();
-        setHaltUntil(Date.now() + 3000);
+        setActiveRoom((prev) => ({
+          ...prev,
+          gameState: {
+            ...prev.gameState,
+            haltUntil: Date.now() + 3000,
+            lastAnswer: {
+              playerId: BOT_PLAYER.id,
+              choiceIndex: (curQ.correctAnswer + 1) % 4,
+              isCorrect: false,
+              timestamp: Date.now(),
+            },
+          },
+        }));
+
         pushChatMessage({
           senderId: BOT_PLAYER.id,
           senderName: BOT_PLAYER.name,
           avatar: BOT_PLAYER.avatar,
-          text: "Mali ako sa unit conversion! 3s halt aray! 😵",
+          text: "Mali ako sa conversion! 3s halt penalty aray! 😵",
         });
 
-        // After 3s halt, bot retries
+        // After 3s halt, bot corrects it
         setTimeout(() => {
           sound.playCorrect();
-          setAnswerFeedback({ isCorrect: true, correctIndex: curQ.correctAnswer });
-          setTimeout(() => {
-            setAnswerFeedback(null);
-            setSelectedChoice(null);
-            setQuestionIdx((i) => i + 1);
-            setActivePlayerId(activeRoom.host.id);
-          }, 900);
-        }, 3200);
+          setActiveRoom((prev) => ({
+            ...prev,
+            gameState: {
+              ...prev.gameState,
+              activePlayerId: prev.host.id,
+              questionIndex: prev.gameState.questionIndex + 1,
+              turnStartedAt: Date.now(),
+              haltUntil: 0,
+            },
+          }));
+        }, 3100);
       } else {
         // Bot passes -> 5s penalty
         sound.playPass();
-        setGuestClock((c) => Math.max(0, +(c - 5).toFixed(1)));
+        const elapsed = (Date.now() - activeRoom.gameState.turnStartedAt) / 1000;
+        const penalizedTime = Math.max(0, +(activeRoom.gameState.guestClock - elapsed - 5).toFixed(1));
+
+        setActiveRoom((prev) => ({
+          ...prev,
+          gameState: {
+            ...prev.gameState,
+            guestClock: penalizedTime,
+            activePlayerId: prev.host.id,
+            questionIndex: prev.gameState.questionIndex + 1,
+            turnStartedAt: Date.now(),
+            haltUntil: 0,
+          },
+        }));
+
         pushChatMessage({
           senderId: BOT_PLAYER.id,
           senderName: BOT_PLAYER.name,
           avatar: BOT_PLAYER.avatar,
-          text: "Mahirap tong formula! Tactical PASS (-5s)! ⏩",
+          text: "Nalito ako sa formula! Tactical PASS (-5s)! ⏩",
         });
-        setAnswerFeedback({ isCorrect: false, correctIndex: curQ.correctAnswer });
-
-        setTimeout(() => {
-          setAnswerFeedback(null);
-          setSelectedChoice(null);
-          setQuestionIdx((i) => i + 1);
-          setActivePlayerId(activeRoom.host.id);
-        }, 1200);
       }
     }, botThinkTime);
 
     return () => clearTimeout(botTurnTimeoutRef.current);
-  }, [isBotMatch, screen, showCoinToss, activePlayerId, questionIdx, questions]);
+  }, [isBotMatch, screen, activeRoom]);
 
-  // Timeout Handler (One player ran out of time)
+  // Timeout Handler
   const handleTimeout = async (loserId) => {
-    clearInterval(clockIntervalRef.current);
     sound.playBuzzer();
-
     const isHostLoser = activeRoom?.host?.id === loserId;
     const winner = isHostLoser ? activeRoom?.guest : activeRoom?.host;
 
-    if (!isBotMatch) {
+    if (!isBotMatch && activeRoom?.id) {
       try {
         await fetch("/api/battle", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "time_expired",
+            action: "leave_room",
             roomId: activeRoom.id,
-            loserId,
+            studentId: loserId,
           }),
         });
       } catch (e) {}
@@ -276,40 +333,39 @@ export function BattleArena({ onBackToReviewer }) {
     handleMatchEnd(winner?.id);
   };
 
-  // Match Conclusion Handler
+  // Match End Handler
   const handleMatchEnd = (winnerId, latestRoom = null) => {
     const room = latestRoom || activeRoom;
+    if (!room) return;
+
     const isWinner = profile.id === winnerId;
-    const wager = room?.wager || 250;
+    const wager = room.wager || 250;
 
     setWinnerInfo({
       winnerId,
       winnerName: winnerId === room.host.id ? room.host.name : room.guest?.name,
       isCurrentUser: isWinner,
       wager,
-      hostClock: Math.round(hostClock),
-      guestClock: Math.round(guestClock),
     });
 
     setScreen("game_over");
 
-    if (isWinner) {
-      sound.playFanfare();
-      confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-      addXp(wager * 2, `1v1 Battle Exam Victory (Won Pot!)`);
-    } else {
-      sound.playWomp();
-      // Deduct wager XP (down to 0 min)
-      const penalty = Math.min(profile.xp, wager);
-      addXp(-penalty, `1v1 Battle Exam Defeat (Lost Wager)`);
+    if (isPlayer) {
+      if (isWinner) {
+        sound.playFanfare();
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+        addXp(wager * 2, `1v1 Battle Exam Victory (Won Pot!)`);
+      } else {
+        sound.playWomp();
+        const penalty = Math.min(profile.xp, wager);
+        addXp(-penalty, `1v1 Battle Exam Defeat (Lost Wager)`);
+      }
     }
   };
 
-  // 5. Start Practice vs Bot Match
+  // 6. Start Practice vs Bot Match
   const handleStartBotMatch = () => {
-    const pool = getBattleQuestions(createSubject);
-    setQuestions(pool);
-    setQuestionIdx(0);
+    const questions = getBattleQuestions(createSubject);
     setIsBotMatch(true);
 
     const botRoom = {
@@ -317,6 +373,7 @@ export function BattleArena({ onBackToReviewer }) {
       title: "Solo Practice vs Dean's Lister AI",
       subject: createSubject,
       wager: createWager,
+      status: "waiting",
       host: {
         id: profile.id,
         name: profile.name,
@@ -327,15 +384,30 @@ export function BattleArena({ onBackToReviewer }) {
         xp: profile.xp || 0,
       },
       guest: BOT_PLAYER,
+      hostReady: false,
+      guestReady: true, // Bot is always ready!
+      countdownEnd: null,
       spectators: [
         { id: "spec1", name: "Audience Bot A", avatar: "/avatars/bean-female-laptop.jpg" },
         { id: "spec2", name: "Reviewer Fan", avatar: "/avatars/bean-female-graduate.jpg" },
       ],
+      questions,
+      coinToss: { winnerId: null, flippedAt: null, sideLand: null },
+      gameState: {
+        activePlayerId: null,
+        questionIndex: 0,
+        hostClock: 60,
+        guestClock: 60,
+        turnStartedAt: null,
+        haltUntil: 0,
+        winnerId: null,
+        lastAnswer: null,
+      },
       chat: [
         {
           id: "c_1",
           type: "event",
-          text: "⚡ 1v1 Battle Exam: Player vs AI Dean's Lister initiated!",
+          text: "⚡ 1v1 Battle Exam: Player vs AI Dean's Lister initialized! Press READY to start countdown!",
           senderName: "Arena System",
           createdAt: Date.now(),
         },
@@ -344,15 +416,15 @@ export function BattleArena({ onBackToReviewer }) {
     };
 
     setActiveRoom(botRoom);
-    setHostClock(60);
-    setGuestClock(60);
     setScreen("room_setup");
     sound.playGameShowIntro();
   };
 
-  // 6. Create Cloud Multiplayer Room
+  // 7. Create Public Multiplayer Room
   const handleCreateRoom = async (e) => {
     e?.preventDefault();
+    const questions = getBattleQuestions(createSubject);
+
     try {
       const res = await fetch("/api/battle", {
         method: "POST",
@@ -362,6 +434,7 @@ export function BattleArena({ onBackToReviewer }) {
           title: createTitle.trim() || `${profile.name}'s Showdown`,
           subject: createSubject,
           wager: createWager,
+          questions,
           host: {
             id: profile.id,
             name: profile.name,
@@ -390,7 +463,7 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  // 7. Join Existing Cloud Room
+  // 8. Join Existing Room (as Challenger or Spectator)
   const handleJoinRoom = async (room, asPlayer = false) => {
     try {
       const res = await fetch("/api/battle", {
@@ -417,8 +490,6 @@ export function BattleArena({ onBackToReviewer }) {
         if (data.room) {
           setActiveRoom(data.room);
           setIsBotMatch(false);
-          const pool = getBattleQuestions(data.room.subject);
-          setQuestions(pool);
           setScreen(data.room.status === "in_battle" ? "playing" : "room_setup");
           sound.playGameShowIntro();
         }
@@ -428,194 +499,245 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  // 8. Kick off Match: Trigger Coin Toss!
-  const handleInitiateMatch = async () => {
+  // 9. Toggle Ready Status
+  const handleToggleReady = async () => {
+    if (!isPlayer) return;
     sound.playTap();
 
     if (isBotMatch) {
-      // 50/50 toss between player and bot
-      const winnerId = Math.random() < 0.5 ? activeRoom.host.id : activeRoom.guest.id;
-      setActivePlayerId(winnerId);
-      setShowCoinToss(true);
-    } else {
-      try {
-        const res = await fetch("/api/battle", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "start_match",
-            roomId: activeRoom.id,
-            studentId: profile.id,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.room) {
-            setActiveRoom(data.room);
-            setActivePlayerId(data.room.coinToss.winnerId);
-            setShowCoinToss(true);
-          }
-        }
-      } catch (e) {
-        setShowCoinToss(true);
+      const nextHostReady = !activeRoom.hostReady;
+      if (nextHostReady) {
+        // Trigger 5-second countdown!
+        setActiveRoom((prev) => ({
+          ...prev,
+          hostReady: true,
+          status: "countdown",
+          countdownEnd: Date.now() + 5000,
+        }));
+      } else {
+        setActiveRoom((prev) => ({
+          ...prev,
+          hostReady: false,
+          status: "waiting",
+          countdownEnd: null,
+        }));
       }
+      return;
     }
-  };
 
-  // 9. When Coin Toss Finishes -> Start Clock!
-  const handleCoinTossComplete = async () => {
-    setShowCoinToss(false);
-    setScreen("playing");
-    const pool = getBattleQuestions(activeRoom?.subject || "all");
-    setQuestions(pool);
-    setQuestionIdx(0);
-    setHostClock(60);
-    setGuestClock(60);
-
-    if (!isBotMatch && activeRoom?.id) {
-      fetch("/api/battle", {
+    try {
+      const res = await fetch("/api/battle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "finish_toss",
+          action: "toggle_ready",
           roomId: activeRoom.id,
+          studentId: profile.id,
         }),
-      }).catch(() => {});
-    }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.room) {
+          setActiveRoom(data.room);
+        }
+      }
+    } catch (e) {}
   };
 
-  // 10. Player Selects an Answer
-  const handleSelectAnswer = async (choiceIndex) => {
-    if (showCoinToss || haltUntil > Date.now()) return;
-    if (activePlayerId !== profile.id) return; // Not your turn!
+  // 10. Trigger Coin Toss after 5s Countdown
+  const triggerCoinToss = async () => {
+    if (isBotMatch) {
+      const isHostWinner = Math.random() < 0.5;
+      const winnerId = isHostWinner ? activeRoom.host.id : activeRoom.guest.id;
+      setActiveRoom((prev) => ({
+        ...prev,
+        status: "tossing_coin",
+        coinToss: {
+          winnerId,
+          flippedAt: Date.now(),
+          sideLand: isHostWinner ? "host" : "guest",
+        },
+        gameState: {
+          ...prev.gameState,
+          activePlayerId: winnerId,
+          turnStartedAt: Date.now() + 4200,
+        },
+      }));
+      return;
+    }
 
-    const currentQ = questions[questionIdx];
+    try {
+      const res = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "start_coin_toss",
+          roomId: activeRoom.id,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.room) setActiveRoom(data.room);
+      }
+    } catch (e) {}
+  };
+
+  // 11. When Coin Toss Animation Finishes -> Enter Battle!
+  const handleCoinTossComplete = () => {
+    setScreen("playing");
+    sound.playStreak();
+  };
+
+  // 12. Submit Answer
+  const handleSelectAnswer = async (choiceIndex) => {
+    if (!isPlayer) return; // Spectators cannot answer!
+    const gs = activeRoom?.gameState;
+    if (gs?.activePlayerId !== profile.id) return; // Not your turn!
+    if (gs?.haltUntil && gs.haltUntil > Date.now()) return; // Locked out!
+
+    const currentQ = activeRoom?.questions?.[gs?.questionIndex || 0];
     if (!currentQ) return;
 
     setSelectedChoice(choiceIndex);
     const isCorrect = choiceIndex === currentQ.correctAnswer;
-    const remainingClock = profile.id === activeRoom.host.id ? hostClock : guestClock;
 
     if (isCorrect) {
       sound.playCorrect();
       setAnswerFeedback({ isCorrect: true, correctIndex: currentQ.correctAnswer });
-
-      if (isBotMatch) {
-        setTimeout(() => {
-          setAnswerFeedback(null);
-          setSelectedChoice(null);
-          setQuestionIdx((i) => i + 1);
-          // Save clock & switch turn to Bot!
-          setActivePlayerId(BOT_PLAYER.id);
-        }, 850);
-      } else {
-        try {
-          await fetch("/api/battle", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "submit_answer",
-              roomId: activeRoom.id,
-              studentId: profile.id,
-              isCorrect: true,
-              remainingClock,
-            }),
-          });
-        } catch (e) {}
-
-        setTimeout(() => {
-          setAnswerFeedback(null);
-          setSelectedChoice(null);
-        }, 850);
-      }
     } else {
-      // WRONG ANSWER: 3-Second Penalty Halt!
       sound.playBuzzer();
-      setHaltUntil(Date.now() + 3000);
       setAnswerFeedback({ isCorrect: false, correctIndex: currentQ.correctAnswer });
-
-      if (!isBotMatch) {
-        try {
-          fetch("/api/battle", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "submit_answer",
-              roomId: activeRoom.id,
-              studentId: profile.id,
-              isCorrect: false,
-              remainingClock,
-            }),
-          }).catch(() => {});
-        } catch (e) {}
-      }
-
-      setTimeout(() => {
-        setAnswerFeedback(null);
-        setSelectedChoice(null);
-      }, 3000);
-    }
-  };
-
-  // 11. Tactical PASS Button: 5-Second Penalty + Passes Turn
-  const handlePassQuestion = async () => {
-    if (showCoinToss || haltUntil > Date.now()) return;
-    if (activePlayerId !== profile.id) return;
-
-    const currentQ = questions[questionIdx];
-    if (!currentQ) return;
-
-    sound.playPass();
-    const isHost = profile.id === activeRoom.host.id;
-    const remainingClock = isHost ? hostClock : guestClock;
-    const nextClock = Math.max(0, +(remainingClock - 5).toFixed(1));
-
-    if (isHost) setHostClock(nextClock);
-    else setGuestClock(nextClock);
-
-    // Briefly flash correct answer
-    setAnswerFeedback({ isCorrect: false, correctIndex: currentQ.correctAnswer });
-
-    if (nextClock <= 0) {
-      handleTimeout(profile.id);
-      return;
     }
 
     if (isBotMatch) {
-      setTimeout(() => {
-        setAnswerFeedback(null);
-        setSelectedChoice(null);
-        setQuestionIdx((i) => i + 1);
-        setActivePlayerId(BOT_PLAYER.id);
-      }, 1200);
-    } else {
-      try {
-        await fetch("/api/battle", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "pass_question",
-            roomId: activeRoom.id,
-            studentId: profile.id,
-            remainingClock: nextClock,
-          }),
-        });
-      } catch (e) {}
-
-      setTimeout(() => {
-        setAnswerFeedback(null);
-        setSelectedChoice(null);
-      }, 1200);
+      const elapsed = (Date.now() - gs.turnStartedAt) / 1000;
+      if (isCorrect) {
+        const newHostClock = Math.max(1, +(gs.hostClock - elapsed).toFixed(1));
+        setTimeout(() => {
+          setAnswerFeedback(null);
+          setSelectedChoice(null);
+          setActiveRoom((prev) => ({
+            ...prev,
+            gameState: {
+              ...prev.gameState,
+              hostClock: newHostClock,
+              activePlayerId: BOT_PLAYER.id,
+              questionIndex: prev.gameState.questionIndex + 1,
+              turnStartedAt: Date.now(),
+              haltUntil: 0,
+            },
+          }));
+        }, 850);
+      } else {
+        setActiveRoom((prev) => ({
+          ...prev,
+          gameState: {
+            ...prev.gameState,
+            haltUntil: Date.now() + 3000,
+          },
+        }));
+        setTimeout(() => {
+          setAnswerFeedback(null);
+          setSelectedChoice(null);
+        }, 3000);
+      }
+      return;
     }
+
+    // Multiplayer Cloud Action
+    try {
+      const res = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "submit_answer",
+          roomId: activeRoom.id,
+          studentId: profile.id,
+          isCorrect,
+          choiceIndex,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.room) setActiveRoom(data.room);
+      }
+    } catch (e) {}
+
+    setTimeout(() => {
+      setAnswerFeedback(null);
+      setSelectedChoice(null);
+    }, isCorrect ? 850 : 3000);
   };
 
-  // Twitch Chat send helper
+  // 13. Tactical Pass Question (-5s Penalty + Pass Turn)
+  const handlePassQuestion = async () => {
+    if (!isPlayer) return;
+    const gs = activeRoom?.gameState;
+    if (gs?.activePlayerId !== profile.id) return;
+    if (gs?.haltUntil && gs.haltUntil > Date.now()) return;
+
+    const currentQ = activeRoom?.questions?.[gs?.questionIndex || 0];
+    if (!currentQ) return;
+
+    sound.playPass();
+    setAnswerFeedback({ isCorrect: false, correctIndex: currentQ.correctAnswer });
+
+    if (isBotMatch) {
+      const elapsed = (Date.now() - gs.turnStartedAt) / 1000;
+      const penalized = Math.max(0, +(gs.hostClock - elapsed - 5).toFixed(1));
+
+      if (penalized <= 0) {
+        handleTimeout(profile.id);
+        return;
+      }
+
+      setTimeout(() => {
+        setAnswerFeedback(null);
+        setSelectedChoice(null);
+        setActiveRoom((prev) => ({
+          ...prev,
+          gameState: {
+            ...prev.gameState,
+            hostClock: penalized,
+            activePlayerId: BOT_PLAYER.id,
+            questionIndex: prev.gameState.questionIndex + 1,
+            turnStartedAt: Date.now(),
+            haltUntil: 0,
+          },
+        }));
+      }, 1100);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "pass_question",
+          roomId: activeRoom.id,
+          studentId: profile.id,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.room) setActiveRoom(data.room);
+      }
+    } catch (e) {}
+
+    setTimeout(() => {
+      setAnswerFeedback(null);
+      setSelectedChoice(null);
+    }, 1100);
+  };
+
+  // 14. Twitch Chat Helper
   const pushChatMessage = async (msg) => {
     if (!activeRoom) return;
     const newChat = [...(activeRoom.chat || []), { ...msg, id: "c_" + Date.now(), createdAt: Date.now() }];
     setActiveRoom((r) => ({ ...r, chat: newChat }));
 
-    if (!isBotMatch) {
+    if (!isBotMatch && activeRoom?.id) {
       try {
         await fetch("/api/battle", {
           method: "POST",
@@ -630,7 +752,7 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  // Emote Reaction burst
+  // 15. Burst Reaction Emotes
   const handleBurstEmote = async (emoji) => {
     if (!activeRoom) return;
     const newEmote = { id: "em_" + Date.now(), emoji, senderName: profile.name, createdAt: Date.now() };
@@ -639,7 +761,7 @@ export function BattleArena({ onBackToReviewer }) {
       recentEmotes: [...(r.recentEmotes || []).slice(-15), newEmote],
     }));
 
-    if (!isBotMatch) {
+    if (!isBotMatch && activeRoom?.id) {
       try {
         fetch("/api/battle", {
           method: "POST",
@@ -655,28 +777,51 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  const isMyTurn = activePlayerId === profile.id;
-  const isSpectating =
-    screen === "playing" &&
-    profile.id !== activeRoom?.host?.id &&
-    profile.id !== activeRoom?.guest?.id;
-
-  const currentQuestion = questions[questionIdx] || {
-    question: "Preparing rapid midterm showdown question...",
+  // Current Question Object
+  const currentQuestionIdx = activeRoom?.gameState?.questionIndex || 0;
+  const currentQuestion = activeRoom?.questions?.[currentQuestionIdx] || {
+    question: "Synchronizing midterm battle question from arena server...",
     options: ["Option A", "Option B", "Option C", "Option D"],
     correctAnswer: 0,
     subjectCode: "BSCPE",
   };
 
-  // Render Sub-Views
+  const isMyTurn = isPlayer && activeRoom?.gameState?.activePlayerId === profile.id;
+  const isHalted = activeRoom?.gameState?.haltUntil && activeRoom.gameState.haltUntil > Date.now();
+  const haltRemaining = Math.max(0, Math.ceil(((activeRoom?.gameState?.haltUntil || 0) - Date.now()) / 1000));
+
+  // Determine readiness for current user
+  const amIReady = isHost ? activeRoom?.hostReady : isGuest ? activeRoom?.guestReady : false;
+
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Coin Toss 3D Modal Overlay */}
-      {showCoinToss && activeRoom && (
+      {/* 5-SECOND SYNCHRONIZED COUNTDOWN OVERLAY (Both Players & Spectators see this) */}
+      {activeRoom?.status === "countdown" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
+          <div className="text-center text-white space-y-4 max-w-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase animate-pulse">
+              <Flame className="w-4 h-4 fill-amber-400 text-amber-500" />
+              <span>Both Players Ready!</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+              Tossing Coin In...
+            </h2>
+            <div className="text-7xl sm:text-8xl font-black font-mono text-amber-400 animate-ping">
+              {countdownSeconds}
+            </div>
+            <p className="text-xs text-slate-400">
+              {isSpectator ? "👀 Spectator View: Get ready to watch the 3D coin toss!" : "Who will face Question 1? Coin spinning shortly!"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* SYNCHRONIZED 3D COIN TOSS MODAL (Visible to Host, Challenger, & Spectators) */}
+      {activeRoom?.status === "tossing_coin" && (
         <CoinTossModal
           host={activeRoom.host}
           guest={activeRoom.guest}
-          winnerId={activePlayerId}
+          winnerId={activeRoom.coinToss?.winnerId}
           onComplete={handleCoinTossComplete}
         />
       )}
@@ -684,7 +829,7 @@ export function BattleArena({ onBackToReviewer }) {
       {/* SCREEN 1: LOBBY BROWSER */}
       {screen === "lobby" && (
         <div className="space-y-6">
-          {/* Gameshow Hero Header */}
+          {/* Hero Banner */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-700/80 p-6 sm:p-8 text-white shadow-2xl">
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -703,8 +848,8 @@ export function BattleArena({ onBackToReviewer }) {
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Enter dynamic lobbies, challenge a classmate or battle the AI Dean's Lister. 
-                  60-second chess clocks, animated coin toss, 3-second penalty halts, and live Twitch spectator chat!
+                  Enter dynamic public showdown lobbies, ready up with your opponent, watch the 3D coin toss, 
+                  and battle on synchronized 60-second chess clocks with live Twitch spectator chat!
                 </p>
               </div>
 
@@ -778,6 +923,8 @@ export function BattleArena({ onBackToReviewer }) {
                   {rooms.map((room) => {
                     const isFull = !!room.guest;
                     const isMyRoom = room.host?.id === profile.id;
+                    const isRoomInBattle = room.status === "in_battle" || room.status === "tossing_coin";
+
                     return (
                       <div
                         key={room.id}
@@ -812,25 +959,25 @@ export function BattleArena({ onBackToReviewer }) {
                         <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
                           <div className="flex items-center gap-2 text-slate-500 text-[11px]">
                             <Users className="w-3.5 h-3.5 text-blue-500" />
-                            <span>{isFull ? "2/2 (In Battle)" : "1/2 (Challenger Needed)"}</span>
+                            <span>{isRoomInBattle ? "🔴 In Battle" : isFull ? "2/2 (Readying)" : "1/2 (Challenger Needed)"}</span>
                             <span className="text-slate-300">•</span>
                             <Eye className="w-3.5 h-3.5 text-emerald-500" />
                             <span>{room.spectatorCount || 0} watching</span>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {isFull ? (
+                            {isRoomInBattle || (isFull && !isMyRoom && room.guest?.id !== profile.id) ? (
                               <button
                                 onClick={() => handleJoinRoom(room, false)}
-                                className="px-3 py-1.5 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 flex items-center gap-1"
+                                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95"
                               >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>Spectate</span>
+                                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Spectate Live</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleJoinRoom(room, !isMyRoom)}
-                                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
+                                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
                               >
                                 <Swords className="w-3.5 h-3.5" />
                                 <span>{isMyRoom ? "Enter Arena" : "Accept Challenge"}</span>
@@ -848,13 +995,23 @@ export function BattleArena({ onBackToReviewer }) {
         </div>
       )}
 
-      {/* SCREEN 2: ROOM SETUP / MATCHMAKING */}
+      {/* SCREEN 2: ROOM SETUP / MATCHMAKING (With Synchronized Ready Protocol) */}
       {screen === "room_setup" && activeRoom && (
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="relative rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 p-6 sm:p-8 text-white text-center shadow-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-black uppercase mb-4">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Match Lobby #{activeRoom.id?.slice(-4)}</span>
+            {/* Header Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-black uppercase">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Match Lobby #{activeRoom.id?.slice(-4)}</span>
+              </span>
+
+              {isSpectator && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-black uppercase">
+                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Live Audience Spectator Mode</span>
+                </span>
+              )}
             </div>
 
             <h2 className="text-xl sm:text-3xl font-black mb-1">{activeRoom.title}</h2>
@@ -862,10 +1019,12 @@ export function BattleArena({ onBackToReviewer }) {
               Subject: <span className="text-amber-400 font-bold">{activeRoom.subject === "all" ? "All 8 Subjects Mixed" : activeRoom.subject.toUpperCase()}</span> • Total Pot: <span className="text-emerald-400 font-bold">{activeRoom.wager * 2} XP</span>
             </p>
 
-            {/* Versus Cards */}
+            {/* Versus Cards with Clear Ready Status Badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative items-center max-w-xl mx-auto mb-8">
               {/* Host Card */}
-              <div className="p-5 rounded-2xl bg-slate-800/80 border-2 border-amber-400/60 flex flex-col items-center gap-2 shadow-lg shadow-amber-500/10">
+              <div className={`p-5 rounded-2xl bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-lg ${
+                activeRoom.hostReady ? "border-emerald-400 shadow-emerald-500/20" : "border-amber-400/60 shadow-amber-500/10"
+              }`}>
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-slate-900">
                   <StudentAvatar avatar={activeRoom.host.avatar} customPhoto={activeRoom.host.customPhoto} className="w-full h-full object-cover" />
                 </div>
@@ -873,7 +1032,20 @@ export function BattleArena({ onBackToReviewer }) {
                 <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/40">
                   HOST • {activeRoom.host.section}
                 </span>
-                <span className="text-xs font-mono text-slate-300">Wager: {activeRoom.wager} XP</span>
+
+                {/* Readiness Indicator */}
+                <div className="mt-1">
+                  {activeRoom.hostReady ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>READY!</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold text-amber-300/80 bg-amber-950/50 px-3 py-1 rounded-full border border-amber-500/30">
+                      Waiting to Ready...
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* VS Pill Center */}
@@ -881,8 +1053,10 @@ export function BattleArena({ onBackToReviewer }) {
                 VS
               </div>
 
-              {/* Guest Card */}
-              <div className="p-5 rounded-2xl bg-slate-800/80 border-2 border-indigo-400/60 flex flex-col items-center gap-2 shadow-lg shadow-indigo-500/10">
+              {/* Guest / Challenger Card */}
+              <div className={`p-5 rounded-2xl bg-slate-800/80 border-2 transition-all flex flex-col items-center gap-2 shadow-lg ${
+                activeRoom.guestReady ? "border-emerald-400 shadow-emerald-500/20" : "border-indigo-400/60 shadow-indigo-500/10"
+              }`}>
                 {activeRoom.guest ? (
                   <>
                     <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-400 shadow-md bg-slate-900">
@@ -892,19 +1066,32 @@ export function BattleArena({ onBackToReviewer }) {
                     <span className="text-[10px] text-indigo-300 font-bold bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-500/40">
                       {activeRoom.guest.isBot ? "AI BOT" : "CHALLENGER"} • {activeRoom.guest.section}
                     </span>
-                    <span className="text-xs font-mono text-slate-300">Wager: {activeRoom.wager} XP</span>
+
+                    {/* Readiness Indicator */}
+                    <div className="mt-1">
+                      {activeRoom.guestReady ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          <span>READY!</span>
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold text-indigo-300/80 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-500/30">
+                          Waiting to Ready...
+                        </span>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center py-6 text-slate-500">
                     <Users className="w-10 h-10 mb-2 animate-pulse text-indigo-400" />
                     <p className="text-xs font-bold text-slate-300">Waiting for Challenger...</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Share room link or invite a classmate!</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Classmates can join from the lobby!</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Launch Button */}
+            {/* Action Bar (Players get READY button, Spectators get live status) */}
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 onClick={() => setScreen("lobby")}
@@ -913,23 +1100,47 @@ export function BattleArena({ onBackToReviewer }) {
                 Leave Lobby
               </button>
 
-              <button
-                onClick={handleInitiateMatch}
-                disabled={!activeRoom.guest}
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 disabled:opacity-40 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/25 active:scale-95 transition-all flex items-center gap-2"
-              >
-                <Zap className="w-4 h-4 fill-slate-950" />
-                <span>Toss Coin & Start Showdown</span>
-              </button>
+              {isPlayer ? (
+                <button
+                  onClick={handleToggleReady}
+                  disabled={!activeRoom.guest}
+                  className={`px-8 py-3.5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 ${
+                    amIReady
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
+                      : "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-amber-500/25 disabled:opacity-40"
+                  }`}
+                >
+                  <Zap className="w-4 h-4 fill-current" />
+                  <span>{amIReady ? "✓ You are Ready! (Tap to Cancel)" : "Ready for Battle ⚡"}</span>
+                </button>
+              ) : (
+                <div className="px-6 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-xs font-black text-slate-300 flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-emerald-400" />
+                  <span>Waiting for {activeRoom.host.name} & {activeRoom.guest?.name || "Challenger"} to press Ready...</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* SCREEN 3: ACTIVE 60S BLITZ SHOWDOWN */}
+      {/* SCREEN 3: ACTIVE 60S BLITZ SHOWDOWN (Synchronized Clocks, Questions, & Spectator View) */}
       {screen === "playing" && activeRoom && (
         <div className="space-y-4">
-          {/* Mobile Tab Switcher (Visible on mobile screens < lg) */}
+          {/* Spectator Mode Top Notice Bar */}
+          {isSpectator && (
+            <div className="px-4 py-2.5 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span>👀 Spectator Mode Active • Watching {activeRoom.host.name} vs {activeRoom.guest?.name}</span>
+              </div>
+              <span className="text-[10px] text-emerald-400 uppercase tracking-wider font-mono">
+                {activeRoom.spectators?.length || 1} Watching
+              </span>
+            </div>
+          )}
+
+          {/* Mobile Tab Switcher (< lg) */}
           <div className="lg:hidden flex items-center justify-center p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg">
             <button
               onClick={() => setMobileMatchTab("stage")}
@@ -956,14 +1167,14 @@ export function BattleArena({ onBackToReviewer }) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            {/* Main Battle Stage (2 Columns on Desktop, toggled on Mobile) */}
+            {/* Main Battle Stage */}
             <div className={`lg:col-span-2 space-y-4 ${mobileMatchTab === "chat" ? "hidden lg:block" : "block"}`}>
-              {/* Top Game-Show Dual Chess Clock Deck */}
+              {/* Dual Chess Clocks (Authoritative & Smooth) */}
               <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                 {/* Host Clock */}
                 <div
                   className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
-                    activePlayerId === activeRoom.host.id
+                    activeRoom.gameState?.activePlayerId === activeRoom.host.id
                       ? "bg-slate-900 border-amber-400 shadow-xl shadow-amber-500/20"
                       : "bg-slate-900/60 border-slate-800 opacity-70"
                   }`}
@@ -977,7 +1188,7 @@ export function BattleArena({ onBackToReviewer }) {
                         {activeRoom.host.name}
                       </span>
                     </div>
-                    {activePlayerId === activeRoom.host.id && (
+                    {activeRoom.gameState?.activePlayerId === activeRoom.host.id && (
                       <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 animate-pulse bg-amber-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-amber-500/40 shrink-0">
                         ON CLOCK
                       </span>
@@ -987,10 +1198,10 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        hostClock <= 10 ? "text-red-500 animate-ping" : "text-amber-400"
+                        liveClocks.host <= 10 ? "text-red-500 animate-ping" : "text-amber-400"
                       }`}
                     >
-                      {Math.ceil(hostClock)}s
+                      {Math.ceil(liveClocks.host)}s
                     </span>
                     <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
                       POT: {activeRoom.wager * 2} XP
@@ -1001,9 +1212,9 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        hostClock <= 10 ? "bg-red-500" : "bg-amber-400"
+                        liveClocks.host <= 10 ? "bg-red-500" : "bg-amber-400"
                       }`}
-                      style={{ width: `${(hostClock / 60) * 100}%` }}
+                      style={{ width: `${(liveClocks.host / 60) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -1011,7 +1222,7 @@ export function BattleArena({ onBackToReviewer }) {
                 {/* Guest Clock */}
                 <div
                   className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
-                    activePlayerId === activeRoom.guest?.id
+                    activeRoom.gameState?.activePlayerId === activeRoom.guest?.id
                       ? "bg-slate-900 border-indigo-400 shadow-xl shadow-indigo-500/20"
                       : "bg-slate-900/60 border-slate-800 opacity-70"
                   }`}
@@ -1025,7 +1236,7 @@ export function BattleArena({ onBackToReviewer }) {
                         {activeRoom.guest?.name}
                       </span>
                     </div>
-                    {activePlayerId === activeRoom.guest?.id && (
+                    {activeRoom.gameState?.activePlayerId === activeRoom.guest?.id && (
                       <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-400 animate-pulse bg-indigo-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-500/40 shrink-0">
                         ON CLOCK
                       </span>
@@ -1035,10 +1246,10 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        guestClock <= 10 ? "text-red-500 animate-ping" : "text-indigo-400"
+                        liveClocks.guest <= 10 ? "text-red-500 animate-ping" : "text-indigo-400"
                       }`}
                     >
-                      {Math.ceil(guestClock)}s
+                      {Math.ceil(liveClocks.guest)}s
                     </span>
                     <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
                       {activeRoom.guest?.isBot ? "AI BOT" : "RIVAL"}
@@ -1049,28 +1260,28 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        guestClock <= 10 ? "bg-red-500" : "bg-indigo-400"
+                        liveClocks.guest <= 10 ? "bg-red-500" : "bg-indigo-400"
                       }`}
-                      style={{ width: `${(guestClock / 60) * 100}%` }}
+                      style={{ width: `${(liveClocks.guest / 60) * 100}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Question Card Arena */}
+              {/* Synchronized Question Card Arena */}
               <div className="relative rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-4 sm:p-7 shadow-xl overflow-hidden min-h-[340px] flex flex-col justify-between">
                 {/* 3-Second Penalty Halt Lockout Overlay */}
-                {haltUntil > Date.now() && (
+                {isHalted && (
                   <div className="absolute inset-0 z-30 bg-red-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white animate-fadeIn">
                     <AlertTriangle className="w-10 h-10 sm:w-12 sm:h-12 text-red-400 mb-2 animate-bounce" />
                     <h3 className="text-lg sm:text-2xl font-black text-red-200">
                       INCORRECT CHOICE! 🛑
                     </h3>
                     <p className="text-xs text-red-300 font-semibold mt-1 mb-4">
-                      Locked out for 3 seconds penalty! Hold your breath!
+                      Locked out for 3 seconds penalty!
                     </p>
                     <span className="text-3xl sm:text-4xl font-mono font-black text-white animate-ping">
-                      {Math.ceil((haltUntil - Date.now()) / 1000)}s
+                      {haltRemaining}s
                     </span>
                   </div>
                 )}
@@ -1081,17 +1292,24 @@ export function BattleArena({ onBackToReviewer }) {
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-[10.5px] sm:text-[11px] font-black uppercase">
                       <span>{currentQuestion.subjectCode}</span>
                       <span className="text-slate-400">•</span>
-                      <span>Q#{questionIdx + 1}</span>
+                      <span>Q#{currentQuestionIdx + 1}</span>
                     </span>
 
                     <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                      {isMyTurn ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 font-black animate-pulse flex items-center gap-1">
-                          <Zap className="w-3.5 h-3.5 fill-current" />
-                          YOUR TURN!
-                        </span>
+                      {isPlayer ? (
+                        isMyTurn ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-black animate-pulse flex items-center gap-1">
+                            <Zap className="w-3.5 h-3.5 fill-current" />
+                            YOUR TURN TO ANSWER!
+                          </span>
+                        ) : (
+                          <span>Opponent's turn to answer...</span>
+                        )
                       ) : (
-                        <span>Opponent's turn...</span>
+                        <span className="text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Spectating {activeRoom.gameState?.activePlayerId === activeRoom.host.id ? activeRoom.host.name : activeRoom.guest?.name}'s Turn</span>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -1109,6 +1327,10 @@ export function BattleArena({ onBackToReviewer }) {
                     const isSelected = selectedChoice === idx;
                     const isCorrectAnswer = answerFeedback?.correctIndex === idx;
 
+                    // Spectator sees lastAnswer broadcast from server
+                    const lastAns = activeRoom.gameState?.lastAnswer;
+                    const isBroadcastChoice = lastAns && lastAns.choiceIndex === idx && (Date.now() - (lastAns.timestamp || 0) < 1400);
+
                     let btnStyle =
                       "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
 
@@ -1118,14 +1340,20 @@ export function BattleArena({ onBackToReviewer }) {
                       } else if (isSelected && !answerFeedback.isCorrect) {
                         btnStyle = "bg-red-600 border-red-500 text-white font-black";
                       }
+                    } else if (isSpectator && isBroadcastChoice) {
+                      btnStyle = lastAns.isCorrect
+                        ? "bg-emerald-600 border-emerald-500 text-white font-black"
+                        : "bg-red-600 border-red-500 text-white font-black";
                     }
 
                     return (
                       <button
                         key={idx}
                         onClick={() => handleSelectAnswer(idx)}
-                        disabled={!isMyTurn || haltUntil > Date.now() || !!answerFeedback}
-                        className={`p-3 sm:p-4 rounded-xl border-2 text-left text-xs sm:text-sm font-semibold transition-all flex items-start gap-2.5 sm:gap-3 active:scale-98 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] touch-manipulation ${btnStyle}`}
+                        disabled={!isMyTurn || isHalted || !!answerFeedback || isSpectator}
+                        className={`p-3 sm:p-4 rounded-xl border-2 text-left text-xs sm:text-sm font-semibold transition-all flex items-start gap-2.5 sm:gap-3 active:scale-98 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] touch-manipulation ${
+                          isSpectator ? "cursor-default opacity-90" : ""
+                        } ${btnStyle}`}
                       >
                         <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center text-[11px] sm:text-xs font-black shrink-0 mt-0.5">
                           {letter}
@@ -1139,13 +1367,17 @@ export function BattleArena({ onBackToReviewer }) {
                 {/* Tactical Action Bar: Pass Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
-                    {isMyTurn ? "Correct answer saves clock and passes turn!" : "Waiting for response..."}
+                    {isSpectator
+                      ? "👀 Spectators cannot click choices. Cheer in the live Twitch feed!"
+                      : isMyTurn
+                      ? "Correct answer freezes your timer and passes turn!"
+                      : "Waiting for opponent..."}
                   </div>
 
                   {isMyTurn && (
                     <button
                       onClick={handlePassQuestion}
-                      disabled={haltUntil > Date.now() || !!answerFeedback}
+                      disabled={isHalted || !!answerFeedback}
                       className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
                       title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
                     >
@@ -1175,7 +1407,7 @@ export function BattleArena({ onBackToReviewer }) {
               </div>
             </div>
 
-            {/* Right Column: Live Twitch Spectator Feed (Side by side on Desktop, Toggled on Mobile) */}
+            {/* Right Column: Live Twitch Spectator Feed */}
             <div className={`lg:col-span-1 ${mobileMatchTab === "stage" ? "hidden lg:block" : "block"}`}>
               <TwitchSpectatorChat
                 roomId={activeRoom.id}
@@ -1207,49 +1439,66 @@ export function BattleArena({ onBackToReviewer }) {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black mb-1">
-              {winnerInfo.isCurrentUser ? "VICTORY ROYALE! 🏆" : "DEFEAT! 💀"}
+              {winnerInfo.isCurrentUser ? "VICTORY ROYALE! 🏆" : "MATCH CONCLUDED! ⚔️"}
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-400 mb-6">
               {winnerInfo.isCurrentUser
                 ? `You outlasted your opponent on the clock!`
-                : `${winnerInfo.winnerName} claimed the crown!`}
+                : `${winnerInfo.winnerName} claimed the match crown!`}
             </p>
 
             {/* Wager Payout Banner */}
-            <div
-              className={`p-4 rounded-2xl mb-6 border ${
-                winnerInfo.isCurrentUser
-                  ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                  : "bg-red-950/60 border-red-500/40 text-red-300"
-              }`}
-            >
-              <div className="text-xs font-bold uppercase tracking-wider mb-1">Wager Payout</div>
-              <div className="text-3xl font-black font-mono">
-                {winnerInfo.isCurrentUser ? `+${winnerInfo.wager * 2} XP` : `-${winnerInfo.wager} XP`}
+            {isPlayer && (
+              <div
+                className={`p-4 rounded-2xl mb-6 border ${
+                  winnerInfo.isCurrentUser
+                    ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                    : "bg-red-950/60 border-red-500/40 text-red-300"
+                }`}
+              >
+                <div className="text-xs font-bold uppercase tracking-wider mb-1">Wager Payout</div>
+                <div className="text-3xl font-black font-mono">
+                  {winnerInfo.isCurrentUser ? `+${winnerInfo.wager * 2} XP` : `-${winnerInfo.wager} XP`}
+                </div>
+                <div className="text-[11px] mt-1 opacity-80">
+                  {winnerInfo.isCurrentUser
+                    ? "Double your wager collected from opponent!"
+                    : "Wager transferred to match champion."}
+                </div>
               </div>
-              <div className="text-[11px] mt-1 opacity-80">
-                {winnerInfo.isCurrentUser
-                  ? "Double your wager collected from opponent!"
-                  : "Wager transferred to match champion."}
-              </div>
-            </div>
+            )}
 
             {/* Actions */}
             <div className="flex flex-col gap-2.5">
-              <button
-                onClick={() => {
-                  setScreen("room_setup");
-                  setHostClock(60);
-                  setGuestClock(60);
-                }}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
-              >
-                Rematch Showdown
-              </button>
+              {isPlayer && (
+                <button
+                  onClick={() => {
+                    setScreen("room_setup");
+                    setActiveRoom((prev) => ({
+                      ...prev,
+                      status: "waiting",
+                      hostReady: false,
+                      guestReady: false,
+                      gameState: {
+                        ...prev.gameState,
+                        hostClock: 60,
+                        guestClock: 60,
+                        winnerId: null,
+                      },
+                    }));
+                  }}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
+                >
+                  Rematch Showdown
+                </button>
+              )}
 
               <button
-                onClick={() => setScreen("lobby")}
+                onClick={() => {
+                  setScreen("lobby");
+                  setActiveRoom(null);
+                }}
                 className="w-full py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
               >
                 Return to Arena Lobby
@@ -1262,7 +1511,7 @@ export function BattleArena({ onBackToReviewer }) {
       {/* CREATE ROOM MODAL */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <Swords className="w-4 h-4 text-amber-500" />
