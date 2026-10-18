@@ -20,21 +20,69 @@ import {
 import confetti from "canvas-confetti";
 
 export function StudentProfileModal({ student, onClose }) {
+  const { profile, leaderboard } = useUser();
   if (!student) return null;
 
-  const levelInfo = student.levelInfo || getLevelInfo(student.xp || 0);
-  const secKey = normalizeSectionKey(student.section || "4D");
+  // Check if inspecting the current user (by ID or exact name)
+  const isMe = Boolean(
+    (profile?.id && student.id === profile.id) ||
+    (profile?.name && student.name && profile.name.trim().toLowerCase() === student.name.trim().toLowerCase())
+  );
+
+  // If classmate, check if they exist in live leaderboard roster for latest stats
+  const classmateMatch = !isMe && Array.isArray(leaderboard)
+    ? leaderboard.find(
+        (item) =>
+          (student.id && item.id === student.id) ||
+          (student.name && item.name && item.name.trim().toLowerCase() === student.name.trim().toLowerCase())
+      )
+    : null;
+
+  const activeStudent = isMe
+    ? {
+        ...student,
+        id: profile.id,
+        name: profile.name,
+        section: profile.section,
+        avatar: profile.avatar,
+        frame: profile.frame,
+        nameFx: profile.nameFx,
+        tagline: profile.tagline,
+        customPhoto: profile.customPhoto,
+        xp: profile.xp,
+        fastestBlitz: profile.fastestBlitzSeconds,
+        highestPercent: profile.highestScorePercent,
+      }
+    : classmateMatch
+    ? {
+        ...student,
+        id: classmateMatch.id || student.id,
+        name: classmateMatch.name || student.name,
+        section: classmateMatch.section || student.section,
+        avatar: classmateMatch.avatar || student.avatar,
+        frame: classmateMatch.frame || student.frame,
+        nameFx: classmateMatch.nameFx || student.nameFx,
+        tagline: classmateMatch.tagline || student.tagline,
+        customPhoto: classmateMatch.customPhoto || student.customPhoto,
+        xp: classmateMatch.xp ?? student.xp,
+        fastestBlitz: classmateMatch.fastestBlitz ?? student.fastestBlitz,
+        highestPercent: classmateMatch.highestPercent ?? student.highestPercent,
+      }
+    : student;
+
+  const levelInfo = getLevelInfo(activeStudent.xp || 0);
+  const secKey = normalizeSectionKey(activeStudent.section || "4D");
   const secDetails = SECTIONS[secKey] || SECTIONS["4D"];
-  const frameObj = AVATAR_FRAMES.find((f) => f.id === student.frame) || AVATAR_FRAMES[0];
-  const nameFxObj = NAME_EFFECTS.find((fx) => fx.id === student.nameFx);
+  const frameObj = AVATAR_FRAMES.find((f) => f.id === activeStudent.frame) || AVATAR_FRAMES[0];
+  const nameFxObj = NAME_EFFECTS.find((fx) => fx.id === activeStudent.nameFx);
 
   const handleShare = () => {
     const text = `🎓 BSCPE 4th Year Reviewer Profile\n` +
-      `👤 Student: ${student.name} (${student.section || "BSCPE 4D"})\n` +
+      `👤 Student: ${activeStudent.name} (${activeStudent.section || "BSCPE 4D"})\n` +
       `⭐ Rank: Level ${levelInfo.level} — ${levelInfo.title}\n` +
-      `⚡ Total XP: ${(student.xp || 0).toLocaleString()} XP\n` +
-      `🏷️ Vanity: ${student.tagline || "4th Year Candidate"}\n` +
-      `⏱️ Fastest Blitz: ${student.fastestBlitz ? student.fastestBlitz + "s" : "N/A"}\n` +
+      `⚡ Total XP: ${(activeStudent.xp || 0).toLocaleString()} XP\n` +
+      `🏷️ Vanity: ${activeStudent.tagline || "4th Year Candidate"}\n` +
+      `⏱️ Fastest Blitz: ${activeStudent.fastestBlitz ? activeStudent.fastestBlitz + "s" : "N/A"}\n` +
       `Check standings: https://mt-reviewer2026.vercel.app`;
     navigator.clipboard.writeText(text);
     confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
@@ -66,9 +114,9 @@ export function StudentProfileModal({ student, onClose }) {
           <div className="flex flex-col items-center justify-center gap-3 pt-1">
             <div className="relative flex items-center justify-center p-3">
               <StudentAvatar
-                avatar={student.avatar}
-                customPhoto={student.customPhoto}
-                frameId={student.frame}
+                avatar={activeStudent.avatar}
+                customPhoto={activeStudent.customPhoto}
+                frameId={activeStudent.frame}
                 size="xl"
               />
             </div>
@@ -76,12 +124,12 @@ export function StudentProfileModal({ student, onClose }) {
             {/* Student Name with Animated Name FX */}
             <div className="space-y-1">
               <h3 className={`text-xl sm:text-2xl font-black tracking-tight ${nameFxObj?.cssClass || "text-slate-900 dark:text-white"}`}>
-                {student.name}
+                {activeStudent.name}
               </h3>
               
               <div className="flex items-center justify-center gap-1.5 flex-wrap">
                 <span className="text-[10px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-700/50">
-                  {student.section || "BSCPE 4D"} • {secDetails.room}
+                  {activeStudent.section || "BSCPE 4D"} • {secDetails.room}
                 </span>
                 <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                   Proctor: {secDetails.proctor}
@@ -90,11 +138,11 @@ export function StudentProfileModal({ student, onClose }) {
             </div>
 
             {/* Vanity Tagline Badge */}
-            {student.tagline && (
+            {activeStudent.tagline && (
               <div>
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 shadow-xs">
                   <Tag className="w-3 h-3 text-amber-500" />
-                  <span>{student.tagline}</span>
+                  <span>{activeStudent.tagline}</span>
                 </span>
               </div>
             )}
@@ -112,7 +160,7 @@ export function StudentProfileModal({ student, onClose }) {
               <div className="text-right">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 block">Total Experience</span>
                 <span className="text-base sm:text-lg font-black text-emerald-400 font-mono">
-                  {(student.xp || 0).toLocaleString()} XP
+                  {(activeStudent.xp || 0).toLocaleString()} XP
                 </span>
               </div>
             </div>
@@ -138,7 +186,7 @@ export function StudentProfileModal({ student, onClose }) {
                 <span>Fastest Blitz</span>
               </span>
               <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white block mt-0.5">
-                {student.fastestBlitz ? `${student.fastestBlitz}s` : "No Record"}
+                {activeStudent.fastestBlitz ? `${activeStudent.fastestBlitz}s` : "No Record"}
               </span>
             </div>
 
@@ -148,7 +196,7 @@ export function StudentProfileModal({ student, onClose }) {
                 <span>Top Score %</span>
               </span>
               <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white block mt-0.5">
-                {student.highestPercent ? `${student.highestPercent}%` : "0%"}
+                {activeStudent.highestPercent ? `${activeStudent.highestPercent}%` : "0%"}
               </span>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame } from "../utils/gamification";
+import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame, getLevelInfo } from "../utils/gamification";
 import { StudentAvatar } from "./StudentAvatar";
 import { 
   MessageSquare, 
@@ -35,7 +35,8 @@ export function ClassShoutbox() {
     setIsFeedOpen, 
     setInspectedStudent,
     isCloudConnected,
-    syncWithCloud
+    syncWithCloud,
+    leaderboard
   } = useUser();
 
   const [inputVal, setInputVal] = useState("");
@@ -87,6 +88,69 @@ export function ClassShoutbox() {
     const diffHr = Math.floor(diffMin / 60);
     if (diffHr < 24) return `${diffHr}h ago`;
     return new Date(ts).toLocaleDateString([], { month: "short", day: "numeric" });
+  };
+
+  const handleInspectMessage = (msg) => {
+    const isMe = Boolean(
+      (msg.studentId && profile?.id && msg.studentId === profile.id) ||
+      (msg.studentName && profile?.name && msg.studentName.trim().toLowerCase() === profile.name.trim().toLowerCase())
+    );
+
+    if (isMe) {
+      setInspectedStudent({
+        id: profile.id,
+        name: profile.name,
+        section: profile.section,
+        avatar: profile.avatar,
+        frame: profile.frame,
+        nameFx: profile.nameFx,
+        tagline: profile.tagline,
+        customPhoto: profile.customPhoto,
+        xp: profile.xp,
+        fastestBlitz: profile.fastestBlitzSeconds,
+        highestPercent: profile.highestScorePercent,
+      });
+      return;
+    }
+
+    const live = Array.isArray(leaderboard)
+      ? leaderboard.find(
+          (l) =>
+            (msg.studentId && l.id === msg.studentId) ||
+            (msg.studentName && l.name && l.name.trim().toLowerCase() === msg.studentName.trim().toLowerCase())
+        )
+      : null;
+
+    if (live) {
+      setInspectedStudent({
+        id: live.id || msg.studentId,
+        name: live.name || msg.studentName,
+        section: live.section || msg.studentSection,
+        avatar: live.avatar || msg.avatar,
+        frame: live.frame || msg.frame,
+        nameFx: live.nameFx || msg.nameFx,
+        tagline: live.tagline || msg.tagline,
+        customPhoto: live.customPhoto || msg.customPhoto,
+        xp: live.xp ?? msg.xp,
+        fastestBlitz: live.fastestBlitz ?? msg.fastestBlitz,
+        highestPercent: live.highestPercent ?? msg.highestPercent,
+      });
+      return;
+    }
+
+    setInspectedStudent({
+      id: msg.studentId,
+      name: msg.studentName,
+      section: msg.studentSection,
+      avatar: msg.avatar,
+      frame: msg.frame,
+      nameFx: msg.nameFx,
+      tagline: msg.tagline,
+      customPhoto: msg.customPhoto,
+      xp: msg.xp || (msg.level ? msg.level * 800 : 0),
+      fastestBlitz: msg.fastestBlitz || null,
+      highestPercent: msg.highestPercent || 0,
+    });
   };
 
   return (
@@ -178,11 +242,25 @@ export function ClassShoutbox() {
               feedMessages.map((msg) => {
                 const isMe = Boolean(
                   (msg.studentId && profile?.id && msg.studentId === profile.id) ||
-                  (msg.studentName && profile?.name && msg.studentName === profile.name)
+                  (msg.studentName && profile?.name && msg.studentName.trim().toLowerCase() === profile.name.trim().toLowerCase())
                 );
-                const frameObj = getAvatarFrame(msg.frame);
-                const frameClass = frameObj?.cssClass || "avatar-frame-default";
-                const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === msg.nameFx)?.cssClass || "";
+
+                const liveClassmate = !isMe && Array.isArray(leaderboard)
+                  ? leaderboard.find(
+                      (l) =>
+                        (msg.studentId && l.id === msg.studentId) ||
+                        (msg.studentName && l.name && l.name.trim().toLowerCase() === msg.studentName.trim().toLowerCase())
+                    )
+                  : null;
+
+                const displayAvatar = isMe ? profile.avatar : (liveClassmate?.avatar || msg.avatar);
+                const displayPhoto = isMe ? profile.customPhoto : (liveClassmate?.customPhoto || msg.customPhoto);
+                const displayFrame = isMe ? profile.frame : (liveClassmate?.frame || msg.frame);
+                const displayNameFx = isMe ? profile.nameFx : (liveClassmate?.nameFx || msg.nameFx);
+                const displayTagline = isMe ? profile.tagline : (liveClassmate?.tagline || msg.tagline);
+                const displaySection = isMe ? profile.section : (liveClassmate?.section || msg.studentSection || "4D");
+                const displayLevel = isMe ? getLevelInfo(profile.xp || 0).level : (liveClassmate?.levelInfo?.level || msg.level || 1);
+                const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === displayNameFx)?.cssClass || "";
 
                 return (
                   <div
@@ -192,25 +270,14 @@ export function ClassShoutbox() {
                     {/* Clickable Avatar to Inspect Profile */}
                     <button
                       type="button"
-                      onClick={() => setInspectedStudent({
-                        id: msg.studentId,
-                        name: msg.studentName,
-                        section: msg.studentSection,
-                        avatar: msg.avatar,
-                        frame: msg.frame,
-                        nameFx: msg.nameFx,
-                        tagline: msg.tagline,
-                        customPhoto: msg.customPhoto,
-                        level: msg.level,
-                        xp: msg.xp || (msg.level ? msg.level * 800 : 0),
-                      })}
+                      onClick={() => handleInspectMessage(msg)}
                       className="cursor-pointer transition-transform hover:scale-110 shrink-0"
                       title={`Inspect ${msg.studentName}'s Profile`}
                     >
                       <StudentAvatar
-                        avatar={msg.avatar}
-                        customPhoto={msg.customPhoto}
-                        frameId={msg.frame}
+                        avatar={displayAvatar}
+                        customPhoto={displayPhoto}
+                        frameId={displayFrame}
                         size="sm"
                       />
                     </button>
@@ -221,37 +288,26 @@ export function ClassShoutbox() {
                       <div className={`flex items-center gap-1.5 flex-wrap text-[10px] ${isMe ? "justify-end" : "justify-start"}`}>
                         <button
                           type="button"
-                          onClick={() => setInspectedStudent({
-                            id: msg.studentId,
-                            name: msg.studentName,
-                            section: msg.studentSection,
-                            avatar: msg.avatar,
-                            frame: msg.frame,
-                            nameFx: msg.nameFx,
-                            tagline: msg.tagline,
-                            customPhoto: msg.customPhoto,
-                            level: msg.level,
-                            xp: msg.xp || (msg.level ? msg.level * 800 : 0),
-                          })}
+                          onClick={() => handleInspectMessage(msg)}
                           className={`font-black hover:underline cursor-pointer ${nameFxClass || "text-slate-900 dark:text-white"}`}
                         >
                           {msg.studentName}
                         </button>
                         <span className="text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 px-1.5 py-0.2 rounded border border-blue-200/60 dark:border-blue-800/40">
-                          {msg.studentSection || "4D"}
+                          {displaySection}
                         </span>
-                        {msg.level && (
+                        {displayLevel && (
                           <span className="text-[9px] font-bold text-amber-500">
-                            Lv.{msg.level}
+                            Lv.{displayLevel}
                           </span>
                         )}
                       </div>
 
                       {/* Vanity Tagline (if equipped) */}
-                      {msg.tagline && (
+                      {displayTagline && (
                         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                           <span className="text-[9px] font-bold text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.2 rounded-full border border-amber-300/40 dark:border-amber-700/40 truncate max-w-[200px]">
-                            {msg.tagline}
+                            {displayTagline}
                           </span>
                         </div>
                       )}

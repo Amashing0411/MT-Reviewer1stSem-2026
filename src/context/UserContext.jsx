@@ -274,6 +274,9 @@ export function UserProvider({ children }) {
       tagline: profile.tagline || "",
       customPhoto: profile.customPhoto || null,
       level: getLevelInfo(profile.xp).level || 1,
+      xp: profile.xp || 0,
+      fastestBlitz: profile.fastestBlitzSeconds || null,
+      highestPercent: profile.highestScorePercent || 0,
       createdAt: Date.now(),
     };
 

@@ -160,6 +160,9 @@ export default async function handler(req, res) {
           tagline: String(body.tagline || "").slice(0, 80),
           customPhoto: body.customPhoto && typeof body.customPhoto === "string" && body.customPhoto.startsWith("data:image") ? body.customPhoto : null,
           level: Number(body.level) || 1,
+          xp: Number(body.xp) || 0,
+          fastestBlitz: body.fastestBlitz ? Number(body.fastestBlitz) : null,
+          highestPercent: body.highestPercent ? Number(body.highestPercent) : 0,
           createdAt: Date.now(),
         };
         feed.push(newMsg);

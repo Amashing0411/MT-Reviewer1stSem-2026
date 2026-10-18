@@ -23,9 +23,11 @@ import {
   Palette,
   Flame,
   CheckCircle2,
-  Trash2
+  Trash2,
+  Crop
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { ImageCropModal } from "./ImageCropModal";
 
 const SECTION_CHOICES = [
   { id: "4A", name: "BSCPE 4A", room: "Room 109", proctor: "Joel Urriquia" },
@@ -53,6 +55,8 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
   const [photoError, setPhotoError] = useState(null);
   const [photoSuccess, setPhotoSuccess] = useState(null);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [rawImageForCrop, setRawImageForCrop] = useState(null);
 
   // Restore tab states
   const [restoreName, setRestoreName] = useState("");
@@ -97,7 +101,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
     selectedTagline !== (profile.tagline || "🎓 4th Year Candidate")
   );
 
-  // Handle Photo Upload & Compression (supports up to 15MB phone camera images)
+  // Handle Photo Upload: reads image and opens the interactive Crop Studio
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -127,6 +131,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
     };
 
     reader.onload = (uploadEvent) => {
+      const rawData = uploadEvent.target.result;
       const img = new Image();
       img.onerror = () => {
         setIsPhotoProcessing(false);
@@ -134,31 +139,47 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
       };
 
       img.onload = () => {
-        try {
+        // Optimize high-res camera photos to max 1280px for buttery smooth crop studio performance
+        const maxDim = 1280;
+        if (img.width > maxDim || img.height > maxDim) {
           const canvas = document.createElement("canvas");
+          const scale = maxDim / Math.max(img.width, img.height);
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
           const ctx = canvas.getContext("2d");
-          const size = 160;
-          canvas.width = size;
-          canvas.height = size;
-
-          const minDim = Math.min(img.width, img.height);
-          const startX = (img.width - minDim) / 2;
-          const startY = (img.height - minDim) / 2;
-
-          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
-          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.88);
-          setCustomPhoto(compressedBase64);
-          setIsPhotoProcessing(false);
-          setPhotoSuccess("Photo cropped & loaded! Press Save Profile to apply.");
-          try { sound?.playFlip?.(); } catch (err) {}
-        } catch (err) {
-          setIsPhotoProcessing(false);
-          setPhotoError("Image processing error. Please try again.");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const scaledData = canvas.toDataURL("image/jpeg", 0.92);
+          setRawImageForCrop(scaledData);
+        } else {
+          setRawImageForCrop(rawData);
         }
+        setIsPhotoProcessing(false);
+        setCropModalOpen(true);
       };
-      img.src = uploadEvent.target.result;
+      img.src = rawData;
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleOpenCropper = () => {
+    if (customPhoto) {
+      setRawImageForCrop(customPhoto);
+      setCropModalOpen(true);
+    }
+  };
+
+  const handleCropSave = (croppedDataUrl) => {
+    setCustomPhoto(croppedDataUrl);
+    setCropModalOpen(false);
+    setRawImageForCrop(null);
+    setPhotoSuccess("Photo framed & adjusted! Click 'Save Profile' below to apply.");
+    setPhotoError(null);
+    try { sound?.playFlip?.(); } catch (err) {}
+  };
+
+  const handleCropClose = () => {
+    setCropModalOpen(false);
+    setRawImageForCrop(null);
   };
 
   const handleSave = (e) => {
@@ -450,19 +471,31 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                   </button>
 
                   {customPhoto && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCustomPhoto(null);
-                        setPhotoSuccess(null);
-                        setPhotoError(null);
-                        try { sound?.playFlip?.(); } catch (err) {}
-                      }}
-                      className="btn-haptic px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Remove Photo</span>
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleOpenCropper}
+                        className="btn-haptic px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                        title="Crop, Zoom, Rotate & Reframe Photo"
+                      >
+                        <Crop className="w-3.5 h-3.5" />
+                        <span>Crop & Zoom</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomPhoto(null);
+                          setPhotoSuccess(null);
+                          setPhotoError(null);
+                          try { sound?.playFlip?.(); } catch (err) {}
+                        }}
+                        className="btn-haptic px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove Photo</span>
+                      </button>
+                    </>
                   )}
 
                   <input
@@ -957,6 +990,15 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
 
         </div>
       </div>
+
+      {/* Interactive Photo Crop & Framing Studio Modal */}
+      <ImageCropModal
+        isOpen={cropModalOpen}
+        imageSrc={rawImageForCrop}
+        frameId={selectedFrame}
+        onSave={handleCropSave}
+        onClose={handleCropClose}
+      />
     </div>
   );
 }
