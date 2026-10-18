@@ -23,7 +23,7 @@ export function MathView({ math, block = false, className = "" }) {
   if (block) {
     return (
       <div 
-        className={`my-3 p-4 bg-slate-50/90 border border-slate-200/90 rounded-2xl overflow-x-auto text-center font-serif text-slate-900 shadow-2xs ${className}`}
+        className={`my-3 p-4 bg-slate-50/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-x-auto text-center font-serif text-slate-900 dark:text-blue-100 shadow-2xs dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ${className}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
@@ -31,7 +31,7 @@ export function MathView({ math, block = false, className = "" }) {
 
   return (
     <span 
-      className={`inline-math px-1 py-0.5 rounded text-slate-900 font-serif ${className}`}
+      className={`inline-math px-1 py-0.5 rounded text-slate-900 dark:text-blue-100 font-serif ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
@@ -78,14 +78,14 @@ function renderMarkdownChunk(textChunk, keyPrefix) {
     const renderedLine = segments.map((seg, sIdx) => {
       const k = `${keyPrefix}-${lineIdx}-${sIdx}`;
       if (seg.type === "bold") {
-        return <strong key={k} className="font-bold text-slate-900">{seg.text}</strong>;
+        return <strong key={k} className="font-bold text-slate-900 dark:text-slate-100">{seg.text}</strong>;
       }
       if (seg.type === "italic") {
-        return <em key={k} className="italic text-slate-800">{seg.text}</em>;
+        return <em key={k} className="italic text-slate-800 dark:text-slate-200">{seg.text}</em>;
       }
       if (seg.type === "code") {
         return (
-          <code key={k} className="px-1.5 py-0.5 mx-0.5 bg-slate-100 border border-slate-200 text-blue-800 text-[0.88em] font-mono rounded-md font-semibold">
+          <code key={k} className="px-1.5 py-0.5 mx-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-800 dark:text-blue-300 text-[0.88em] font-mono rounded-md font-semibold">
             {seg.text}
           </code>
         );

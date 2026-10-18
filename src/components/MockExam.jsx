@@ -422,7 +422,7 @@ export function MockExam({ subject, onSelectMode }) {
                   Question {currentIndex + 1} of {questions.length}
                 </span>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug">
                 <FormattedText text={currentQ?.question || ""} />
               </h3>
             </div>
@@ -431,8 +431,8 @@ export function MockExam({ subject, onSelectMode }) {
               onClick={() => toggleFlag(currentQ?.id)}
               className={`btn-haptic p-2.5 rounded-xl border transition-all ${
                 isFlagged
-                  ? "bg-amber-100 border-amber-300 text-amber-700"
-                  : "bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600"
+                  ? "bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+                  : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               }`}
               title="Flag for later review"
             >
@@ -447,21 +447,21 @@ export function MockExam({ subject, onSelectMode }) {
               const isCorrectAnswer = idx === currentQ.correctAnswer;
               const showResult = isSubmitted || (gameMode === "blitz" && currentAnswer !== undefined);
 
-              let optionStyle = "bg-slate-50/80 hover:bg-slate-100/80 border-slate-200/90 text-slate-800";
-              let badgeStyle = "bg-white border-slate-300 text-slate-700";
+              let optionStyle = "bg-slate-50/80 hover:bg-slate-100/80 dark:bg-slate-800/60 dark:hover:bg-slate-750 border-slate-200/90 dark:border-slate-700/80 text-slate-800 dark:text-slate-200";
+              let badgeStyle = "bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200";
 
               if (showResult) {
                 if (isCorrectAnswer) {
-                  optionStyle = "bg-emerald-50/90 border-emerald-300 text-emerald-950 font-semibold ring-2 ring-emerald-500/40";
+                  optionStyle = "bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 font-semibold ring-2 ring-emerald-500/40";
                   badgeStyle = "bg-emerald-600 text-white border-emerald-600";
                 } else if (isSelected && !isCorrectAnswer) {
-                  optionStyle = "bg-rose-50/90 border-rose-300 text-rose-950 ring-2 ring-rose-500/40";
+                  optionStyle = "bg-rose-50/90 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-950 dark:text-rose-200 ring-2 ring-rose-500/40";
                   badgeStyle = "bg-rose-600 text-white border-rose-600";
                 } else {
-                  optionStyle = "bg-slate-50/40 border-slate-200 text-slate-400 opacity-60";
+                  optionStyle = "bg-slate-50/40 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700/50 text-slate-400 dark:text-slate-500 opacity-60";
                 }
               } else if (isSelected) {
-                optionStyle = "bg-blue-50 border-blue-500 text-blue-950 ring-2 ring-blue-500/30 font-semibold";
+                optionStyle = "bg-blue-50 dark:bg-blue-950/50 border-blue-500 dark:border-blue-400 text-blue-950 dark:text-blue-200 ring-2 ring-blue-500/30 font-semibold";
                 badgeStyle = "bg-blue-600 text-white border-blue-600";
               }
 
@@ -491,14 +491,14 @@ export function MockExam({ subject, onSelectMode }) {
 
           {/* Instant Study Rationale (Revealed immediately in Blitz or on Submit) */}
           {(isSubmitted || (gameMode === "blitz" && currentAnswer !== undefined)) && (
-            <div className="p-5 rounded-2xl bg-blue-50/70 border border-blue-200/80 space-y-2 animate-fadeIn">
+            <div className="p-5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 space-y-2 animate-fadeIn">
               <div className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-blue-600" />
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-900">
+                <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300">
                   Step-by-Step Rationale & Reference:
                 </span>
               </div>
-              <p className="text-sm text-slate-800 leading-relaxed">
+              <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
                 <FormattedText text={currentQ?.explanation || ""} />
               </p>
             </div>

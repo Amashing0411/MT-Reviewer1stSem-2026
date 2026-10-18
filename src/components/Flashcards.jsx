@@ -219,9 +219,9 @@ export function Flashcards({ subject, onSelectMode }) {
         >
           {/* FRONT OF CARD (Question) */}
           <div className="double-bezel-outer absolute inset-0 backface-hidden">
-            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between border border-blue-100/50">
+            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between border border-blue-100/50 dark:border-blue-900/30">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-blue-50 text-blue-700 border border-blue-200/70 rounded-full">
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/60 rounded-full">
                   {currentCard.category || "Concept"}
                 </span>
                 <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
@@ -233,7 +233,7 @@ export function Flashcards({ subject, onSelectMode }) {
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
                   Question
                 </div>
-                <div className="text-lg sm:text-xl font-bold text-slate-900 leading-relaxed max-w-xl mx-auto">
+                <div className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-relaxed max-w-xl mx-auto">
                   <FormattedText text={currentCard.question} />
                 </div>
               </div>
@@ -246,9 +246,9 @@ export function Flashcards({ subject, onSelectMode }) {
 
           {/* BACK OF CARD (Answer) */}
           <div className="double-bezel-outer absolute inset-0 backface-hidden rotate-y-180">
-            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between bg-emerald-50/20 border border-emerald-200/60">
+            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between bg-emerald-50/20 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full">
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 rounded-full">
                   Answer & Rationale
                 </span>
                 <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
@@ -257,10 +257,10 @@ export function Flashcards({ subject, onSelectMode }) {
               </div>
 
               <div className="py-6 my-auto text-center">
-                <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-3">
                   Core Solution
                 </div>
-                <div className="text-base sm:text-lg font-medium text-slate-900 leading-relaxed max-w-xl mx-auto">
+                <div className="text-base sm:text-lg font-medium text-slate-900 dark:text-slate-100 leading-relaxed max-w-xl mx-auto">
                   <FormattedText text={currentCard.answer} />
                 </div>
               </div>
