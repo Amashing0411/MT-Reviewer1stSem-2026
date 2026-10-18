@@ -86,7 +86,7 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
 
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4 sm:mb-8 max-w-xs mx-auto">
           {phase !== "landed" && phase !== "countdown"
-            ? "Each face carries a player avatar. The side that lands faces the 60-second hot seat first!"
+            ? "Each face carries a player avatar. The side that lands faces the 30-second hot seat first!"
             : `${winner?.name} won the coin flip and takes Question 1!`}
         </p>
 

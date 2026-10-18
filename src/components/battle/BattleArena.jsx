@@ -30,6 +30,7 @@ import {
   XCircle,
   Check,
   Flag,
+  Coins,
 } from "lucide-react";
 
 const SESSION_ROOM_KEY = "bscpe_active_battle_room_id";
@@ -46,7 +47,7 @@ const BOT_PLAYER = {
   isBot: true,
 };
 
-const WAGER_OPTIONS = [100, 250, 500, 1000];
+const WAGER_OPTIONS = [50, 100, 250, 500, 1000];
 
 export function BattleArena({ onBackToReviewer }) {
   const { profile, addXp } = useUser();
@@ -69,7 +70,7 @@ export function BattleArena({ onBackToReviewer }) {
   const [answerFeedback, setAnswerFeedback] = useState(null); // { isCorrect, correctIndex }
   const [winnerInfo, setWinnerInfo] = useState(null);
   const [mobileMatchTab, setMobileMatchTab] = useState("stage"); // "stage" | "chat" on mobile
-  const [liveClocks, setLiveClocks] = useState({ host: 60, guest: 60 });
+  const [liveClocks, setLiveClocks] = useState({ host: 30, guest: 30 });
   const [countdownSeconds, setCountdownSeconds] = useState(5);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const [isSurrenderConfirmOpen, setIsSurrenderConfirmOpen] = useState(false);
@@ -211,7 +212,7 @@ export function BattleArena({ onBackToReviewer }) {
       const now = Date.now();
 
       if (activeRoom.status !== "in_battle" || !gs.turnStartedAt) {
-        setLiveClocks({ host: gs.hostClock ?? 60, guest: gs.guestClock ?? 60 });
+        setLiveClocks({ host: gs.hostClock ?? 30, guest: gs.guestClock ?? 30 });
         return;
       }
 
@@ -222,11 +223,11 @@ export function BattleArena({ onBackToReviewer }) {
 
       const currentHost = isHostTurn
         ? Math.max(0, +(gs.hostClock - elapsed).toFixed(1))
-        : (gs.hostClock ?? 60);
+        : (gs.hostClock ?? 30);
 
       const currentGuest = isGuestTurn
         ? Math.max(0, +(gs.guestClock - elapsed).toFixed(1))
-        : (gs.guestClock ?? 60);
+        : (gs.guestClock ?? 30);
 
       setLiveClocks({ host: currentHost, guest: currentGuest });
 
@@ -656,8 +657,8 @@ export function BattleArena({ onBackToReviewer }) {
       gameState: {
         activePlayerId: null,
         questionIndex: 0,
-        hostClock: 60,
-        guestClock: 60,
+        hostClock: 30,
+        guestClock: 30,
         turnStartedAt: null,
         haltUntil: 0,
         winnerId: null,
@@ -683,6 +684,12 @@ export function BattleArena({ onBackToReviewer }) {
   // 7. Create Public Multiplayer Room
   const handleCreateRoom = async (e) => {
     e?.preventDefault();
+
+    if ((profile.xp || 0) < createWager) {
+      alert(`⚠️ You cannot host this match! Your chosen wager is ${createWager} XP, but your current balance is ${profile.xp || 0} XP. Please select a wager you can cover!`);
+      return;
+    }
+
     const questions = getBattleQuestions(createSubject);
 
     try {
@@ -716,6 +723,9 @@ export function BattleArena({ onBackToReviewer }) {
           setScreen("room_setup");
           sound.playGameShowIntro();
         }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "Failed to create room.");
       }
     } catch (e) {
       alert("Failed to create room. Starting practice match instead.");
@@ -723,8 +733,13 @@ export function BattleArena({ onBackToReviewer }) {
     }
   };
 
-  // 8. Join Existing Room (as Challenger or Spectator)
+  // 8. Join Existing Room (as Challenger Player or Spectator)
   const handleJoinRoom = async (room, asPlayer = false) => {
+    if (asPlayer && room.host?.id !== profile.id && (profile.xp || 0) < room.wager) {
+      alert(`⚠️ You cannot join as challenger! This match requires matching the ${room.wager} XP wager, but your balance is ${profile.xp || 0} XP.`);
+      return;
+    }
+
     try {
       const res = await fetch("/api/battle", {
         method: "POST",
@@ -753,6 +768,9 @@ export function BattleArena({ onBackToReviewer }) {
           setScreen(data.room.status === "in_battle" ? "playing" : "room_setup");
           sound.playGameShowIntro();
         }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "Unable to join room.");
       }
     } catch (e) {
       alert("Unable to join room. Please try again.");
@@ -904,7 +922,7 @@ export function BattleArena({ onBackToReviewer }) {
       setAnswerFeedback({ isCorrect: true, correctIndex: currentQ.correctAnswer });
     } else {
       sound.playBuzzer();
-      setAnswerFeedback({ isCorrect: false, correctIndex: currentQ.correctAnswer });
+      setAnswerFeedback({ isCorrect: false, correctIndex: null });
     }
 
     if (isBotMatch) {
@@ -978,7 +996,7 @@ export function BattleArena({ onBackToReviewer }) {
     if (!currentQ) return;
 
     sound.playPass();
-    setAnswerFeedback({ isCorrect: false, correctIndex: currentQ.correctAnswer });
+    setAnswerFeedback({ isCorrect: false, correctIndex: null });
 
     if (isBotMatch) {
       const elapsed = (Date.now() - gs.turnStartedAt) / 1000;
@@ -1191,7 +1209,7 @@ export function BattleArena({ onBackToReviewer }) {
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   Enter dynamic public showdown lobbies, ready up with your opponent, watch the 3D coin toss, 
-                  and battle on synchronized 60-second chess clocks with live Twitch spectator chat!
+                  and battle on synchronized 30-second chess clocks with live Twitch spectator chat!
                 </p>
               </div>
 
@@ -1336,6 +1354,25 @@ export function BattleArena({ onBackToReviewer }) {
                                   <Eye className="w-3.5 h-3.5 text-emerald-400" />
                                   <span>Spectate Live</span>
                                 </button>
+                              ) : (profile?.xp || 0) < (room.wager || 0) ? (
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    disabled
+                                    title={`Requires ${room.wager} XP wager (Current balance: ${profile?.xp || 0} XP)`}
+                                    className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs flex items-center gap-1 cursor-not-allowed border border-slate-300 dark:border-slate-700"
+                                  >
+                                    <Coins className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Need {room.wager} XP</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleJoinRoom(room, false)}
+                                    title="Watch showdown as spectator"
+                                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                                  >
+                                    <Eye className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                                    <span>Watch</span>
+                                  </button>
+                                </div>
                               ) : (
                                 <button
                                   onClick={() => handleJoinRoom(room, true)}
@@ -1680,7 +1717,7 @@ export function BattleArena({ onBackToReviewer }) {
                       className={`h-full transition-all duration-100 ${
                         liveClocks.host <= 10 ? "bg-red-500" : "bg-amber-500 dark:bg-amber-400"
                       }`}
-                      style={{ width: `${(liveClocks.host / 60) * 100}%` }}
+                      style={{ width: `${(liveClocks.host / 30) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -1728,7 +1765,7 @@ export function BattleArena({ onBackToReviewer }) {
                       className={`h-full transition-all duration-100 ${
                         liveClocks.guest <= 10 ? "bg-red-500" : "bg-indigo-500 dark:bg-indigo-400"
                       }`}
-                      style={{ width: `${(liveClocks.guest / 60) * 100}%` }}
+                      style={{ width: `${(liveClocks.guest / 30) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -1791,7 +1828,6 @@ export function BattleArena({ onBackToReviewer }) {
                   {currentQuestion.options.map((opt, idx) => {
                     const letter = ["A", "B", "C", "D"][idx];
                     const isSelected = selectedChoice === idx;
-                    const isCorrectAnswer = answerFeedback?.correctIndex === idx;
 
                     // Spectator sees lastAnswer broadcast from server
                     const lastAns = activeRoom.gameState?.lastAnswer;
@@ -1800,12 +1836,10 @@ export function BattleArena({ onBackToReviewer }) {
                     let btnStyle =
                       "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
 
-                    if (answerFeedback) {
-                      if (isCorrectAnswer) {
-                        btnStyle = "bg-emerald-600 border-emerald-500 text-white font-black";
-                      } else if (isSelected && !answerFeedback.isCorrect) {
-                        btnStyle = "bg-red-600 border-red-500 text-white font-black";
-                      }
+                    if (answerFeedback && isSelected) {
+                      btnStyle = answerFeedback.isCorrect
+                        ? "bg-emerald-600 border-emerald-500 text-white font-black"
+                        : "bg-red-600 border-red-500 text-white font-black";
                     } else if (isSpectator && isBroadcastChoice) {
                       btnStyle = lastAns.isCorrect
                         ? "bg-emerald-600 border-emerald-500 text-white font-black"
@@ -1963,8 +1997,8 @@ export function BattleArena({ onBackToReviewer }) {
                       countdownEnd: null,
                       gameState: {
                         ...prev.gameState,
-                        hostClock: 60,
-                        guestClock: 60,
+                        hostClock: 30,
+                        guestClock: 30,
                         winnerId: null,
                         finishReason: null,
                         haltUntil: 0,
@@ -2038,25 +2072,46 @@ export function BattleArena({ onBackToReviewer }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Wager Amount (Winner Takes All)
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {WAGER_OPTIONS.map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => setCreateWager(amt)}
-                      className={`py-2 rounded-xl border text-xs font-black transition-all ${
-                        createWager === amt
-                          ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md"
-                          : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                    >
-                      {amt} XP
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Wager Amount (Winner Takes All)
+                  </label>
+                  <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                    Your Balance: {profile?.xp || 0} XP
+                  </span>
                 </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {WAGER_OPTIONS.map((amt) => {
+                    const canAfford = (profile?.xp || 0) >= amt;
+                    return (
+                      <button
+                        key={amt}
+                        type="button"
+                        disabled={!canAfford}
+                        onClick={() => setCreateWager(amt)}
+                        className={`py-2 rounded-xl border text-xs font-black transition-all ${
+                          createWager === amt
+                            ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md ring-2 ring-amber-400/50"
+                            : canAfford
+                            ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-400"
+                            : "bg-slate-100/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 opacity-40 cursor-not-allowed"
+                        }`}
+                        title={!canAfford ? `You need ${amt} XP (Current: ${profile?.xp || 0} XP)` : undefined}
+                      >
+                        {amt} XP
+                      </button>
+                    );
+                  })}
+                </div>
+                {(profile?.xp || 0) < 50 ? (
+                  <p className="text-[11px] text-red-500 font-medium mt-1.5">
+                    ⚠️ You need at least 50 XP to create a match. Earn XP in Quizzes or Flashcards!
+                  </p>
+                ) : createWager > (profile?.xp || 0) ? (
+                  <p className="text-[11px] text-red-500 font-medium mt-1.5">
+                    ⚠️ Selected wager exceeds your balance ({profile?.xp || 0} XP).
+                  </p>
+                ) : null}
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2">
@@ -2069,7 +2124,8 @@ export function BattleArena({ onBackToReviewer }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/25 active:scale-95"
+                  disabled={(profile?.xp || 0) < createWager}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Open Arena
                 </button>

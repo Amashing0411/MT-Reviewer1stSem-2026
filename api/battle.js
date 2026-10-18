@@ -164,8 +164,8 @@ export default async function handler(req, res) {
             flipDuration: 4200,
           };
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 60;
-          room.gameState.guestClock = 60;
+          room.gameState.hostClock = 30;
+          room.gameState.guestClock = 30;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
 
@@ -253,8 +253,8 @@ export default async function handler(req, res) {
             flipDuration: 4200,
           };
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 60;
-          room.gameState.guestClock = 60;
+          room.gameState.hostClock = 30;
+          room.gameState.guestClock = 30;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
           hasSweepChanged = true;
@@ -351,11 +351,19 @@ export default async function handler(req, res) {
           return res.status(400).json({ ok: false, error: "Missing host details" });
         }
 
+        const parsedWager = Math.max(50, Math.min(2500, Number(wager) || 250));
+        if ((host.xp || 0) < parsedWager) {
+          return res.status(400).json({
+            ok: false,
+            error: `Insufficient XP to host this wager. You need at least ${parsedWager} XP to open this arena. (Current: ${host.xp || 0} XP)`,
+          });
+        }
+
         const newRoom = {
           id: "room_" + Math.random().toString(36).substring(2, 8),
           title: title || `${host.name}'s Showdown Arena`,
           subject: subject || "all",
-          wager: Math.max(50, Math.min(2500, Number(wager) || 250)),
+          wager: parsedWager,
           status: "waiting", // "waiting" | "countdown" | "tossing_coin" | "in_battle" | "finished"
           createdAt: now,
           updatedAt: now,
@@ -383,8 +391,8 @@ export default async function handler(req, res) {
           gameState: {
             activePlayerId: null,
             questionIndex: 0,
-            hostClock: 60,
-            guestClock: 60,
+            hostClock: 30,
+            guestClock: 30,
             turnStartedAt: null,
             haltUntil: 0,
             winnerId: null,
@@ -423,6 +431,13 @@ export default async function handler(req, res) {
           return res.status(410).json({
             ok: false,
             error: "This battle showdown has already ended. Lobby is closed.",
+          });
+        }
+
+        if (asPlayer && room.host.id !== student.id && (student.xp || 0) < room.wager) {
+          return res.status(400).json({
+            ok: false,
+            error: `Insufficient XP to match wager. You need at least ${room.wager} XP to challenge! (Your balance: ${student.xp || 0} XP)`,
           });
         }
 
@@ -529,8 +544,8 @@ export default async function handler(req, res) {
             flipDuration: 4200,
           };
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 60;
-          room.gameState.guestClock = 60;
+          room.gameState.hostClock = 30;
+          room.gameState.guestClock = 30;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
 
