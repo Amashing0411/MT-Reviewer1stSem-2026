@@ -68,33 +68,34 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-gradient-to-b from-blue-600/30 via-indigo-600/20 to-transparent rounded-full blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 rounded-3xl p-6 sm:p-8 text-center shadow-2xl shadow-blue-500/10 text-white">
+      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 rounded-3xl p-5 sm:p-8 text-center shadow-2xl shadow-blue-500/10 text-white max-h-[92vh] overflow-y-auto">
         
         {/* Header Tag */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-xs font-black tracking-wider uppercase mb-5">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-xs font-black tracking-wider uppercase mb-3 sm:mb-5">
           <Zap className="w-3.5 h-3.5 text-amber-400" />
           <span>Coin Toss Protocol</span>
           <Zap className="w-3.5 h-3.5 text-amber-400" />
         </div>
 
-        <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-2">
+        <h3 className="text-lg sm:text-2xl font-black tracking-tight text-white mb-1.5 sm:mb-2">
           {phase === "intro" && "Preparing The Coin..."}
           {phase === "flipping" && "Tossing in the Air! 🪙"}
           {phase === "landed" && `${winner?.name} Lands First!`}
           {phase === "countdown" && "Match Commencing In..."}
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-400 mb-8 max-w-xs mx-auto">
+        <p className="text-xs sm:text-sm text-slate-400 mb-4 sm:mb-8 max-w-xs mx-auto">
           {phase !== "landed" && phase !== "countdown"
             ? "Each face carries a player avatar. The side that lands faces the 60-second hot seat first!"
             : `${winner?.name} won the coin flip and takes Question 1!`}
         </p>
 
         {/* 3D Coin Flip Arena */}
-        <div className="flex items-center justify-center h-48 sm:h-52 my-2 [perspective:1000px]">
+        <div className="flex items-center justify-center h-44 sm:h-52 my-1 sm:my-2 [perspective:1000px]">
           <div
-            className="relative w-36 h-36 sm:w-40 sm:h-40 transition-transform [transform-style:preserve-3d]"
+            className="relative w-32 h-32 sm:w-40 sm:h-40 transition-transform [transform-style:preserve-3d]"
             style={{
+              WebkitTransformStyle: "preserve-3d",
               transitionDuration: phase === "flipping" ? "3.2s" : "0.4s",
               transitionTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)",
               transform:
@@ -106,8 +107,11 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
             }}
           >
             {/* Front Side: Host Avatar */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 p-2 shadow-2xl shadow-amber-500/40 border-4 border-amber-300 flex flex-col items-center justify-center [backface-visibility:hidden]">
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-1 bg-slate-900">
+            <div 
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 p-2 shadow-2xl shadow-amber-500/40 border-4 border-amber-300 flex flex-col items-center justify-center [backface-visibility:hidden]"
+              style={{ WebkitBackfaceVisibility: "hidden" }}
+            >
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-900">
                 <StudentAvatar
                   avatar={host.avatar}
                   customPhoto={host.customPhoto}
@@ -125,9 +129,9 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
             {/* Back Side: Guest Avatar */}
             <div
               className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 via-purple-600 to-purple-800 p-2 shadow-2xl shadow-purple-500/40 border-4 border-indigo-300 flex flex-col items-center justify-center [backface-visibility:hidden]"
-              style={{ transform: "rotateY(180deg)" }}
+              style={{ transform: "rotateY(180deg)", WebkitBackfaceVisibility: "hidden" }}
             >
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-1 bg-slate-900">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-inner mb-0.5 sm:mb-1 bg-slate-900">
                 <StudentAvatar
                   avatar={guest.avatar}
                   customPhoto={guest.customPhoto}

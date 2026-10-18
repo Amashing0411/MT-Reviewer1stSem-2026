@@ -71,6 +71,7 @@ export function BattleArena({ onBackToReviewer }) {
   const [answerFeedback, setAnswerFeedback] = useState(null); // { isCorrect, correctIndex }
   const [showCoinToss, setShowCoinToss] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState(null);
+  const [mobileMatchTab, setMobileMatchTab] = useState("stage"); // "stage" | "chat" on mobile
 
   // Polling ref for cloud rooms
   const pollTimerRef = useRef(null);
@@ -927,226 +928,272 @@ export function BattleArena({ onBackToReviewer }) {
 
       {/* SCREEN 3: ACTIVE 60S BLITZ SHOWDOWN */}
       {screen === "playing" && activeRoom && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Main Battle Stage (2 Columns) */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Top Game-Show Dual Chess Clock Deck */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {/* Host Clock */}
-              <div
-                className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
-                  activePlayerId === activeRoom.host.id
-                    ? "bg-slate-900 border-amber-400 shadow-xl shadow-amber-500/20"
-                    : "bg-slate-900/60 border-slate-800 opacity-70"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-amber-400 bg-slate-900 shrink-0">
-                      <StudentAvatar avatar={activeRoom.host.avatar} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-xs sm:text-sm font-black text-white truncate">
-                      {activeRoom.host.name}
-                    </span>
-                  </div>
-                  {activePlayerId === activeRoom.host.id && (
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 animate-pulse bg-amber-950 px-2 py-0.5 rounded-full border border-amber-500/40">
-                      ON CLOCK
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-baseline justify-between">
-                  <span
-                    className={`text-2xl sm:text-4xl font-mono font-black ${
-                      hostClock <= 10 ? "text-red-500 animate-ping" : "text-amber-400"
-                    }`}
-                  >
-                    {Math.ceil(hostClock)}s
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    POT: {activeRoom.wager * 2} XP
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-100 ${
-                      hostClock <= 10 ? "bg-red-500" : "bg-amber-400"
-                    }`}
-                    style={{ width: `${(hostClock / 60) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Guest Clock */}
-              <div
-                className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
-                  activePlayerId === activeRoom.guest?.id
-                    ? "bg-slate-900 border-indigo-400 shadow-xl shadow-indigo-500/20"
-                    : "bg-slate-900/60 border-slate-800 opacity-70"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-indigo-400 bg-slate-900 shrink-0">
-                      <StudentAvatar avatar={activeRoom.guest?.avatar} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-xs sm:text-sm font-black text-white truncate">
-                      {activeRoom.guest?.name}
-                    </span>
-                  </div>
-                  {activePlayerId === activeRoom.guest?.id && (
-                    <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 animate-pulse bg-indigo-950 px-2 py-0.5 rounded-full border border-indigo-500/40">
-                      ON CLOCK
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-baseline justify-between">
-                  <span
-                    className={`text-2xl sm:text-4xl font-mono font-black ${
-                      guestClock <= 10 ? "text-red-500 animate-ping" : "text-indigo-400"
-                    }`}
-                  >
-                    {Math.ceil(guestClock)}s
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {activeRoom.guest?.isBot ? "AI BOT" : "RIVAL"}
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-100 ${
-                      guestClock <= 10 ? "bg-red-500" : "bg-indigo-400"
-                    }`}
-                    style={{ width: `${(guestClock / 60) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Question Card Arena */}
-            <div className="relative rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-xl overflow-hidden min-h-[360px] flex flex-col justify-between">
-              {/* 3-Second Penalty Halt Lockout Overlay */}
-              {haltUntil > Date.now() && (
-                <div className="absolute inset-0 z-30 bg-red-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white animate-fadeIn">
-                  <AlertTriangle className="w-12 h-12 text-red-400 mb-2 animate-bounce" />
-                  <h3 className="text-xl sm:text-2xl font-black text-red-200">
-                    INCORRECT CHOICE! 🛑
-                  </h3>
-                  <p className="text-xs text-red-300 font-semibold mt-1 mb-4">
-                    Locked out for 3 seconds penalty! Hold your breath!
-                  </p>
-                  <span className="text-4xl font-mono font-black text-white animate-ping">
-                    {Math.ceil((haltUntil - Date.now()) / 1000)}s
-                  </span>
-                </div>
-              )}
-
-              {/* Question Header & Subject Tag */}
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-[11px] font-black uppercase">
-                    <span>{currentQuestion.subjectCode}</span>
-                    <span className="text-slate-400">•</span>
-                    <span>Q#{questionIdx + 1}</span>
-                  </span>
-
-                  <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    {isMyTurn ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-black animate-pulse flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 fill-current" />
-                        YOUR TURN TO ANSWER!
-                      </span>
-                    ) : (
-                      <span>Opponent is answering...</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Question Text */}
-                <h3 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-6">
-                  {currentQuestion.question}
-                </h3>
-              </div>
-
-              {/* 4 Choices */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
-                {currentQuestion.options.map((opt, idx) => {
-                  const letter = ["A", "B", "C", "D"][idx];
-                  const isSelected = selectedChoice === idx;
-                  const isCorrectAnswer = answerFeedback?.correctIndex === idx;
-
-                  let btnStyle =
-                    "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
-
-                  if (answerFeedback) {
-                    if (isCorrectAnswer) {
-                      btnStyle = "bg-emerald-600 border-emerald-500 text-white font-black";
-                    } else if (isSelected && !answerFeedback.isCorrect) {
-                      btnStyle = "bg-red-600 border-red-500 text-white font-black";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectAnswer(idx)}
-                      disabled={!isMyTurn || haltUntil > Date.now() || !!answerFeedback}
-                      className={`p-3 sm:p-4 rounded-xl border-2 text-left text-xs sm:text-sm font-semibold transition-all flex items-start gap-3 active:scale-98 disabled:cursor-not-allowed ${btnStyle}`}
-                    >
-                      <span className="w-6 h-6 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center text-xs font-black shrink-0">
-                        {letter}
-                      </span>
-                      <span className="min-w-0 leading-tight">{opt}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Tactical Action Bar: Pass Button */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-                <div className="text-[11px] text-slate-400 font-medium">
-                  {isMyTurn ? "Correct answer saves clock and passes turn!" : "Waiting for response..."}
-                </div>
-
-                {isMyTurn && (
-                  <button
-                    onClick={handlePassQuestion}
-                    disabled={haltUntil > Date.now() || !!answerFeedback}
-                    className="px-4 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
-                    title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
-                  >
-                    <FastForward className="w-3.5 h-3.5" />
-                    <span>Pass Question (-5s)</span>
-                  </button>
-                )}
-              </div>
-            </div>
+        <div className="space-y-4">
+          {/* Mobile Tab Switcher (Visible on mobile screens < lg) */}
+          <div className="lg:hidden flex items-center justify-center p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg">
+            <button
+              onClick={() => setMobileMatchTab("stage")}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                mobileMatchTab === "stage"
+                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Swords className="w-3.5 h-3.5" />
+              <span>Showdown Stage</span>
+            </button>
+            <button
+              onClick={() => setMobileMatchTab("chat")}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                mobileMatchTab === "chat"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Audience Chat ({(activeRoom.spectators || []).length})</span>
+            </button>
           </div>
 
-          {/* Right Column: Live Twitch Spectator Feed */}
-          <div className="lg:col-span-1">
-            <TwitchSpectatorChat
-              roomId={activeRoom.id}
-              currentUser={profile}
-              chat={activeRoom.chat || []}
-              spectatorCount={(activeRoom.spectators || []).length}
-              recentEmotes={activeRoom.recentEmotes || []}
-              onSendMessage={(text) =>
-                pushChatMessage({
-                  senderId: profile.id,
-                  senderName: profile.name,
-                  avatar: profile.avatar,
-                  text,
-                })
-              }
-              onBurstEmote={handleBurstEmote}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Main Battle Stage (2 Columns on Desktop, toggled on Mobile) */}
+            <div className={`lg:col-span-2 space-y-4 ${mobileMatchTab === "chat" ? "hidden lg:block" : "block"}`}>
+              {/* Top Game-Show Dual Chess Clock Deck */}
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                {/* Host Clock */}
+                <div
+                  className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
+                    activePlayerId === activeRoom.host.id
+                      ? "bg-slate-900 border-amber-400 shadow-xl shadow-amber-500/20"
+                      : "bg-slate-900/60 border-slate-800 opacity-70"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-amber-400 bg-slate-900 shrink-0">
+                        <StudentAvatar avatar={activeRoom.host.avatar} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-black text-white truncate max-w-[70px] sm:max-w-none">
+                        {activeRoom.host.name}
+                      </span>
+                    </div>
+                    {activePlayerId === activeRoom.host.id && (
+                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 animate-pulse bg-amber-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-amber-500/40 shrink-0">
+                        ON CLOCK
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-baseline justify-between">
+                    <span
+                      className={`text-2xl sm:text-4xl font-mono font-black ${
+                        hostClock <= 10 ? "text-red-500 animate-ping" : "text-amber-400"
+                      }`}
+                    >
+                      {Math.ceil(hostClock)}s
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
+                      POT: {activeRoom.wager * 2} XP
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-100 ${
+                        hostClock <= 10 ? "bg-red-500" : "bg-amber-400"
+                      }`}
+                      style={{ width: `${(hostClock / 60) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Guest Clock */}
+                <div
+                  className={`p-3 sm:p-5 rounded-2xl border-2 transition-all relative overflow-hidden ${
+                    activePlayerId === activeRoom.guest?.id
+                      ? "bg-slate-900 border-indigo-400 shadow-xl shadow-indigo-500/20"
+                      : "bg-slate-900/60 border-slate-800 opacity-70"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-indigo-400 bg-slate-900 shrink-0">
+                        <StudentAvatar avatar={activeRoom.guest?.avatar} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-black text-white truncate max-w-[70px] sm:max-w-none">
+                        {activeRoom.guest?.name}
+                      </span>
+                    </div>
+                    {activePlayerId === activeRoom.guest?.id && (
+                      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-400 animate-pulse bg-indigo-950 px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-500/40 shrink-0">
+                        ON CLOCK
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-baseline justify-between">
+                    <span
+                      className={`text-2xl sm:text-4xl font-mono font-black ${
+                        guestClock <= 10 ? "text-red-500 animate-ping" : "text-indigo-400"
+                      }`}
+                    >
+                      {Math.ceil(guestClock)}s
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono">
+                      {activeRoom.guest?.isBot ? "AI BOT" : "RIVAL"}
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-100 ${
+                        guestClock <= 10 ? "bg-red-500" : "bg-indigo-400"
+                      }`}
+                      style={{ width: `${(guestClock / 60) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Question Card Arena */}
+              <div className="relative rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-4 sm:p-7 shadow-xl overflow-hidden min-h-[340px] flex flex-col justify-between">
+                {/* 3-Second Penalty Halt Lockout Overlay */}
+                {haltUntil > Date.now() && (
+                  <div className="absolute inset-0 z-30 bg-red-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white animate-fadeIn">
+                    <AlertTriangle className="w-10 h-10 sm:w-12 sm:h-12 text-red-400 mb-2 animate-bounce" />
+                    <h3 className="text-lg sm:text-2xl font-black text-red-200">
+                      INCORRECT CHOICE! 🛑
+                    </h3>
+                    <p className="text-xs text-red-300 font-semibold mt-1 mb-4">
+                      Locked out for 3 seconds penalty! Hold your breath!
+                    </p>
+                    <span className="text-3xl sm:text-4xl font-mono font-black text-white animate-ping">
+                      {Math.ceil((haltUntil - Date.now()) / 1000)}s
+                    </span>
+                  </div>
+                )}
+
+                {/* Question Header & Subject Tag */}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-[10.5px] sm:text-[11px] font-black uppercase">
+                      <span>{currentQuestion.subjectCode}</span>
+                      <span className="text-slate-400">•</span>
+                      <span>Q#{questionIdx + 1}</span>
+                    </span>
+
+                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                      {isMyTurn ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-black animate-pulse flex items-center gap-1">
+                          <Zap className="w-3.5 h-3.5 fill-current" />
+                          YOUR TURN!
+                        </span>
+                      ) : (
+                        <span>Opponent's turn...</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Question Text */}
+                  <h3 className="text-xs sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-4 sm:mb-6">
+                    {currentQuestion.question}
+                  </h3>
+                </div>
+
+                {/* 4 Choices */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-4 sm:mb-6">
+                  {currentQuestion.options.map((opt, idx) => {
+                    const letter = ["A", "B", "C", "D"][idx];
+                    const isSelected = selectedChoice === idx;
+                    const isCorrectAnswer = answerFeedback?.correctIndex === idx;
+
+                    let btnStyle =
+                      "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
+
+                    if (answerFeedback) {
+                      if (isCorrectAnswer) {
+                        btnStyle = "bg-emerald-600 border-emerald-500 text-white font-black";
+                      } else if (isSelected && !answerFeedback.isCorrect) {
+                        btnStyle = "bg-red-600 border-red-500 text-white font-black";
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelectAnswer(idx)}
+                        disabled={!isMyTurn || haltUntil > Date.now() || !!answerFeedback}
+                        className={`p-3 sm:p-4 rounded-xl border-2 text-left text-xs sm:text-sm font-semibold transition-all flex items-start gap-2.5 sm:gap-3 active:scale-98 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] touch-manipulation ${btnStyle}`}
+                      >
+                        <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center text-[11px] sm:text-xs font-black shrink-0 mt-0.5">
+                          {letter}
+                        </span>
+                        <span className="min-w-0 leading-snug">{opt}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Tactical Action Bar: Pass Button */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                    {isMyTurn ? "Correct answer saves clock and passes turn!" : "Waiting for response..."}
+                  </div>
+
+                  {isMyTurn && (
+                    <button
+                      onClick={handlePassQuestion}
+                      disabled={haltUntil > Date.now() || !!answerFeedback}
+                      className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
+                      title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
+                    >
+                      <FastForward className="w-3.5 h-3.5" />
+                      <span>Pass (-5s)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Quick Emote Reaction Bar */}
+              <div className="lg:hidden p-2 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-1 overflow-x-auto shadow-md">
+                <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wider pl-1.5 flex items-center gap-1">
+                  <Flame className="w-3 h-3 text-amber-400" />
+                  <span>Cheer:</span>
+                </span>
+                {["🔥", "💀", "⚡", "🍿", "👏", "😱"].map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => handleBurstEmote(emoji)}
+                    className="p-1 hover:scale-125 active:scale-90 text-lg transition-transform focus:outline-none"
+                    title={`Cheer with ${emoji}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Live Twitch Spectator Feed (Side by side on Desktop, Toggled on Mobile) */}
+            <div className={`lg:col-span-1 ${mobileMatchTab === "stage" ? "hidden lg:block" : "block"}`}>
+              <TwitchSpectatorChat
+                roomId={activeRoom.id}
+                currentUser={profile}
+                chat={activeRoom.chat || []}
+                spectatorCount={(activeRoom.spectators || []).length}
+                recentEmotes={activeRoom.recentEmotes || []}
+                onSendMessage={(text) =>
+                  pushChatMessage({
+                    senderId: profile.id,
+                    senderName: profile.name,
+                    avatar: profile.avatar,
+                    text,
+                  })
+                }
+                onBurstEmote={handleBurstEmote}
+              />
+            </div>
           </div>
         </div>
       )}

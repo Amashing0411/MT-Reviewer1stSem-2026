@@ -573,16 +573,26 @@ function AppContent() {
                   setCurrentMode(tab.id);
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`btn-haptic flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative ${
+                className={`btn-haptic flex flex-col items-center justify-center py-1 px-1.5 sm:px-3 rounded-xl transition-all relative min-w-0 flex-1 ${
                   isActive 
-                    ? "text-blue-700 dark:text-blue-400 font-extrabold scale-105" 
+                    ? tab.isHot
+                      ? "text-amber-600 dark:text-amber-400 font-black scale-105"
+                      : "text-blue-700 dark:text-blue-400 font-extrabold scale-105" 
+                    : tab.isHot
+                    ? "text-amber-600/80 dark:text-amber-400/80 font-bold"
                     : "text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium"
                 }`}
               >
-                <Icon className={`w-5 h-5 mb-0.5 transition-transform ${isActive ? "text-blue-600 dark:text-blue-400 stroke-[2.5]" : "stroke-[1.75]"}`} />
-                <span className="text-[10px] tracking-tight">{tab.label}</span>
+                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 mb-0.5 transition-transform ${
+                  isActive 
+                    ? tab.isHot ? "text-amber-500 fill-amber-500/30 stroke-[2.5]" : "text-blue-600 dark:text-blue-400 stroke-[2.5]" 
+                    : tab.isHot ? "text-amber-500/80 stroke-[2]" : "stroke-[1.75]"
+                }`} />
+                <span className="text-[9px] sm:text-[10px] tracking-tight truncate max-w-full">{tab.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span>
+                  <span className={`absolute bottom-0 w-1.5 h-1.5 rounded-full animate-pulse ${
+                    tab.isHot ? "bg-amber-500" : "bg-blue-600 dark:bg-blue-400"
+                  }`}></span>
                 )}
               </button>
             );

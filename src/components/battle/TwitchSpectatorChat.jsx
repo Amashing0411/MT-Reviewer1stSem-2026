@@ -60,7 +60,7 @@ export function TwitchSpectatorChat({
   };
 
   return (
-    <div className="relative flex flex-col h-[480px] sm:h-[580px] w-full rounded-2xl bg-slate-900/90 dark:bg-slate-950/95 border border-slate-700/80 shadow-xl overflow-hidden backdrop-blur-md">
+    <div className="relative flex flex-col h-[420px] sm:h-[580px] w-full rounded-2xl bg-slate-900/90 dark:bg-slate-950/95 border border-slate-700/80 shadow-xl overflow-hidden backdrop-blur-md">
       {/* Floating Spectator Reactions Layer */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-30">
         {floatingBubbles.map((bubble) => (
@@ -180,7 +180,7 @@ export function TwitchSpectatorChat({
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Send spectator message..."
           maxLength={140}
-          className="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+          className="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-base sm:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
         />
         <button
           type="submit"
