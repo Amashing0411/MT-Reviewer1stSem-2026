@@ -485,8 +485,10 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                             </span>
                           )}
                         </div>
-                        <div className={`text-xs font-black truncate ${fx.cssClass}`}>
-                          {name || "Student Codename"}
+                        <div className="w-full truncate">
+                          <span className={`text-xs font-black ${fx.cssClass}`}>
+                            {name || profile.name || "Student Codename"}
+                          </span>
                         </div>
                       </button>
                     );
