@@ -72,7 +72,9 @@ export function ReviewerNotes({ subject, searchQuery }) {
 
   // Determine assigned proctor based on course schedule
   const isDay2Subject = ["cpe412", "elect3", "cpe413", "engwork"].includes(subject.id);
-  const assignedProctor = isDay2Subject ? activeSection.proctorDay2 : activeSection.proctorDay1;
+  const assignedProctor = isDay2Subject 
+    ? (activeSection.proctorsDay2?.[subject.id] || activeSection.proctorDay2Summary)
+    : activeSection.proctorDay1;
 
   const filteredTopics = subject.topics
     .filter((unit) => selectedUnit === "all" || unit.unitId === selectedUnit)
