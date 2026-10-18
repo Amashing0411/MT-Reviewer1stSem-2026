@@ -76,7 +76,7 @@ export const AVATAR_FRAMES = [
   {
     id: "dsp-fourier-custom",
     name: "DSP Fourier Frequency Master",
-    minLevel: 9,
+    minLevel: 5,
     assetUrl: "/frames/dsp-fourier.gif",
     cssClass: "avatar-frame-emerald",
     label: "DSP Fourier",
@@ -96,7 +96,7 @@ export const AVATAR_FRAMES = [
   {
     id: "deans-lister-custom",
     name: "Room 106 Dean's Lister Crest",
-    minLevel: 10,
+    minLevel: 9,
     assetUrl: "/frames/deans-lister.gif",
     cssClass: "avatar-frame-honor",
     label: "Dean's Crest",

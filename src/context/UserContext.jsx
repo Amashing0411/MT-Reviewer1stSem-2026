@@ -472,13 +472,23 @@ export function UserProvider({ children }) {
     addXp(earnedXp, `${mode === "blitz" ? "Rapid Blitz" : "Midterm Sim"} (${score}/${total})`, subjectId);
   };
 
-  // Update profile details
+  // Update profile details with immediate force-save and cloud sync
   const updateProfile = (data) => {
-    setProfile((prev) => ({
-      ...prev,
-      ...data,
-      isConfigured: true,
-    }));
+    let updatedProfile;
+    setProfile((prev) => {
+      updatedProfile = {
+        ...prev,
+        ...data,
+        isConfigured: true,
+      };
+      saveProfile(updatedProfile);
+      return updatedProfile;
+    });
+
+    if (updatedProfile && isCloudConnected) {
+      pushProfileToCloud(updatedProfile);
+    }
+    return updatedProfile;
   };
 
   // Toggle flashcard mastery status and award XP strictly ONCE per card and deck
@@ -578,16 +588,20 @@ export function UserProvider({ children }) {
 
   // Equip newly unlocked rewards (frame, tagline, nameFx)
   const equipRewards = ({ frame, tagline, nameFx }) => {
+    let updated;
     setProfile((prev) => {
-      const updated = { ...prev };
+      updated = { ...prev };
       if (frame) updated.frame = frame;
       if (tagline) updated.tagline = tagline;
       if (nameFx) updated.nameFx = nameFx;
       saveProfile(updated);
       return updated;
     });
+    if (updated && isCloudConnected) {
+      pushProfileToCloud(updated);
+    }
     setLevelUpReward(null);
-    setXpToast("✨ New prestige rewards equipped!");
+    setXpToast("✨ New prestige rewards equipped & saved!");
     setTimeout(() => setXpToast(null), 3000);
   };
 

@@ -1,12 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { AVATAR_PRESETS, AVATAR_FRAMES, VANITY_TAGLINES, NAME_EFFECTS } from "../utils/gamification";
+import { sound } from "../utils/sound";
 import { 
   User, 
   Upload, 
   Sparkles, 
   Shield, 
-  GraduationCap, 
   Check, 
   Camera,
   X,
@@ -15,13 +15,14 @@ import {
   RefreshCw,
   AlertCircle,
   Lock,
-  Unlock,
   Sun,
   Moon,
   Tag,
   Award,
   Palette,
-  Flame
+  Flame,
+  CheckCircle2,
+  Trash2
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -33,7 +34,7 @@ const SECTION_CHOICES = [
 ];
 
 export function WelcomeModal({ isOpen, onClose, onSaved }) {
-  const { profile, levelInfo, updateProfile, restoreProfileFromCloud, theme, toggleTheme, setTheme } = useUser();
+  const { profile, levelInfo, updateProfile, restoreProfileFromCloud, theme, setTheme } = useUser();
 
   const [mode, setMode] = useState("create"); // "create" | "restore"
   const [name, setName] = useState(profile.name || "");
@@ -46,6 +47,12 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
   const [customTaglineInput, setCustomTaglineInput] = useState("");
   const [selectedNameFx, setSelectedNameFx] = useState(profile.nameFx || "none");
   
+  // Photo processing and saving feedback states
+  const [isPhotoProcessing, setIsPhotoProcessing] = useState(false);
+  const [photoError, setPhotoError] = useState(null);
+  const [photoSuccess, setPhotoSuccess] = useState(null);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState(null);
+
   // Restore tab states
   const [restoreName, setRestoreName] = useState("");
   const [restorePin, setRestorePin] = useState("");
@@ -54,35 +61,99 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
 
   const fileInputRef = useRef(null);
 
+  // Synchronize local form state whenever modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setName(profile.name || "");
+      setSection(profile.section || "BSCPE 4D");
+      setPin(profile.pin || "");
+      setSelectedAvatar(profile.avatar || "🤖");
+      setCustomPhoto(profile.customPhoto || null);
+      setSelectedFrame(profile.frame || "default");
+      setSelectedTagline(profile.tagline || "🎓 4th Year Candidate");
+      setCustomTaglineInput("");
+      setSelectedNameFx(profile.nameFx || "none");
+      setIsPhotoProcessing(false);
+      setPhotoError(null);
+      setPhotoSuccess(null);
+      setSaveSuccessMsg(null);
+    }
+  }, [isOpen, profile]);
+
   if (!isOpen) return null;
 
-  // Handle Photo Upload & Compression
+  // Track if any changes have been made compared to saved profile
+  const hasChanges = (
+    name.trim() !== (profile.name || "").trim() ||
+    section !== (profile.section || "BSCPE 4D") ||
+    pin.trim() !== (profile.pin || "").trim() ||
+    selectedAvatar !== (profile.avatar || "🤖") ||
+    Boolean(customPhoto) !== Boolean(profile.customPhoto) ||
+    (customPhoto && profile.customPhoto && customPhoto !== profile.customPhoto) ||
+    selectedFrame !== (profile.frame || "default") ||
+    selectedNameFx !== (profile.nameFx || "none") ||
+    Boolean(customTaglineInput.trim()) ||
+    selectedTagline !== (profile.tagline || "🎓 4th Year Candidate")
+  );
+
+  // Handle Photo Upload & Compression (supports up to 15MB phone camera images)
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Please upload an image smaller than 2 MB.");
+    // Reset input so selecting the same file triggers change reliably
+    if (e.target) e.target.value = "";
+
+    setPhotoError(null);
+    setPhotoSuccess(null);
+
+    if (file.size > 15 * 1024 * 1024) {
+      setPhotoError("Image is too large (max 15 MB). Please choose a smaller photo.");
       return;
     }
 
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Please select a valid image file (JPG, PNG, WEBP).");
+      return;
+    }
+
+    setIsPhotoProcessing(true);
+
     const reader = new FileReader();
+    reader.onerror = () => {
+      setIsPhotoProcessing(false);
+      setPhotoError("Failed to read image file.");
+    };
+
     reader.onload = (uploadEvent) => {
       const img = new Image();
+      img.onerror = () => {
+        setIsPhotoProcessing(false);
+        setPhotoError("Failed to decode image.");
+      };
+
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const size = 160;
-        canvas.width = size;
-        canvas.height = size;
+        try {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const size = 160;
+          canvas.width = size;
+          canvas.height = size;
 
-        const minDim = Math.min(img.width, img.height);
-        const startX = (img.width - minDim) / 2;
-        const startY = (img.height - minDim) / 2;
+          const minDim = Math.min(img.width, img.height);
+          const startX = (img.width - minDim) / 2;
+          const startY = (img.height - minDim) / 2;
 
-        ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
-        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.85);
-        setCustomPhoto(compressedBase64);
+          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.88);
+          setCustomPhoto(compressedBase64);
+          setIsPhotoProcessing(false);
+          setPhotoSuccess("Photo cropped & loaded! Press Save Profile to apply.");
+          try { sound?.playFlip?.(); } catch (err) {}
+        } catch (err) {
+          setIsPhotoProcessing(false);
+          setPhotoError("Image processing error. Please try again.");
+        }
       };
       img.src = uploadEvent.target.result;
     };
@@ -107,16 +178,20 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
       isAnon: false,
     });
 
+    try { sound?.playCorrect?.(); } catch (err) {}
     confetti({
       particleCount: 70,
       spread: 60,
       origin: { y: 0.6 },
     });
 
-    onClose();
-    if (onSaved) {
-      setTimeout(() => onSaved(), 200);
-    }
+    setSaveSuccessMsg("✅ Profile saved & synced!");
+    setTimeout(() => {
+      onClose();
+      if (onSaved) {
+        setTimeout(() => onSaved(), 200);
+      }
+    }, 350);
   };
 
   const handleStayAnon = () => {
@@ -176,15 +251,35 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
       >
         <div className="double-bezel-inner p-5 sm:p-7 relative space-y-4 sm:space-y-5">
           
-          {/* Close button if profile already configured */}
-          {profile.isConfigured && (
-            <button
-              onClick={onClose}
-              className="btn-haptic absolute top-4 right-4 sm:top-5 sm:right-5 p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          {/* Top action controls: Save Changes + Close button */}
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-1.5 z-20">
+            {mode === "create" && (
+              <button
+                type="button"
+                onClick={handleSave}
+                className={`btn-haptic px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                  hasChanges
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 ring-2 ring-emerald-500/30"
+                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20"
+                }`}
+                title="Force Save and sync profile"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="hidden sm:inline">{hasChanges ? "Save Changes" : "Save Profile"}</span>
+                <span className="sm:hidden">Save</span>
+              </button>
+            )}
+
+            {profile.isConfigured && (
+              <button
+                onClick={onClose}
+                className="btn-haptic p-1.5 sm:p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
           {/* Header Banner */}
           <div className="text-center space-y-1.5">
@@ -280,17 +375,17 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               </div>
 
               {/* Live Avatar Preview with Equipped Prestige Border */}
-              <div className="flex flex-col items-center justify-center gap-2 py-1 text-center">
+              <div className="flex flex-col items-center justify-center gap-2.5 py-1 text-center">
                 <div className="relative group">
                   <div className="relative flex items-center justify-center">
-                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center ${
+                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center shadow-lg ${
                       AVATAR_FRAMES.find(f => f.id === selectedFrame)?.cssClass || "avatar-frame-default"
                     }`}>
                       <div className="w-full h-full rounded-[14px] bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden border border-slate-200/80 dark:border-slate-800">
                         {customPhoto ? (
                           <img src={customPhoto} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-3xl sm:text-4xl">{selectedAvatar}</span>
+                          <span className="text-4xl sm:text-5xl">{selectedAvatar}</span>
                         )}
                       </div>
                     </div>
@@ -298,7 +393,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                       <img 
                         src={AVATAR_FRAMES.find(f => f.id === selectedFrame).assetUrl} 
                         alt="" 
-                        className="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] max-w-none pointer-events-none object-contain z-10" 
+                        className="absolute -inset-2.5 w-[calc(100%+20px)] h-[calc(100%+20px)] max-w-none pointer-events-none object-contain z-10" 
                       />
                     )}
                   </div>
@@ -306,12 +401,35 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="btn-haptic absolute -bottom-1 -right-1 p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md border-2 border-white dark:border-slate-800 cursor-pointer"
+                    disabled={isPhotoProcessing}
+                    className="btn-haptic absolute -bottom-1 -right-1 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-2 border-white dark:border-slate-800 cursor-pointer"
                     title="Upload Custom Photo"
                   >
-                    <Camera className="w-3.5 h-3.5" />
+                    {isPhotoProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                   </button>
                 </div>
+
+                {/* Photo feedback alerts */}
+                {isPhotoProcessing && (
+                  <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold animate-pulse">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing & cropping image...</span>
+                  </div>
+                )}
+
+                {photoError && (
+                  <div className="p-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{photoError}</span>
+                  </div>
+                )}
+
+                {photoSuccess && (
+                  <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>{photoSuccess}</span>
+                  </div>
+                )}
 
                 {/* Live Name & Vanity Tagline Preview */}
                 <div className="space-y-1">
@@ -330,24 +448,34 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs">
+                {/* Photo Action Controls */}
+                <div className="flex items-center gap-2 text-xs flex-wrap justify-center pt-0.5">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                    disabled={isPhotoProcessing}
+                    className="btn-haptic px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Upload className="w-3 h-3" />
-                    <span>{customPhoto ? "Change photo" : "Upload photo"}</span>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{customPhoto ? "Change Photo (Max 15MB)" : "Upload Photo (Max 15MB)"}</span>
                   </button>
+
                   {customPhoto && (
                     <button
                       type="button"
-                      onClick={() => setCustomPhoto(null)}
-                      className="text-[11px] text-rose-500 hover:underline cursor-pointer"
+                      onClick={() => {
+                        setCustomPhoto(null);
+                        setPhotoSuccess(null);
+                        setPhotoError(null);
+                        try { sound?.playFlip?.(); } catch (err) {}
+                      }}
+                      className="btn-haptic px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
-                      Reset to emoji
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Remove Photo</span>
                     </button>
                   )}
+
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -358,34 +486,44 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                 </div>
               </div>
 
-              {/* Emoji Presets Grid */}
-              {!customPhoto && (
-                <div className="space-y-1 text-left">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                    Choose Codename Avatar
+              {/* Emoji Presets Grid (Always Available) */}
+              <div className="space-y-1.5 text-left p-3.5 bg-slate-50/90 dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <span>Codename Emojis</span>
                   </label>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {AVATAR_PRESETS.map((av) => {
-                      const isPicked = selectedAvatar === av.emoji;
-                      return (
-                        <button
-                          type="button"
-                          key={av.id}
-                          onClick={() => setSelectedAvatar(av.emoji)}
-                          className={`p-1.5 rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer ${
-                            isPicked 
-                              ? "bg-blue-50 dark:bg-blue-950/40 border-2 border-blue-600 dark:border-blue-400 shadow-xs scale-105" 
-                              : "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200/80 dark:border-slate-700"
-                          }`}
-                          title={av.label}
-                        >
-                          <span>{av.emoji}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                    {customPhoto ? "Click an emoji to switch from photo" : "Selected: " + selectedAvatar}
+                  </span>
                 </div>
-              )}
+
+                <div className="grid grid-cols-6 gap-1.5 pt-0.5">
+                  {AVATAR_PRESETS.map((av) => {
+                    const isPicked = !customPhoto && selectedAvatar === av.emoji;
+                    return (
+                      <button
+                        type="button"
+                        key={av.id}
+                        onClick={() => {
+                          setSelectedAvatar(av.emoji);
+                          setCustomPhoto(null);
+                          setPhotoSuccess(null);
+                          setPhotoError(null);
+                          try { sound?.playFlip?.(); } catch (err) {}
+                        }}
+                        className={`p-2 rounded-xl text-xl flex items-center justify-center transition-all cursor-pointer ${
+                          isPicked 
+                            ? "bg-blue-100 dark:bg-blue-900/60 border-2 border-blue-600 dark:border-blue-400 shadow-xs scale-105" 
+                            : "bg-white dark:bg-slate-800/90 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200/80 dark:border-slate-700"
+                        }`}
+                        title={av.label}
+                      >
+                        <span>{av.emoji}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Prestige Avatar Border Selector */}
               <div className="space-y-1.5 text-left p-3.5 bg-slate-50/90 dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800">
@@ -684,23 +822,63 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-1 space-y-2">
+              <div className="pt-2 space-y-2">
                 <button
                   type="submit"
-                  className="btn-haptic w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer"
+                  className={`btn-haptic w-full py-3 rounded-xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer text-white transition-all ${
+                    hasChanges
+                      ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/30 ring-2 ring-emerald-500/30"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-600/25"
+                  }`}
                 >
-                  <Check className="w-4 h-4" />
-                  <span>Enter Arena & Generate Reviewer Pass</span>
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>{profile.isConfigured ? (hasChanges ? "Confirm & Force Save Profile" : "Save Profile") : "Enter Arena & Generate Reviewer Pass"}</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleStayAnon}
-                  className="btn-haptic w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <Shield className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                  <span>Stay Anonymous (Generate Anon ID)</span>
-                </button>
+                {!profile.isConfigured && (
+                  <button
+                    type="button"
+                    onClick={handleStayAnon}
+                    className="btn-haptic w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                    <span>Stay Anonymous (Generate Anon ID)</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Sticky Floating Save Confirmation Bar inside the modal */}
+              <div className="sticky -bottom-5 sm:-bottom-7 -mx-5 sm:-mx-7 p-3 sm:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 z-30 shadow-lg">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${hasChanges ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
+                    {saveSuccessMsg || (hasChanges ? "Unsaved changes ready" : "Profile up to date")}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {profile.isConfigured && (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="btn-haptic px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition-all cursor-pointer"
+                    >
+                      Close
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className={`btn-haptic px-4 py-2 rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer text-white transition-all ${
+                      hasChanges
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/30 ring-2 ring-emerald-400/30"
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-600/25"
+                    }`}
+                  >
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                    <span>{hasChanges ? "Confirm & Save Changes" : "Force Save Profile"}</span>
+                  </button>
+                </div>
               </div>
 
             </form>

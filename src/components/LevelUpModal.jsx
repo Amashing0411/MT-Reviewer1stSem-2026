@@ -66,8 +66,19 @@ export function LevelUpModal({ rewardData, profile, onEquipAll, onClose }) {
             {/* Unlocked Avatar Frame */}
             {frameObj && (
               <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <div className={`w-10 h-10 rounded-xl bg-white flex items-center justify-center text-lg shrink-0 overflow-hidden ${frameObj.cssClass}`}>
-                  <span>{profile.avatar || "🤖"}</span>
+                <div className={`relative w-11 h-11 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-lg shrink-0 overflow-hidden ${frameObj.cssClass}`}>
+                  {profile.customPhoto ? (
+                    <img src={profile.customPhoto} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{profile.avatar || "🤖"}</span>
+                  )}
+                  {frameObj.assetUrl && (
+                    <img 
+                      src={frameObj.assetUrl} 
+                      alt="" 
+                      className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] max-w-none pointer-events-none object-contain z-10" 
+                    />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
@@ -133,7 +144,9 @@ export function LevelUpModal({ rewardData, profile, onEquipAll, onClose }) {
                   tagline: unlockedTagline || undefined,
                   nameFx: nameFxObj ? nameFxObj.id : undefined,
                 });
+                try { sound?.playCorrect?.(); } catch (e) {}
                 confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                if (onClose) onClose();
               }}
               className="btn-haptic w-full py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer"
             >
