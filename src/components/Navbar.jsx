@@ -18,7 +18,8 @@ import {
   Trophy,
   KeyRound,
   Sun,
-  Moon
+  Moon,
+  Swords
 } from "lucide-react";
 import { SCHEDULE_DATA, SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
 import { sound } from "../utils/sound";
@@ -60,7 +61,8 @@ export function Navbar({
   const modes = [
     { id: "reviewer", label: "Study Notes", icon: BookOpen },
     { id: "flashcards", label: "Flashcards", icon: Layers },
-    { id: "mock", label: "Quiz Battle", icon: CheckSquare },
+    { id: "mock", label: "Solo Mock Exam", icon: CheckSquare },
+    { id: "battle", label: "Battle Exam ⚡", icon: Swords, isHot: true },
     { id: "cram", label: "Cram Sheet", icon: FileText },
     { id: "leaderboard", label: "Leaderboard", icon: Trophy },
   ];
@@ -441,13 +443,21 @@ export function Navbar({
                   <button
                     key={mode.id}
                     onClick={() => onSelectMode(mode.id)}
-                    className={`btn-haptic group flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
+                    className={`btn-haptic group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                       isActive
-                        ? "bg-slate-900 dark:bg-blue-600 text-white shadow-sm ring-1 ring-slate-800 dark:ring-blue-500"
+                        ? mode.isHot
+                          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-md shadow-amber-500/25 ring-2 ring-amber-300"
+                          : "bg-slate-900 dark:bg-blue-600 text-white shadow-sm ring-1 ring-slate-800 dark:ring-blue-500"
+                        : mode.isHot
+                        ? "bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-extrabold"
                         : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? "text-blue-400 dark:text-white" : "text-slate-500 dark:text-slate-400"}`} />
+                    <Icon className={`w-3.5 h-3.5 ${
+                      isActive 
+                        ? mode.isHot ? "text-slate-950 fill-slate-950" : "text-blue-400 dark:text-white" 
+                        : mode.isHot ? "text-amber-600 dark:text-amber-400" : "text-slate-500 dark:text-slate-400"
+                    }`} />
                     <span>{mode.label}</span>
                   </button>
                 );

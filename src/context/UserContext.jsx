@@ -523,7 +523,7 @@ export function UserProvider({ children }) {
 
       const updated = {
         ...prev,
-        xp: newXp,
+        xp: Math.max(0, newXp),
       };
 
       if (subjectId) {
@@ -531,9 +531,14 @@ export function UserProvider({ children }) {
         const sub = stats[subjectId] || { xp: 0, highestPercent: 0, fastestBlitz: null, quizzesTaken: 0 };
         stats[subjectId] = {
           ...sub,
-          xp: (sub.xp || 0) + amount,
+          xp: Math.max(0, (sub.xp || 0) + amount),
         };
         updated.subjectStats = stats;
+      }
+
+      saveProfile(updated);
+      if (updated.isConfigured) {
+        pushProfileToCloud(updated);
       }
 
       return updated;
@@ -742,6 +747,7 @@ export function UserProvider({ children }) {
         isCloudConnected,
         isSyncing,
         syncWithCloud,
+        pushProfileToCloud,
         restoreProfileFromCloud,
         flushCloudDatabase,
         feedMessages,

@@ -12,6 +12,7 @@ import { StudentPassCardModal } from "./components/StudentPassCardModal";
 import { AuroraBackground } from "./components/ui/aurora-background";
 import { ClassShoutbox } from "./components/ClassShoutbox";
 import { StudentProfileModal } from "./components/StudentProfileModal";
+import { BattleArena } from "./components/battle/BattleArena";
 import { UserProvider, useUser } from "./context/UserContext";
 import { StudentAvatar } from "./components/StudentAvatar";
 import { AVATAR_FRAMES, NAME_EFFECTS } from "./utils/gamification";
@@ -30,7 +31,8 @@ import {
   Layers,
   CheckSquare,
   FileText,
-  RefreshCw
+  RefreshCw,
+  Swords
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { sound } from "./utils/sound";
@@ -143,6 +145,12 @@ function AppContent() {
           <MockExam 
             subject={activeSubject} 
             onSelectMode={setCurrentMode}
+          />
+        )}
+
+        {currentMode === "battle" && (
+          <BattleArena 
+            onBackToReviewer={() => setCurrentMode("reviewer")}
           />
         )}
 
@@ -550,7 +558,8 @@ function AppContent() {
           {[
             { id: "reviewer", label: "Notes", icon: BookOpen },
             { id: "flashcards", label: "Cards", icon: Layers },
-            { id: "mock", label: "Quiz", icon: CheckSquare },
+            { id: "mock", label: "Solo", icon: CheckSquare },
+            { id: "battle", label: "Battle ⚡", icon: Swords, isHot: true },
             { id: "cram", label: "Cram", icon: FileText },
             { id: "leaderboard", label: "Rank", icon: Trophy },
           ].map((tab) => {
