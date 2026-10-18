@@ -397,22 +397,20 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               </div>
 
               {/* Live Avatar Preview with Equipped Prestige Border */}
-              <div className="flex flex-col items-center justify-center gap-2.5 py-1 text-center">
-                <div className="relative group">
-                  <div className="relative flex items-center justify-center p-3">
-                    <StudentAvatar
-                      avatar={selectedAvatar}
-                      customPhoto={customPhoto}
-                      frameId={selectedFrame}
-                      size="xl"
-                    />
-                  </div>
+              <div className="flex flex-col items-center justify-center py-2 text-center">
+                <div className="relative group my-5 sm:my-6 p-4 sm:p-5 flex items-center justify-center">
+                  <StudentAvatar
+                    avatar={selectedAvatar}
+                    customPhoto={customPhoto}
+                    frameId={selectedFrame}
+                    size="xl"
+                  />
 
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isPhotoProcessing}
-                    className="btn-haptic absolute -bottom-1 -right-1 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-2 border-white dark:border-slate-800 cursor-pointer z-20"
+                    className="btn-haptic absolute bottom-2 right-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-2 border-white dark:border-slate-800 cursor-pointer z-30"
                     title="Upload Custom Photo"
                   >
                     {isPhotoProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
@@ -442,7 +440,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                 )}
 
                 {/* Live Name & Vanity Tagline Preview */}
-                <div className="space-y-1">
+                <div className="space-y-1.5 pt-2 sm:pt-3">
                   <div className="flex items-center gap-2 justify-center">
                     <span className={`text-base sm:text-lg font-extrabold text-slate-900 dark:text-white ${NAME_EFFECTS.find(fx => fx.id === selectedNameFx)?.cssClass || ""}`}>
                       {name || profile.name || "Student Codename"}

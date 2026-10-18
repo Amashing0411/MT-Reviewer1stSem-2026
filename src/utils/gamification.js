@@ -79,7 +79,7 @@ export const AVATAR_FRAMES = [
     label: "Inferno",
     desc: "Roaring animated hellfire flames & incandescent heat",
     tier: "Mythic",
-    scale: 2.0,
+    scale: 1.95,
     shape: "rounded"
   },
   {
@@ -103,8 +103,8 @@ export const AVATAR_FRAMES = [
     label: "Valkyrie",
     desc: "Hyper-prismatic shifting aurora crystal halo",
     tier: "Ascended",
-    scale: 2.15,
-    shape: "circle"
+    scale: 2.05,
+    shape: "rounded"
   },
   {
     id: "deans-lister-custom",
@@ -115,7 +115,7 @@ export const AVATAR_FRAMES = [
     label: "Dean's Crest",
     desc: "Official academic honor crest for Room 106 top students",
     tier: "Ascended",
-    scale: 2.05,
+    scale: 1.95,
     shape: "rounded"
   },
   {
@@ -127,7 +127,7 @@ export const AVATAR_FRAMES = [
     label: "Solar Corona",
     desc: "Blinding solar flare god-rays & pulsating divinity",
     tier: "Godlike",
-    scale: 2.25,
+    scale: 2.1,
     shape: "circle"
   },
 ];
@@ -514,6 +514,9 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
     section: currentUser.section || "BSCPE 4D",
     avatar: currentUser.avatar || "🤖",
     customPhoto: currentUser.customPhoto || null,
+    frame: currentUser.frame || "default",
+    tagline: currentUser.tagline || "",
+    nameFx: currentUser.nameFx || "none",
     xp: isAll ? (currentUser.xp || 0) : (mySub?.xp || 0),
     fastestBlitz: isAll ? (currentUser.fastestBlitzSeconds || null) : (mySub?.fastestBlitz || null),
     highestPercent: isAll ? (currentUser.highestScorePercent || 0) : (mySub?.highestPercent || 0),

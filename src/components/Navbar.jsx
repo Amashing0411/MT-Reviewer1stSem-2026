@@ -205,10 +205,10 @@ export function Navbar({
               {/* Student Profile Pill */}
               <button
                 onClick={() => setIsWelcomeOpen(true)}
-                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold transition-all text-slate-800 dark:text-slate-100 cursor-pointer"
+                className="btn-haptic flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold transition-all text-slate-800 dark:text-slate-100 cursor-pointer"
                 title={`Profile: ${profile.name} • Lv. ${levelInfo.level} ${levelInfo.title} (${activeFrame.name})`}
               >
-                <div className="p-0.5">
+                <div className="p-1 mx-0.5 shrink-0 flex items-center justify-center">
                   <StudentAvatar
                     avatar={profile.avatar}
                     customPhoto={profile.customPhoto}
@@ -216,7 +216,7 @@ export function Navbar({
                     size="sm"
                   />
                 </div>
-                <div className="flex flex-col text-left leading-tight hidden lg:flex">
+                <div className="flex flex-col text-left leading-tight pl-1 hidden lg:flex">
                   <span className={`text-[11px] font-bold truncate max-w-[85px] ${nameFxClass}`}>{profile.name}</span>
                   <span className="text-[9px] text-blue-600 dark:text-blue-400 font-extrabold flex items-center gap-0.5">
                     <span>Lv. {levelInfo.level}</span>

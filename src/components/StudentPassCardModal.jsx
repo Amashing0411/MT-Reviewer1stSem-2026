@@ -235,15 +235,17 @@ export function StudentPassCardModal({ isOpen, onClose }) {
             </div>
 
             {/* Profile Row */}
-            <div className="flex items-center gap-3.5">
-              <StudentAvatar
-                avatar={profile.avatar}
-                customPhoto={profile.customPhoto}
-                frameId={profile.frame}
-                size="lg"
-              />
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="p-1.5 sm:p-2 mx-0.5 shrink-0 flex items-center justify-center">
+                <StudentAvatar
+                  avatar={profile.avatar}
+                  customPhoto={profile.customPhoto}
+                  frameId={profile.frame}
+                  size="lg"
+                />
+              </div>
 
-              <div className="space-y-0.5 truncate">
+              <div className="space-y-0.5 min-w-0 flex-1 truncate">
                 <span className="text-xs text-slate-400 font-semibold block">Student Reviewer</span>
                 <h4 className={`text-base sm:text-lg font-bold truncate ${NAME_EFFECTS.find(fx => fx.id === profile.nameFx)?.cssClass || "text-white"}`}>
                   {studentName}

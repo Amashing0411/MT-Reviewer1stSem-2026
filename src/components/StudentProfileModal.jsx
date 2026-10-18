@@ -111,8 +111,8 @@ export function StudentProfileModal({ student, onClose }) {
           </div>
 
           {/* Big Avatar with Equipped Animated Game Frame */}
-          <div className="flex flex-col items-center justify-center gap-3 pt-1">
-            <div className="relative flex items-center justify-center p-3">
+          <div className="flex flex-col items-center justify-center pt-1">
+            <div className="relative flex items-center justify-center my-4 sm:my-6 p-4 sm:p-5">
               <StudentAvatar
                 avatar={activeStudent.avatar}
                 customPhoto={activeStudent.customPhoto}
@@ -122,7 +122,7 @@ export function StudentProfileModal({ student, onClose }) {
             </div>
 
             {/* Student Name with Animated Name FX */}
-            <div className="space-y-1">
+            <div className="space-y-1.5 pt-2 sm:pt-3">
               <h3 className={`text-xl sm:text-2xl font-black tracking-tight ${nameFxObj?.cssClass || "text-slate-900 dark:text-white"}`}>
                 {activeStudent.name}
               </h3>

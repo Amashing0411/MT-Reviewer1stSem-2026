@@ -192,22 +192,29 @@ function AppContent() {
                 </div>
 
                 {/* Current Student Highlight Card */}
-                <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <StudentAvatar
-                      avatar={profile.avatar}
-                      customPhoto={profile.customPhoto}
-                      frameId={profile.frame}
-                      size="lg"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`font-extrabold text-base sm:text-lg ${
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                  <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto min-w-0">
+                    <div className="p-1.5 sm:p-2 mx-0.5 shrink-0 flex items-center justify-center">
+                      <StudentAvatar
+                        avatar={profile.avatar}
+                        customPhoto={profile.customPhoto}
+                        frameId={profile.frame}
+                        size="lg"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`font-extrabold text-base sm:text-lg truncate max-w-[150px] sm:max-w-none ${
                           NAME_EFFECTS.find((fx) => fx.id === profile.nameFx)?.cssClass || ""
                         }`}>{profile.name}</span>
-                        <span className="text-[10px] font-bold bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-400/30">
+                        <span className="text-[10px] font-bold bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-400/30 shrink-0">
                           {profile.section}
                         </span>
+                        {profile.tagline && (
+                          <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/30 truncate max-w-[150px] sm:max-w-[200px]">
+                            {profile.tagline}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-blue-200 flex items-center gap-1.5 mt-0.5">
                         <span>Level {levelInfo.level} • {levelInfo.title}</span>
@@ -377,19 +384,21 @@ function AppContent() {
                         }`}
                         title="Click to view classmate profile card & vanity"
                       >
-                        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div className="flex items-center gap-2 sm:gap-3.5 flex-1 min-w-0">
                           {rankBadge}
 
-                          <StudentAvatar
-                            avatar={item.avatar}
-                            customPhoto={item.customPhoto}
-                            frameId={item.frame}
-                            size="md"
-                          />
+                          <div className="p-1 sm:p-1.5 mx-0.5 sm:mx-1 shrink-0 flex items-center justify-center">
+                            <StudentAvatar
+                              avatar={item.avatar}
+                              customPhoto={item.customPhoto}
+                              frameId={item.frame}
+                              size="md"
+                            />
+                          </div>
 
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className={`text-xs sm:text-sm font-bold truncate max-w-[110px] xs:max-w-[140px] sm:max-w-none ${
+                              <span className={`text-xs sm:text-sm font-bold truncate max-w-[130px] sm:max-w-[200px] md:max-w-none ${
                                 NAME_EFFECTS.find((fx) => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")
                               }`}>
                                 {item.name} {isMe && "(You)"}
@@ -398,31 +407,31 @@ function AppContent() {
                                 {item.section}
                               </span>
                               {item.tagline && (
-                                <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[85px] sm:max-w-[130px]">
+                                <span className="text-[9px] sm:text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[110px] sm:max-w-[160px]">
                                   {item.tagline}
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                            <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
                               Level {item.levelInfo.level} • {item.levelInfo.title}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
+                        <div className="text-right shrink-0 pl-2">
                           {leaderboardFilter === "xp" && (
-                            <span className="font-extrabold text-xs sm:text-sm text-blue-700">
+                            <span className="font-extrabold text-xs sm:text-sm text-blue-700 dark:text-blue-400">
                               {item.xp.toLocaleString()} XP
                             </span>
                           )}
                           {leaderboardFilter === "speed" && (
-                            <span className="font-extrabold text-xs sm:text-sm text-amber-700 flex items-center gap-1 justify-end">
+                            <span className="font-extrabold text-xs sm:text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1 justify-end">
                               <Clock className="w-3.5 h-3.5" />
                               {item.fastestBlitz ? `${item.fastestBlitz}s` : "—"}
                             </span>
                           )}
                           {leaderboardFilter === "score" && (
-                            <span className="font-extrabold text-xs sm:text-sm text-emerald-700">
+                            <span className="font-extrabold text-xs sm:text-sm text-emerald-700 dark:text-emerald-400">
                               {item.highestPercent}% Score
                             </span>
                           )}
@@ -488,7 +497,7 @@ function AppContent() {
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
         onOpenPassCard={() => setIsPassCardOpen(true)}
-        defaultSubject={activeSubjectId}
+        defaultSubject="all"
       />
 
       {/* Digital Student Pass Card & Phone Sync Modal */}

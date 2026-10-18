@@ -317,25 +317,27 @@ export function ClassShoutbox() {
                 return (
                   <div
                     key={msg.id}
-                    className={`flex items-start gap-2.5 transition-all ${isMe ? "flex-row-reverse" : "flex-row"}`}
+                    className={`flex items-start gap-1.5 sm:gap-2.5 transition-all ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
-                    {/* Clickable Avatar to Inspect Profile */}
-                    <button
-                      type="button"
-                      onClick={() => handleInspectMessage(msg)}
-                      className="cursor-pointer transition-transform hover:scale-110 shrink-0"
-                      title={`Inspect ${msg.studentName}'s Profile`}
-                    >
-                      <StudentAvatar
-                        avatar={displayAvatar}
-                        customPhoto={displayPhoto}
-                        frameId={displayFrame}
-                        size="sm"
-                      />
-                    </button>
+                    {/* Clickable Avatar to Inspect Profile with Frame Buffer */}
+                    <div className="shrink-0 p-1 mx-1 flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => handleInspectMessage(msg)}
+                        className="cursor-pointer transition-transform hover:scale-105"
+                        title={`Inspect ${msg.studentName}'s Profile`}
+                      >
+                        <StudentAvatar
+                          avatar={displayAvatar}
+                          customPhoto={displayPhoto}
+                          frameId={displayFrame}
+                          size="sm"
+                        />
+                      </button>
+                    </div>
 
                     {/* Message Bubble Card */}
-                    <div className={`max-w-[78%] flex flex-col space-y-1 ${isMe ? "items-end" : "items-start"}`}>
+                    <div className={`max-w-[76%] flex flex-col space-y-1 ${isMe ? "items-end pr-1.5 sm:pr-2.5" : "items-start pl-1.5 sm:pl-2.5"}`}>
                       {/* Name, Tagline & Section Banner */}
                       <div className={`flex items-center gap-1.5 flex-wrap text-[10px] ${isMe ? "justify-end" : "justify-start"}`}>
                         <button
