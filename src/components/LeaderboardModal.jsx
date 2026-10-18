@@ -22,19 +22,20 @@ import confetti from "canvas-confetti";
 const SUBJECT_TABS = [
   { id: "all", label: "Overall (All 8)", icon: "🌐" },
   { id: "cpe414", label: "CPE414 • DSP", icon: "📡" },
-  { id: "cpe411", label: "CPE411 • Embedded", icon: "⚡" },
-  { id: "cpe416", label: "CPE416 • Comp Arch", icon: "💻" },
-  { id: "cpe415", label: "CPE415 • Networks", icon: "🛡️" },
-  { id: "cpe412", label: "CPE412 • Robotics", icon: "🤖" },
-  { id: "elect3", label: "ELECT3 • Data Sci", icon: "📊" },
-  { id: "cpe413", label: "CPE413 • InfoSec", icon: "🔒" },
-  { id: "engwork", label: "ENGWORK • Mgt", icon: "⚙️" },
+  { id: "cpe411", label: "CPE411 • Design 2", icon: "🔨" },
+  { id: "cpe416", label: "CPE416 • Laws", icon: "⚖️" },
+  { id: "cpe415", label: "CPE415 • Eng Mgt", icon: "💼" },
+  { id: "cpe412", label: "CPE412 • Seminars", icon: "🧭" },
+  { id: "elect3", label: "ELECT3 • Elective 3", icon: "⚡" },
+  { id: "cpe413", label: "CPE413 • Comp Arch", icon: "💻" },
+  { id: "engwork", label: "ENGWORK • Workplace", icon: "📝" },
 ];
 
 export function LeaderboardModal({ isOpen, onClose }) {
   const { 
     profile, 
     levelInfo, 
+    leaderboard = [],
     getLeaderboard,
     importScorecard,
     isCloudConnected,
@@ -107,7 +108,7 @@ export function LeaderboardModal({ isOpen, onClose }) {
     }
   };
 
-  const otherClassmatesCount = leaderboard.filter((item) => !item.isCurrentUser).length;
+  const otherClassmatesCount = (currentRoster || leaderboard || []).filter((item) => !item.isCurrentUser).length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-fadeIn">
