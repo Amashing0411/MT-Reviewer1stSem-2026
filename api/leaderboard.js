@@ -29,9 +29,10 @@ export default async function handler(req, res) {
 
   const kvUrl = rawUrl ? rawUrl.replace(/\/$/, "") : null;
 
-  // Fresh storage key for 4th year batch — wipes old test data
-  const KEY = "bscpe4th_clean_leaderboard_2026";
-  const FEED_KEY = "bscpe4th_campus_shoutbox_2026";
+  // Official fresh storage keys for 4th year batch — wipes all previous messy test data
+  const KEY = "bscpe4th_official_clean_roster_2026";
+  const FEED_KEY = "bscpe4th_official_clean_feed_2026";
+  const LEGACY_KEYS = ["bscpe4th_clean_leaderboard_2026", "bscpe4th_campus_shoutbox_2026"];
 
   // If KV is not configured yet in Vercel Dashboard
   if (!kvUrl || !kvToken) {
@@ -71,6 +72,11 @@ export default async function handler(req, res) {
 
   // Helper to fetch roster
   async function getRoster() {
+    // Purge legacy test keys in background
+    try {
+      upstashCommand(["DEL", ...LEGACY_KEYS]).catch(() => {});
+    } catch (e) {}
+
     let data = await upstashCommand(["GET", KEY]);
     if (!data || data.error) {
       const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
@@ -85,40 +91,6 @@ export default async function handler(req, res) {
         roster = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
       } catch (e) {
         roster = [];
-      }
-    }
-
-    // Auto-reset target student record if found with test values
-    if (Array.isArray(roster)) {
-      let resetOccurred = false;
-      roster.forEach((student) => {
-        if (
-          student.id === "student_mvdohhf0_0gdeyk" ||
-          (student.name && student.name.trim().toLowerCase() === "erenbugtester")
-        ) {
-          if (student.xp !== 850 || student.levelInfo?.level !== 1) {
-            student.xp = 850;
-            student.levelInfo = {
-              level: 1,
-              title: "Novice Trainee"
-            };
-            student.frame = "default";
-            student.tagline = "🎓 4th Year Candidate";
-            student.nameFx = "none";
-            if (student.subjectStats?.engwork) {
-              student.subjectStats.engwork.xp = 850;
-            }
-            student.updatedAt = Date.now();
-            resetOccurred = true;
-          }
-        }
-      });
-      if (resetOccurred) {
-        try {
-          await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
-        } catch (e) {
-          console.error("Failed to persist auto-reset:", e);
-        }
       }
     }
 
@@ -145,7 +117,26 @@ export default async function handler(req, res) {
         feed = [];
       }
     }
-    return Array.isArray(feed) ? feed : [];
+    if (!Array.isArray(feed) || feed.length === 0) {
+      feed = [
+        {
+          id: "seed-official-1",
+          text: "Welcome to the official BSCPE 4th Year Midterm Arena! Best of luck Room 106! 🎓⚡",
+          studentId: "system",
+          studentName: "DLSP BSCPE Council",
+          studentSection: "BSCPE 4D",
+          avatar: "🏆",
+          frame: "deans-lister-custom",
+          nameFx: "fire",
+          tagline: "🎖️ Room 106 Dean's Lister",
+          level: 10,
+          xp: 15000,
+          createdAt: Date.now() - 1000 * 60 * 60,
+        }
+      ];
+      upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]).catch(() => {});
+    }
+    return feed;
   }
 
   try {

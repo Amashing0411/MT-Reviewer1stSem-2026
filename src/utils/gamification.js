@@ -353,8 +353,8 @@ export function getLevelInfo(xp) {
   return { ...LEVELS[0], percent: 0, xpNeeded: 300, nextTitle: LEVELS[1].title };
 }
 
-const STORAGE_KEY = "mt_reviewer_student_profile_2026";
-const ROSTER_KEY = "mt_reviewer_class_roster_2026";
+const STORAGE_KEY = "mt_reviewer_student_profile_v2_2026";
+const ROSTER_KEY = "mt_reviewer_class_roster_v2_2026";
 
 export function loadProfile() {
   try {

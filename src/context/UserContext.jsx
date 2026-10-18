@@ -16,6 +16,7 @@ import confetti from "canvas-confetti";
 import { LevelUpModal } from "../components/LevelUpModal";
 
 const UserContext = createContext(null);
+const FEED_CACHE_KEY = "mt_reviewer_feed_cache_v2_2026";
 
 export function UserProvider({ children }) {
   const [profile, setProfile] = useState(() => {
@@ -40,7 +41,7 @@ export function UserProvider({ children }) {
   // Campus Study Shoutbox Feed State with seed & localStorage cache
   const [feedMessages, setFeedMessages] = useState(() => {
     try {
-      const saved = localStorage.getItem("mt_reviewer_feed_cache_2026");
+      const saved = localStorage.getItem(FEED_CACHE_KEY);
       if (saved) return JSON.parse(saved);
       return [
         {
@@ -94,6 +95,15 @@ export function UserProvider({ children }) {
       localStorage.setItem("mt_reviewer_theme_2026", theme);
     } catch (e) {}
   }, [theme]);
+
+  // Purge old pre-reset test storage so all users start 100% clean
+  useEffect(() => {
+    try {
+      localStorage.removeItem("mt_reviewer_student_profile_2026");
+      localStorage.removeItem("mt_reviewer_class_roster_2026");
+      localStorage.removeItem("mt_reviewer_feed_cache_2026");
+    } catch (e) {}
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -203,7 +213,7 @@ export function UserProvider({ children }) {
         saveClassRoster([]);
         setFeedMessages([]);
         try {
-          localStorage.removeItem("mt_reviewer_feed_cache_2026");
+          localStorage.removeItem(FEED_CACHE_KEY);
         } catch (e) {}
         setRosterVersion((v) => v + 1);
         setXpToast("✨ Clean start! Cloud leaderboard and feed have been cleared.");
@@ -239,7 +249,7 @@ export function UserProvider({ children }) {
         if (Array.isArray(data.feed) && data.feed.length > 0) {
           setFeedMessages(data.feed);
           try {
-            localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(data.feed));
+            localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(data.feed));
           } catch (e) {}
         }
         if (profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
@@ -284,7 +294,7 @@ export function UserProvider({ children }) {
     setFeedMessages((prev) => {
       const updated = [...prev, newMsg].slice(-50);
       try {
-        localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(updated));
+        localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
@@ -303,7 +313,7 @@ export function UserProvider({ children }) {
         if (Array.isArray(data.feed)) {
           setFeedMessages(data.feed);
           try {
-            localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(data.feed));
+            localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(data.feed));
           } catch (e) {}
         }
       }
@@ -325,7 +335,7 @@ export function UserProvider({ children }) {
           const nextStr = JSON.stringify(data.feed);
           if (prevStr !== nextStr) {
             try {
-              localStorage.setItem("mt_reviewer_feed_cache_2026", nextStr);
+              localStorage.setItem(FEED_CACHE_KEY, nextStr);
             } catch (e) {}
             return data.feed;
           }
@@ -357,7 +367,7 @@ export function UserProvider({ children }) {
         return { ...msg, userReactions: currentReactions };
       });
       try {
-        localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(updated));
+        localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
