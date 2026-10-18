@@ -4,12 +4,26 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  html, body, #root {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: transparent;
     color: #0f172a;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Plus Jakarta Sans", "Geist", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+  }
+
+  /* Prevent iOS Safari from auto-zooming in on text inputs */
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -81,10 +95,22 @@
   padding: 0.5rem 0;
   overflow-x: auto;
   overflow-y: hidden;
+  max-width: 100%;
 }
 .katex {
   font-size: 1.08em !important;
   color: #1e3a8a !important;
+  max-width: 100%;
+}
+.dark .katex {
+  color: #93c5fd !important;
+}
+.inline-math {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  vertical-align: middle;
 }
 
 /* Animations for Gamification */

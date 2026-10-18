@@ -215,24 +215,24 @@ function AppContent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6 text-center sm:text-right border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0 w-full sm:w-auto justify-around sm:justify-end">
+                  <div className="grid grid-cols-3 gap-2 text-center sm:flex sm:items-center sm:gap-6 sm:text-right border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0 w-full sm:w-auto">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-300 block">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-blue-300 block">
                         {leaderboardSubject === "all" ? "Class Rank" : "Subject Rank"}
                       </span>
-                      <span className="text-2xl sm:text-3xl font-black text-amber-400">#{currentUserRank}</span>
+                      <span className="text-xl sm:text-3xl font-black text-amber-400">#{currentUserRank}</span>
                     </div>
                     <div className="w-px h-10 bg-white/10 hidden sm:block"></div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-300 block">
-                        {leaderboardSubject === "all" ? "Total Experience" : "Subject XP"}
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-blue-300 block truncate">
+                        {leaderboardSubject === "all" ? "Total XP" : "Subject XP"}
                       </span>
-                      <span className="text-base sm:text-lg font-black text-emerald-400">+{(currentUserItem.xp || 0).toLocaleString()} XP</span>
+                      <span className="text-xs sm:text-lg font-black text-emerald-400">+{(currentUserItem.xp || 0).toLocaleString()}</span>
                     </div>
                     <div className="w-px h-10 bg-white/10 hidden sm:block"></div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-300 block">Fastest Blitz</span>
-                      <span className="text-base sm:text-lg font-black text-cyan-300">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-blue-300 block truncate">Fastest</span>
+                      <span className="text-xs sm:text-lg font-black text-cyan-300">
                         {currentUserItem.fastestBlitz ? `${currentUserItem.fastestBlitz}s` : "No Record"}
                       </span>
                     </div>
@@ -298,10 +298,10 @@ function AppContent() {
                 </div>
 
                 {/* Filter Selector */}
-                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3 overflow-x-auto scrollbar-none">
                   <button
                     onClick={() => setLeaderboardFilter("xp")}
-                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
                       leaderboardFilter === "xp"
                         ? "bg-slate-900 text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -312,7 +312,7 @@ function AppContent() {
                   </button>
                   <button
                     onClick={() => setLeaderboardFilter("speed")}
-                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
                       leaderboardFilter === "speed"
                         ? "bg-amber-600 text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -323,7 +323,7 @@ function AppContent() {
                   </button>
                   <button
                     onClick={() => setLeaderboardFilter("score")}
-                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    className={`btn-haptic px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
                       leaderboardFilter === "score"
                         ? "bg-emerald-600 text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -377,7 +377,7 @@ function AppContent() {
                         }`}
                         title="Click to view classmate profile card & vanity"
                       >
-                        <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
                           {rankBadge}
 
                           <StudentAvatar
@@ -389,21 +389,21 @@ function AppContent() {
 
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className={`text-xs sm:text-sm font-bold truncate ${
+                              <span className={`text-xs sm:text-sm font-bold truncate max-w-[110px] xs:max-w-[140px] sm:max-w-none ${
                                 NAME_EFFECTS.find((fx) => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")
                               }`}>
                                 {item.name} {isMe && "(You)"}
                               </span>
-                              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 shrink-0">
+                              <span className="text-[9px] sm:text-[10px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 shrink-0">
                                 {item.section}
                               </span>
                               {item.tagline && (
-                                <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[130px]">
+                                <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[85px] sm:max-w-[130px]">
                                   {item.tagline}
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                            <div className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
                               Level {item.levelInfo.level} • {item.levelInfo.title}
                             </div>
                           </div>
@@ -534,7 +534,7 @@ function AppContent() {
 
       {/* Mobile Floating Thumb Navigation Bar (Hidden on Desktop) */}
       <nav 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] px-2 py-1.5"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))]"
         aria-label="Mobile Navigation"
       >
         <div className="flex items-center justify-around max-w-md mx-auto">

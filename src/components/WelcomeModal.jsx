@@ -353,22 +353,22 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               
               {/* Prestige Rank & Title Progression Banner */}
               <div className="p-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-blue-950 dark:via-indigo-950 dark:to-slate-900 text-white rounded-2xl border border-blue-400/30 dark:border-blue-500/30 shadow-lg space-y-2.5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-2xl p-1 bg-white/15 dark:bg-white/10 rounded-xl backdrop-blur-xs">{levelInfo.icon}</span>
-                    <div className="text-left">
+                    <span className="text-2xl p-1 bg-white/15 dark:bg-white/10 rounded-xl backdrop-blur-xs shrink-0">{levelInfo.icon}</span>
+                    <div className="text-left min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-extrabold text-blue-100 dark:text-blue-300 uppercase tracking-wider">Level {levelInfo.level}</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/25 dark:bg-amber-400/20 text-amber-200 dark:text-amber-300 font-bold border border-amber-300/40 dark:border-amber-400/30">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/25 dark:bg-amber-400/20 text-amber-200 dark:text-amber-300 font-bold border border-amber-300/40 dark:border-amber-400/30 shrink-0">
                           {levelInfo.level >= 10 ? "LEGENDARY" : levelInfo.level >= 7 ? "MASTER" : "RANKED"}
                         </span>
                       </div>
-                      <div className="text-xs sm:text-sm font-black text-amber-200 dark:text-amber-300 tracking-tight truncate max-w-[210px]">
+                      <div className="text-xs sm:text-sm font-black text-amber-200 dark:text-amber-300 tracking-tight truncate max-w-[190px] sm:max-w-[260px]">
                         {levelInfo.title}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right flex items-center justify-between sm:block border-t sm:border-t-0 border-white/10 pt-1.5 sm:pt-0">
                     <div className="text-[9px] text-blue-100 dark:text-slate-300 font-bold uppercase tracking-wider">Total XP</div>
                     <div className="text-xs sm:text-sm font-black text-emerald-300 dark:text-emerald-400 font-mono">
                       {(profile.xp || 0).toLocaleString()} XP

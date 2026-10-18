@@ -150,16 +150,16 @@ export function StudentProfileModal({ student, onClose }) {
 
           {/* Level & Rank Showcase Card */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-blue-950 dark:via-indigo-950 dark:to-slate-950 text-white shadow-md shadow-blue-600/20 space-y-3 text-left">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 block">Prestige Rank</span>
-                <span className="text-base sm:text-lg font-black text-amber-300">
+                <span className="text-sm sm:text-lg font-black text-amber-300">
                   Level {levelInfo.level} • {levelInfo.title}
                 </span>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 block">Total Experience</span>
-                <span className="text-base sm:text-lg font-black text-emerald-400 font-mono">
+              <div className="sm:text-right">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 block">Total Experience</span>
+                <span className="text-sm sm:text-lg font-black text-emerald-400 font-mono">
                   {(activeStudent.xp || 0).toLocaleString()} XP
                 </span>
               </div>

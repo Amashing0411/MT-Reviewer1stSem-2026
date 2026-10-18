@@ -96,13 +96,13 @@ export function Navbar({
                 {/* Active Subject Selector Button */}
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight hover:text-blue-700 dark:hover:text-blue-400 transition-colors text-left"
+                  className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight hover:text-blue-700 dark:hover:text-blue-400 transition-colors text-left min-w-0"
                   title="Click to switch subject from list"
                 >
-                  <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded text-[11px] font-extrabold shrink-0 border border-blue-200/60 dark:border-blue-700/50">
+                  <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded text-[10.5px] sm:text-[11px] font-extrabold shrink-0 border border-blue-200/60 dark:border-blue-700/50">
                     {activeSubject.code}
                   </span>
-                  <span className="truncate max-w-[80px] xs:max-w-[120px] sm:max-w-[200px] md:max-w-[320px]">
+                  <span className="truncate max-w-[120px] sm:max-w-[220px] md:max-w-[340px] text-xs sm:text-sm">
                     {activeSubject.title}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
@@ -225,10 +225,10 @@ export function Navbar({
                 </div>
               </button>
 
-              {/* Leaderboard Button */}
+              {/* Leaderboard Button (Shown on desktop; on mobile it's in bottom thumb bar) */}
               <button
                 onClick={() => setIsLeaderboardOpen(true)}
-                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200/80 dark:border-amber-800/50 rounded-xl transition-all cursor-pointer"
+                className="btn-haptic hidden sm:flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200/80 dark:border-amber-800/50 rounded-xl transition-all cursor-pointer"
                 title={`${currentSec.name} Standings`}
               >
                 <Trophy className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -277,10 +277,10 @@ export function Navbar({
                 )}
               </button>
 
-              {/* Schedule Button */}
+              {/* Schedule Button (Shown on desktop; on mobile accessible via dropdown & ribbon) */}
               <button
                 onClick={onOpenSchedule}
-                className="btn-haptic p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                className="btn-haptic hidden sm:flex p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-xl transition-all items-center gap-1 cursor-pointer"
                 title="Schedule"
               >
                 <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />

@@ -250,23 +250,23 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-center sm:text-right border-t sm:border-t-0 border-white/10 pt-2.5 sm:pt-0 w-full sm:w-auto justify-around sm:justify-end">
+            <div className="grid grid-cols-3 gap-1.5 text-center sm:flex sm:items-center sm:gap-4 sm:text-right border-t sm:border-t-0 border-white/10 pt-2.5 sm:pt-0 w-full sm:w-auto">
               <div>
                 <span className="text-[9px] uppercase font-bold text-blue-300 block">
                   {selectedSubject === "all" ? "Class Rank" : "Subject Rank"}
                 </span>
-                <span className="text-lg sm:text-xl font-black text-amber-400">#{currentUserRank}</span>
+                <span className="text-base sm:text-xl font-black text-amber-400">#{currentUserRank}</span>
               </div>
-              <div className="w-px h-7 bg-white/10"></div>
+              <div className="w-px h-7 bg-white/10 hidden sm:block"></div>
               <div>
-                <span className="text-[9px] uppercase font-bold text-blue-300 block">
+                <span className="text-[9px] uppercase font-bold text-blue-300 block truncate">
                   {selectedSubject === "all" ? "Total XP" : "Subject XP"}
                 </span>
                 <span className="text-xs sm:text-sm font-black text-emerald-400">+{(currentUserItem.xp || 0).toLocaleString()}</span>
               </div>
-              <div className="w-px h-7 bg-white/10"></div>
+              <div className="w-px h-7 bg-white/10 hidden sm:block"></div>
               <div>
-                <span className="text-[9px] uppercase font-bold text-blue-300 block">Fastest</span>
+                <span className="text-[9px] uppercase font-bold text-blue-300 block truncate">Fastest</span>
                 <span className="text-xs sm:text-sm font-black text-cyan-300">
                   {currentUserItem.fastestBlitz ? `${currentUserItem.fastestBlitz}s` : "—"}
                 </span>
@@ -325,10 +325,10 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
           {/* Action Row: Filter Tabs & Share/Add Buttons */}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-1 text-xs">
+              <div className="flex items-center gap-1 text-xs overflow-x-auto scrollbar-none pb-0.5">
                 <button
                   onClick={() => setFilter("xp")}
-                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
                     filter === "xp"
                       ? "bg-slate-900 text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -338,7 +338,7 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                 </button>
                 <button
                   onClick={() => setFilter("speed")}
-                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
                     filter === "speed"
                       ? "bg-amber-600 text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -348,7 +348,7 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                 </button>
                 <button
                   onClick={() => setFilter("score")}
-                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`btn-haptic px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
                     filter === "score"
                       ? "bg-emerald-600 text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -473,14 +473,14 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`text-xs font-bold truncate ${NAME_EFFECTS.find(fx => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")}`}>
+                        <span className={`text-xs font-bold truncate max-w-[110px] xs:max-w-[140px] sm:max-w-none ${NAME_EFFECTS.find(fx => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")}`}>
                           {item.name} {isMe && "(You)"}
                         </span>
                         <span className="text-[9px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                           {item.section}
                         </span>
                         {item.tagline && (
-                          <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[130px]">
+                          <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[85px] sm:max-w-[130px]">
                             {item.tagline}
                           </span>
                         )}

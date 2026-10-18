@@ -196,7 +196,7 @@ export function ClassShoutbox() {
             setIsFeedOpen(true);
             setUnreadCount(0);
           }}
-          className="fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-40 btn-haptic group flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-xl shadow-blue-900/30 border border-blue-400/40 cursor-pointer backdrop-blur-md transition-all duration-300 animate-popIn"
+          className="fixed bottom-[4.5rem] sm:bottom-6 right-3 sm:right-6 z-50 btn-haptic group flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-xl shadow-blue-900/30 border border-blue-400/40 cursor-pointer backdrop-blur-md transition-all duration-300 animate-popIn"
           title="Open Live 4th Year Class Feed"
           aria-label="Open 4th Year Class Feed"
         >
@@ -209,7 +209,7 @@ export function ClassShoutbox() {
             )}
             <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           </div>
-          <span className="text-xs sm:text-sm font-extrabold tracking-tight hidden xs:inline">
+          <span className="text-xs sm:text-sm font-extrabold tracking-tight">
             Class Feed
           </span>
           <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -220,7 +220,7 @@ export function ClassShoutbox() {
 
       {/* Floating Class Shoutbox Window */}
       {isFeedOpen && (
-        <div className="fixed bottom-20 sm:bottom-6 right-2 sm:right-6 z-50 w-[calc(100vw-1rem)] xs:w-[380px] sm:w-[410px] max-h-[82vh] sm:max-h-[580px] flex flex-col bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl animate-scaleIn overflow-hidden text-slate-900 dark:text-white">
+        <div className="fixed inset-x-2 bottom-[4.5rem] sm:bottom-6 sm:right-6 sm:left-auto sm:w-[410px] z-50 max-h-[calc(100dvh-5.5rem)] sm:max-h-[580px] h-[78dvh] sm:h-[580px] flex flex-col bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl animate-scaleIn overflow-hidden text-slate-900 dark:text-white">
           
           {/* Header */}
           <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-950 text-white flex items-center justify-between border-b border-blue-500/20 dark:border-white/10 shrink-0">
@@ -376,13 +376,13 @@ export function ClassShoutbox() {
                           <p className="text-[11.5px] font-medium whitespace-pre-wrap">{msg.text}</p>
                         </div>
 
-                        {/* Floating Quick React Trigger Button on Hover / Focus */}
+                        {/* Quick React Trigger Button */}
                         <button
                           type="button"
                           onClick={() => setActiveReactionMsgId(activeReactionMsgId === msg.id ? null : msg.id)}
                           className={`absolute top-1/2 -translate-y-1/2 p-1 rounded-full bg-white dark:bg-slate-800 shadow-xs border border-slate-200 dark:border-slate-700 hover:scale-115 transition-all cursor-pointer text-slate-400 hover:text-amber-500 z-10 ${
                             isMe ? "-left-7" : "-right-7"
-                          } opacity-0 group-hover/msg:opacity-100 focus:opacity-100`}
+                          } opacity-75 sm:opacity-0 group-hover/msg:opacity-100 focus:opacity-100`}
                           title="React to message"
                         >
                           <Smile className="w-3.5 h-3.5" />
@@ -392,7 +392,7 @@ export function ClassShoutbox() {
                         {activeReactionMsgId === msg.id && (
                           <div 
                             className={`absolute z-30 -top-10 ${
-                              isMe ? "right-0" : "left-0"
+                              isMe ? "right-0 max-w-[90vw]" : "left-0 max-w-[90vw]"
                             } flex items-center gap-1 p-1 bg-white dark:bg-slate-800 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 animate-scaleIn`}
                           >
                             {REACTION_EMOJIS.map((emo) => {

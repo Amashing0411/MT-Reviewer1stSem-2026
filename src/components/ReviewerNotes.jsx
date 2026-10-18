@@ -164,30 +164,30 @@ export function ReviewerNotes({ subject, searchQuery }) {
       <div className="double-bezel-outer">
         <div className="double-bezel-inner p-4 sm:p-8 space-y-3 sm:space-y-4">
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 text-xs font-black tracking-wide text-white bg-blue-700 rounded-lg shadow-xs">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="px-2.5 sm:px-3 py-1 text-xs font-black tracking-wide text-white bg-blue-700 rounded-lg shadow-xs shrink-0">
                 {subject.code}
               </span>
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-                <Clock className="w-3.5 h-3.5 text-blue-600" />
-                {subject.schedule}
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 sm:px-3 py-1 rounded-lg">
+                <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate max-w-[260px]">{subject.schedule}</span>
               </span>
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-                <User className="w-3.5 h-3.5 text-amber-600" />
-                Proctor: {assignedProctor}
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 sm:px-3 py-1 rounded-lg">
+                <User className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="truncate max-w-[200px]">Proctor: {assignedProctor}</span>
               </span>
               {subject.instructor && (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-800 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg">
-                  Instructor: {subject.instructor}
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-800 bg-indigo-50 border border-indigo-200 px-2.5 sm:px-3 py-1 rounded-lg">
+                  <span className="truncate max-w-[200px]">Instructor: {subject.instructor}</span>
                 </span>
               )}
-              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                {activeSection.name} • {activeSection.room}
+              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 sm:px-3 py-1 rounded-lg shrink-0">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>{activeSection.name} • {activeSection.room}</span>
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
               {subject.title}
             </h2>
 
@@ -196,15 +196,15 @@ export function ReviewerNotes({ subject, searchQuery }) {
             </p>
 
             {subject.examFormat && (
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
-                <span className="font-bold text-slate-700">Exam Format:</span>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 text-xs text-slate-600">
+                <span className="font-bold text-slate-700 shrink-0">Exam Format:</span>
                 {subject.examFormat.types.map((t, idx) => (
-                  <span key={idx} className="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-md font-medium border border-slate-200/80">
+                  <span key={idx} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium border border-slate-200/80 shrink-0">
                     {t}
                   </span>
                 ))}
-                <span className="text-slate-400">•</span>
-                <span className="text-blue-700 font-semibold">{subject.examFormat.coverage}</span>
+                <span className="hidden sm:inline text-slate-400">•</span>
+                <span className="text-blue-700 font-semibold w-full sm:w-auto">{subject.examFormat.coverage}</span>
               </div>
             )}
           </div>
@@ -408,10 +408,10 @@ export function ReviewerNotes({ subject, searchQuery }) {
                   {unit.cards.map((card, idx) => (
                     <article key={card.id} className={idx > 0 ? "pt-10 space-y-4" : "space-y-4"}>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+                        <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60 shrink-0">
                           § {idx + 1}
                         </span>
-                        <h4 className="text-lg sm:text-xl font-bold text-slate-900">
+                        <h4 className="text-base sm:text-xl font-bold text-slate-900 leading-snug">
                           {card.title}
                         </h4>
                       </div>

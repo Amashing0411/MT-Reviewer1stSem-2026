@@ -169,31 +169,31 @@ export function Flashcards({ subject, onSelectMode }) {
     <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
       {/* Top Controller Bar in Double Bezel */}
       <div className="double-bezel-outer">
-        <div className="double-bezel-inner p-4 sm:p-5 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-bold text-blue-700 uppercase tracking-[0.18em] block">
+        <div className="double-bezel-inner p-3.5 sm:p-5 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <span className="text-[10px] font-bold text-blue-700 uppercase tracking-[0.18em] block truncate">
               {subject.code} Rapid Drill
             </span>
-            <span className="text-sm font-bold text-slate-800">
+            <span className="text-xs sm:text-sm font-bold text-slate-800">
               Card {currentIndex + 1} of {cards.length}
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Mastery Score</span>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Mastery</span>
               <span className="text-xs font-bold text-emerald-600">
-                {masteredCount} / {cards.length} ({progressPercent}%)
+                {masteredCount}/{cards.length} ({progressPercent}%)
               </span>
             </div>
 
             <button
               onClick={handleShuffle}
-              className="btn-haptic group flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
+              className="btn-haptic group flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
               title="Shuffle Flashcards"
             >
               <Shuffle className="w-3.5 h-3.5 text-slate-500 group-hover:rotate-12 transition-transform" />
-              <span>Shuffle</span>
+              <span className="hidden xs:inline">Shuffle</span>
             </button>
           </div>
         </div>
@@ -274,32 +274,33 @@ export function Flashcards({ subject, onSelectMode }) {
       </div>
 
       {/* Bottom Action Controls */}
-      <div className="flex items-center justify-between gap-3 pt-2">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 pt-2">
         <button
           onClick={handlePrev}
-          className="btn-haptic group flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 text-xs font-bold rounded-2xl shadow-2xs"
+          className="btn-haptic group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 text-xs font-bold rounded-2xl shadow-2xs shrink-0 cursor-pointer"
         >
           <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
             <ChevronLeft className="w-3.5 h-3.5" />
           </div>
-          <span>Previous</span>
+          <span className="hidden sm:inline">Previous</span>
+          <span className="sm:hidden">Prev</span>
         </button>
 
         <button
           onClick={() => toggleMastered(currentCard.id)}
-          className={`btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-xs ${
+          className={`btn-haptic flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs font-bold transition-all shadow-xs flex-1 sm:flex-none max-w-[210px] cursor-pointer ${
             isMastered
               ? "bg-emerald-600 text-white shadow-emerald-600/20"
               : "bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
           }`}
         >
-          <CheckCircle className={`w-4 h-4 ${isMastered ? "text-white" : "text-emerald-600"}`} />
-          <span>{isMastered ? "Mastered!" : "Mark as Mastered"}</span>
+          <CheckCircle className={`w-4 h-4 shrink-0 ${isMastered ? "text-white" : "text-emerald-600"}`} />
+          <span className="truncate">{isMastered ? "Mastered!" : "Mark Mastered"}</span>
         </button>
 
         <button
           onClick={handleNext}
-          className="btn-haptic group flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 text-xs font-bold rounded-2xl shadow-2xs"
+          className="btn-haptic group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 text-xs font-bold rounded-2xl shadow-2xs shrink-0 cursor-pointer"
         >
           <span>Next</span>
           <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">

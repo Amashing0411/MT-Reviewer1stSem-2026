@@ -105,7 +105,8 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-slate-200/90 shadow-2xs bg-white">
+                {/* Desktop Table View (>= 640px) */}
+                <div className="hidden sm:block overflow-x-auto rounded-2xl border border-slate-200/90 shadow-2xs bg-white">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b border-slate-200/80 bg-slate-50/70 font-bold text-slate-600 text-[11px] uppercase tracking-wider">
@@ -150,7 +151,7 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                                   onSelectSubject(exam.id);
                                   onClose();
                                 }}
-                                className={`btn-haptic px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                                className={`btn-haptic px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                                   isCurrent
                                     ? "bg-blue-700 text-white"
                                     : "bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 border border-slate-200/60"
@@ -164,6 +165,57 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                       })}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Card View (< 640px) */}
+                <div className="sm:hidden space-y-2.5">
+                  {dayGroup.exams.map((exam) => {
+                    const isCurrent = activeSubjectId === exam.id;
+                    return (
+                      <div 
+                        key={exam.id} 
+                        className={`p-3 rounded-2xl border transition-all ${
+                          isCurrent 
+                            ? "bg-blue-50/90 border-blue-400 shadow-xs ring-1 ring-blue-500/20" 
+                            : "bg-white border-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="font-mono font-black text-xs text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
+                              {exam.code}
+                            </span>
+                            <h5 className="font-bold text-xs text-slate-900 mt-1 leading-snug">
+                              {exam.title}
+                            </h5>
+                          </div>
+                          <button
+                            onClick={() => {
+                              onSelectSubject(exam.id);
+                              onClose();
+                            }}
+                            className={`btn-haptic px-3 py-1 rounded-xl text-xs font-bold shrink-0 cursor-pointer ${
+                              isCurrent
+                                ? "bg-blue-700 text-white"
+                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                            }`}
+                          >
+                            {isCurrent ? "Active" : "Open"}
+                          </button>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                          <span className="flex items-center gap-1 text-slate-700">
+                            <Clock className="w-3 h-3 text-blue-600" />
+                            {exam.time}
+                          </span>
+                          <span className="flex items-center gap-1 text-slate-600">
+                            <User className="w-3 h-3 text-amber-600" />
+                            {exam.proctor}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
