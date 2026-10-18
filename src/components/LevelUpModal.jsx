@@ -1,5 +1,6 @@
 import React from "react";
 import { AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
+import { StudentAvatar } from "./StudentAvatar";
 import { Sparkles, Trophy, Award, Check, Zap, Flame, X } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -66,20 +67,12 @@ export function LevelUpModal({ rewardData, profile, onEquipAll, onClose }) {
             {/* Unlocked Avatar Frame */}
             {frameObj && (
               <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <div className={`relative w-11 h-11 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-lg shrink-0 overflow-hidden ${frameObj.cssClass}`}>
-                  {profile.customPhoto ? (
-                    <img src={profile.customPhoto} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{profile.avatar || "🤖"}</span>
-                  )}
-                  {frameObj.assetUrl && (
-                    <img 
-                      src={frameObj.assetUrl} 
-                      alt="" 
-                      className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] max-w-none pointer-events-none object-contain z-10" 
-                    />
-                  )}
-                </div>
+                <StudentAvatar
+                  avatar={profile?.avatar}
+                  customPhoto={profile?.customPhoto}
+                  frameId={frameObj.id}
+                  size="md"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-bold text-slate-900 dark:text-white truncate">

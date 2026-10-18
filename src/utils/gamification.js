@@ -23,7 +23,8 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-default", 
     label: "Clean",
     desc: "Standard clean student border",
-    tier: "Common"
+    tier: "Common",
+    shape: "rounded"
   },
   { 
     id: "bronze", 
@@ -32,7 +33,8 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-bronze", 
     label: "Circuit",
     desc: "Pulsing copper trace & amber energy nodes",
-    tier: "Uncommon"
+    tier: "Uncommon",
+    shape: "rounded"
   },
   { 
     id: "silver", 
@@ -41,7 +43,8 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-silver", 
     label: "Chrome",
     desc: "Liquid metallic chrome sweeping specular shine",
-    tier: "Rare"
+    tier: "Rare",
+    shape: "rounded"
   },
   {
     id: "cyberpunk-custom",
@@ -51,7 +54,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-neon",
     label: "Cyberpunk",
     desc: "RGB chromatic aberration & twitching scanlines",
-    tier: "Epic"
+    tier: "Epic",
+    scale: 1.65,
+    shape: "rounded"
   },
   {
     id: "lightning-custom",
@@ -61,7 +66,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-sapphire",
     label: "Lightning Arc",
     desc: "Crackling electric arcs & blue spark bursts",
-    tier: "Legendary"
+    tier: "Legendary",
+    scale: 1.95,
+    shape: "rounded"
   },
   {
     id: "inferno-custom",
@@ -71,7 +78,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-ruby",
     label: "Inferno",
     desc: "Roaring animated hellfire flames & incandescent heat",
-    tier: "Mythic"
+    tier: "Mythic",
+    scale: 2.0,
+    shape: "rounded"
   },
   {
     id: "dsp-fourier-custom",
@@ -81,7 +90,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-emerald",
     label: "DSP Fourier",
     desc: "Streaming frequency harmonics & glowing emerald waveform",
-    tier: "Epic"
+    tier: "Epic",
+    scale: 1.85,
+    shape: "rounded"
   },
   {
     id: "valkyrie-custom",
@@ -91,7 +102,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-prismatic",
     label: "Valkyrie",
     desc: "Hyper-prismatic shifting aurora crystal halo",
-    tier: "Ascended"
+    tier: "Ascended",
+    scale: 2.15,
+    shape: "circle"
   },
   {
     id: "deans-lister-custom",
@@ -101,7 +114,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-honor",
     label: "Dean's Crest",
     desc: "Official academic honor crest for Room 106 top students",
-    tier: "Ascended"
+    tier: "Ascended",
+    scale: 2.05,
+    shape: "rounded"
   },
   {
     id: "solar-corona-custom",
@@ -111,7 +126,9 @@ export const AVATAR_FRAMES = [
     cssClass: "avatar-frame-gold",
     label: "Solar Corona",
     desc: "Blinding solar flare god-rays & pulsating divinity",
-    tier: "Godlike"
+    tier: "Godlike",
+    scale: 2.25,
+    shape: "circle"
   },
 ];
 

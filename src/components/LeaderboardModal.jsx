@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { encodeScorecard, AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
+import { StudentAvatar } from "./StudentAvatar";
 import { 
   Trophy, 
   Flame, 
@@ -225,15 +226,12 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
           {/* Current Student Highlight Card */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-lg shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className={`w-11 h-11 rounded-xl bg-white flex items-center justify-center text-2xl overflow-hidden shrink-0 transition-all ${
-                AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
-              }`}>
-                {profile.customPhoto ? (
-                  <img src={profile.customPhoto} alt="Me" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{profile.avatar || "🤖"}</span>
-                )}
-              </div>
+              <StudentAvatar
+                avatar={profile.avatar}
+                customPhoto={profile.customPhoto}
+                frameId={profile.frame}
+                size="md"
+              />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className={`font-extrabold text-sm truncate ${NAME_EFFECTS.find(fx => fx.id === profile.nameFx)?.cssClass || ""}`}>{profile.name}</span>
@@ -452,8 +450,6 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                 );
               }
 
-              const itemFrameClass = AVATAR_FRAMES.find((f) => f.id === item.frame)?.cssClass || "avatar-frame-default";
-
               return (
                 <div
                   key={item.id}
@@ -468,13 +464,12 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                   <div className="flex items-center gap-2.5 min-w-0">
                     {rankBadge}
 
-                    <div className={`w-8 h-8 rounded-lg bg-white flex items-center justify-center text-base overflow-hidden shrink-0 transition-all ${itemFrameClass}`}>
-                      {item.customPhoto ? (
-                        <img src={item.customPhoto} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{item.avatar || "🤖"}</span>
-                      )}
-                    </div>
+                    <StudentAvatar
+                      avatar={item.avatar}
+                      customPhoto={item.customPhoto}
+                      frameId={item.frame}
+                      size="sm"
+                    />
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">

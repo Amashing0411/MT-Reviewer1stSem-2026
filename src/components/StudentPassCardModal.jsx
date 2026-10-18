@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { createSyncUrl, AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
+import { StudentAvatar } from "./StudentAvatar";
 import { 
   Download, 
   Copy, 
@@ -235,15 +236,12 @@ export function StudentPassCardModal({ isOpen, onClose }) {
 
             {/* Profile Row */}
             <div className="flex items-center gap-3.5">
-              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-800/80 flex items-center justify-center text-3xl sm:text-4xl shadow-inner shrink-0 overflow-hidden transition-all ${
-                AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
-              }`}>
-                {profile.customPhoto ? (
-                  <img src={profile.customPhoto} alt="Student" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{profile.avatar || "🤖"}</span>
-                )}
-              </div>
+              <StudentAvatar
+                avatar={profile.avatar}
+                customPhoto={profile.customPhoto}
+                frameId={profile.frame}
+                size="lg"
+              />
 
               <div className="space-y-0.5 truncate">
                 <span className="text-xs text-slate-400 font-semibold block">Student Reviewer</span>

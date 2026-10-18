@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame } from "../utils/gamification";
+import { StudentAvatar } from "./StudentAvatar";
 import { 
   MessageSquare, 
   Send, 
@@ -203,23 +204,15 @@ export function ClassShoutbox() {
                         level: msg.level,
                         xp: msg.xp || (msg.level ? msg.level * 800 : 0),
                       })}
-                      className={`relative w-8 h-8 rounded-xl bg-white flex items-center justify-center text-sm shrink-0 cursor-pointer transition-transform hover:scale-110 shadow-xs ${frameClass}`}
+                      className="cursor-pointer transition-transform hover:scale-110 shrink-0"
                       title={`Inspect ${msg.studentName}'s Profile`}
                     >
-                      <div className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
-                        {msg.customPhoto ? (
-                          <img src={msg.customPhoto} alt={msg.studentName} className="w-full h-full object-cover" />
-                        ) : (
-                          <span>{msg.avatar || "🤖"}</span>
-                        )}
-                      </div>
-                      {frameObj?.assetUrl && (
-                        <img 
-                          src={frameObj.assetUrl} 
-                          alt="" 
-                          className="absolute -inset-1.5 w-[calc(100%+12px)] h-[calc(100%+12px)] max-w-none pointer-events-none object-contain z-10" 
-                        />
-                      )}
+                      <StudentAvatar
+                        avatar={msg.avatar}
+                        customPhoto={msg.customPhoto}
+                        frameId={msg.frame}
+                        size="sm"
+                      />
                     </button>
 
                     {/* Message Bubble Card */}

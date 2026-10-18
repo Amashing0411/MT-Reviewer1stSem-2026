@@ -1,6 +1,7 @@
 import React from "react";
 import { useUser } from "../context/UserContext";
 import { AVATAR_FRAMES, NAME_EFFECTS, getLevelInfo } from "../utils/gamification";
+import { StudentAvatar } from "./StudentAvatar";
 import { SECTIONS, normalizeSectionKey } from "../data/scheduleData";
 import { 
   Trophy, 
@@ -63,25 +64,13 @@ export function StudentProfileModal({ student, onClose }) {
 
           {/* Big Avatar with Equipped Animated Game Frame */}
           <div className="flex flex-col items-center justify-center gap-3 pt-1">
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
-              <div className={`w-full h-full rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center shadow-xl ${
-                frameObj?.cssClass || "avatar-frame-default"
-              }`}>
-                <div className="w-full h-full rounded-[14px] bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-                  {student.customPhoto ? (
-                    <img src={student.customPhoto} alt={student.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl sm:text-5xl">{student.avatar || "🤖"}</span>
-                  )}
-                </div>
-              </div>
-              {frameObj?.assetUrl && (
-                <img 
-                  src={frameObj.assetUrl} 
-                  alt={frameObj.name} 
-                  className="absolute -inset-2.5 w-[calc(100%+20px)] h-[calc(100%+20px)] max-w-none pointer-events-none object-contain z-10" 
-                />
-              )}
+            <div className="relative flex items-center justify-center p-3">
+              <StudentAvatar
+                avatar={student.avatar}
+                customPhoto={student.customPhoto}
+                frameId={student.frame}
+                size="xl"
+              />
             </div>
 
             {/* Student Name with Animated Name FX */}

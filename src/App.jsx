@@ -13,6 +13,7 @@ import { AuroraBackground } from "./components/ui/aurora-background";
 import { ClassShoutbox } from "./components/ClassShoutbox";
 import { StudentProfileModal } from "./components/StudentProfileModal";
 import { UserProvider, useUser } from "./context/UserContext";
+import { StudentAvatar } from "./components/StudentAvatar";
 import { AVATAR_FRAMES, NAME_EFFECTS } from "./utils/gamification";
 import { 
   GraduationCap, 
@@ -193,15 +194,12 @@ function AppContent() {
                 {/* Current Student Highlight Card */}
                 <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className={`w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl overflow-hidden shrink-0 transition-all ${
-                      AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
-                    }`}>
-                      {profile.customPhoto ? (
-                        <img src={profile.customPhoto} alt="Me" className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{profile.avatar || "🤖"}</span>
-                      )}
-                    </div>
+                    <StudentAvatar
+                      avatar={profile.avatar}
+                      customPhoto={profile.customPhoto}
+                      frameId={profile.frame}
+                      size="lg"
+                    />
                     <div>
                       <div className="flex items-center gap-2">
                         <span className={`font-extrabold text-base sm:text-lg ${
@@ -382,15 +380,12 @@ function AppContent() {
                         <div className="flex items-center gap-3.5 min-w-0">
                           {rankBadge}
 
-                          <div className={`w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-xl overflow-hidden shrink-0 transition-all ${
-                            AVATAR_FRAMES.find((f) => f.id === item.frame)?.cssClass || "avatar-frame-default"
-                          }`}>
-                            {item.customPhoto ? (
-                              <img src={item.customPhoto} alt={item.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <span>{item.avatar || "🤖"}</span>
-                            )}
-                          </div>
+                          <StudentAvatar
+                            avatar={item.avatar}
+                            customPhoto={item.customPhoto}
+                            frameId={item.frame}
+                            size="md"
+                          />
 
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">

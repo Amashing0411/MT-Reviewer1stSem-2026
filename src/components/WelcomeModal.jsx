@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { AVATAR_PRESETS, AVATAR_FRAMES, VANITY_TAGLINES, NAME_EFFECTS } from "../utils/gamification";
 import { sound } from "../utils/sound";
+import { StudentAvatar } from "./StudentAvatar";
 import { 
   User, 
   Upload, 
@@ -377,32 +378,20 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               {/* Live Avatar Preview with Equipped Prestige Border */}
               <div className="flex flex-col items-center justify-center gap-2.5 py-1 text-center">
                 <div className="relative group">
-                  <div className="relative flex items-center justify-center">
-                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-0.5 transition-all duration-300 flex items-center justify-center shadow-lg ${
-                      AVATAR_FRAMES.find(f => f.id === selectedFrame)?.cssClass || "avatar-frame-default"
-                    }`}>
-                      <div className="w-full h-full rounded-[14px] bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden border border-slate-200/80 dark:border-slate-800">
-                        {customPhoto ? (
-                          <img src={customPhoto} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-4xl sm:text-5xl">{selectedAvatar}</span>
-                        )}
-                      </div>
-                    </div>
-                    {AVATAR_FRAMES.find(f => f.id === selectedFrame)?.assetUrl && (
-                      <img 
-                        src={AVATAR_FRAMES.find(f => f.id === selectedFrame).assetUrl} 
-                        alt="" 
-                        className="absolute -inset-2.5 w-[calc(100%+20px)] h-[calc(100%+20px)] max-w-none pointer-events-none object-contain z-10" 
-                      />
-                    )}
+                  <div className="relative flex items-center justify-center p-3">
+                    <StudentAvatar
+                      avatar={selectedAvatar}
+                      customPhoto={customPhoto}
+                      frameId={selectedFrame}
+                      size="xl"
+                    />
                   </div>
 
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isPhotoProcessing}
-                    className="btn-haptic absolute -bottom-1 -right-1 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-2 border-white dark:border-slate-800 cursor-pointer"
+                    className="btn-haptic absolute -bottom-1 -right-1 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-2 border-white dark:border-slate-800 cursor-pointer z-20"
                     title="Upload Custom Photo"
                   >
                     {isPhotoProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
