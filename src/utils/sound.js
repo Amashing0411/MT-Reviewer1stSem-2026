@@ -202,6 +202,84 @@ class SoundManager {
       // Audio autoplay gracefully handled
     }
   }
+
+  // Play triumphant celebratory level-up fanfare (Brass-style arpeggio + sustained chord)
+  playFanfare() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      // Triumphant fanfare notes: C5 (523.25), E5 (659.25), G5 (783.99), C6 (1046.50)
+      const arpeggio = [
+        { f: 523.25, time: 0, dur: 0.12 },
+        { f: 659.25, time: 0.1, dur: 0.12 },
+        { f: 783.99, time: 0.2, dur: 0.14 },
+        { f: 1046.50, time: 0.32, dur: 0.45 },
+      ];
+
+      arpeggio.forEach(({ f, time, dur }) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + time;
+
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(f, start);
+
+        gain.gain.setValueAtTime(0.15, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + dur);
+      });
+
+      // Harmonic backing chord on the grand finale note
+      [659.25, 783.99, 1318.51].forEach((f) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + 0.32;
+        const dur = 0.55;
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(f, start);
+
+        gain.gain.setValueAtTime(0.08, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + dur);
+      });
+    } catch (e) {
+      // Audio autoplay gracefully handled
+    }
+  }
 }
 
-export const sound = new SoundManager();
+const soundManagerInstance = new SoundManager();
+
+// Robust proxy to ensure ANY missing sound method never crashes the UI
+export const sound = new Proxy(soundManagerInstance, {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      const val = Reflect.get(target, prop, receiver);
+      if (typeof val === "function") {
+        return val.bind(target);
+      }
+      return val;
+    }
+    // Return safe no-op function for any undefined sound method
+    if (typeof prop === "string" && prop.startsWith("play")) {
+      return () => {};
+    }
+    return undefined;
+  },
+});
+

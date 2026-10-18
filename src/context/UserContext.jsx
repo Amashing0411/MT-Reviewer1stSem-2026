@@ -175,7 +175,7 @@ export function UserProvider({ children }) {
         };
         setProfile(restored);
         saveProfile(restored);
-        sound.playFanfare();
+        try { sound?.playFanfare?.(); } catch (e) {}
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.5 } });
         setXpToast(`🎉 Restored ${restored.name} (${restored.xp.toLocaleString()} XP) to this device!`);
         setTimeout(() => setXpToast(null), 4500);
@@ -397,7 +397,7 @@ export function UserProvider({ children }) {
 
       // Level up celebration!
       if (newLevelInfo.level > prevLevel) {
-        sound.playFanfare();
+        try { sound?.playFanfare?.(); } catch (e) {}
         confetti({
           particleCount: 120,
           spread: 85,
