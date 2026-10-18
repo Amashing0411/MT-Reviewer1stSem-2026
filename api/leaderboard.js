@@ -313,7 +313,7 @@ export default async function handler(req, res) {
                 xp: newMsg.xp,
                 levelInfo: {
                   level: newMsg.level || 1,
-                  title: "Novice Trainee",
+                  title: newMsg.level >= 3 ? "System Architect" : "Novice Trainee",
                 },
                 fastestBlitz: newMsg.fastestBlitz,
                 highestPercent: newMsg.highestPercent,
@@ -322,6 +322,33 @@ export default async function handler(req, res) {
               });
               roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
               await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+            } else {
+              let changed = false;
+              if ((newMsg.xp || 0) > (roster[existingIdx].xp || 0)) {
+                roster[existingIdx].xp = newMsg.xp;
+                roster[existingIdx].levelInfo = {
+                  level: newMsg.level || 1,
+                  title: newMsg.level >= 3 ? "System Architect" : "Novice Trainee",
+                };
+                changed = true;
+              }
+              if (newMsg.avatar && newMsg.avatar !== roster[existingIdx].avatar) {
+                roster[existingIdx].avatar = newMsg.avatar;
+                changed = true;
+              }
+              if (newMsg.customPhoto && newMsg.customPhoto !== roster[existingIdx].customPhoto) {
+                roster[existingIdx].customPhoto = newMsg.customPhoto;
+                changed = true;
+              }
+              if (newMsg.frame && newMsg.frame !== roster[existingIdx].frame) {
+                roster[existingIdx].frame = newMsg.frame;
+                changed = true;
+              }
+              if (changed) {
+                roster[existingIdx].updatedAt = Date.now();
+                roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+                await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+              }
             }
           } catch (e) {}
         }

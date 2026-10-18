@@ -140,6 +140,7 @@ export function UserProvider({ children }) {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
+        setIsCloudConnected(true);
         const data = await res.json();
         if (data.isCloudConnected && Array.isArray(data.roster)) {
           const localRoster = loadClassRoster();
@@ -416,13 +417,13 @@ export function UserProvider({ children }) {
     } catch (e) {}
   };
 
-  // Sync to localStorage whenever profile changes
+  // Sync to localStorage and cloud whenever profile changes
   useEffect(() => {
     saveProfile(profile);
-    if (isCloudConnected && profile?.isConfigured) {
+    if (profile?.isConfigured) {
       pushProfileToCloud(profile);
     }
-  }, [profile, isCloudConnected]);
+  }, [profile]);
 
   // Initial cloud sync check on mount
   useEffect(() => {
