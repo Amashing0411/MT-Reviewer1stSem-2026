@@ -137,7 +137,7 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
   const otherClassmatesCount = (currentRoster || leaderboard || []).filter((item) => !item.isCurrentUser).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm dark:backdrop-blur-md animate-fadeIn">
       <div 
         className="double-bezel-outer w-full max-w-xl max-h-[90vh] overflow-y-auto animate-scaleIn text-slate-900"
         onClick={(e) => e.stopPropagation()}

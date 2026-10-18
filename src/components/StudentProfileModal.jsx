@@ -40,7 +40,7 @@ export function StudentProfileModal({ student, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm dark:backdrop-blur-md animate-fadeIn">
       <div 
         className="double-bezel-outer w-full max-w-md max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
@@ -112,7 +112,7 @@ export function StudentProfileModal({ student, onClose }) {
           </div>
 
           {/* Level & Rank Showcase Card */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-950 text-white shadow-xl space-y-3 text-left">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-blue-950 dark:via-indigo-950 dark:to-slate-950 text-white shadow-md shadow-blue-600/20 space-y-3 text-left">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 block">Prestige Rank</span>

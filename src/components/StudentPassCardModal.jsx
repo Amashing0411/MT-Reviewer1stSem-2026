@@ -186,7 +186,7 @@ export function StudentPassCardModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm dark:backdrop-blur-md animate-fadeIn">
       <div 
         className="double-bezel-outer w-full max-w-lg max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
@@ -207,7 +207,7 @@ export function StudentPassCardModal({ isOpen, onClose }) {
               <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>Official Student Pass & Device Sync</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
               Save Your Reviewer Pass
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">

@@ -14,7 +14,7 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
   const scheduleData = getScheduleForSection(activeSectionKey);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm dark:backdrop-blur-md animate-fadeIn">
       <div 
         className="double-bezel-outer w-full max-w-4xl max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900"
         onClick={(e) => e.stopPropagation()}
