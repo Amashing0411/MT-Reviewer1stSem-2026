@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
+import { AVATAR_FRAMES, NAME_EFFECTS, getAvatarFrame } from "../utils/gamification";
 import { 
   MessageSquare, 
   Send, 
@@ -175,14 +175,18 @@ export function ClassShoutbox() {
               </div>
             ) : (
               feedMessages.map((msg) => {
-                const frameObj = AVATAR_FRAMES.find((f) => f.id === msg.frame);
+                const isMe = Boolean(
+                  (msg.studentId && profile?.id && msg.studentId === profile.id) ||
+                  (msg.studentName && profile?.name && msg.studentName === profile.name)
+                );
+                const frameObj = getAvatarFrame(msg.frame);
                 const frameClass = frameObj?.cssClass || "avatar-frame-default";
                 const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === msg.nameFx)?.cssClass || "";
 
                 return (
                   <div
                     key={msg.id}
-                    className={`flex items-start gap-2.5 transition-all ${isMe ? "flex-row-reverse" : ""}`}
+                    className={`flex items-start gap-2.5 transition-all ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
                     {/* Clickable Avatar to Inspect Profile */}
                     <button
@@ -199,25 +203,27 @@ export function ClassShoutbox() {
                         level: msg.level,
                         xp: msg.xp || (msg.level ? msg.level * 800 : 0),
                       })}
-                      className={`relative w-8 h-8 rounded-xl bg-white flex items-center justify-center text-sm shrink-0 overflow-hidden cursor-pointer transition-transform hover:scale-110 shadow-xs ${frameClass}`}
+                      className={`relative w-8 h-8 rounded-xl bg-white flex items-center justify-center text-sm shrink-0 cursor-pointer transition-transform hover:scale-110 shadow-xs ${frameClass}`}
                       title={`Inspect ${msg.studentName}'s Profile`}
                     >
-                      {msg.customPhoto ? (
-                        <img src={msg.customPhoto} alt={msg.studentName} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{msg.avatar || "🤖"}</span>
-                      )}
+                      <div className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
+                        {msg.customPhoto ? (
+                          <img src={msg.customPhoto} alt={msg.studentName} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{msg.avatar || "🤖"}</span>
+                        )}
+                      </div>
                       {frameObj?.assetUrl && (
                         <img 
                           src={frameObj.assetUrl} 
                           alt="" 
-                          className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] max-w-none pointer-events-none object-contain z-10" 
+                          className="absolute -inset-1.5 w-[calc(100%+12px)] h-[calc(100%+12px)] max-w-none pointer-events-none object-contain z-10" 
                         />
                       )}
                     </button>
 
                     {/* Message Bubble Card */}
-                    <div className={`max-w-[78%] space-y-1 ${isMe ? "items-end text-right" : "items-start text-left"}`}>
+                    <div className={`max-w-[78%] flex flex-col space-y-1 ${isMe ? "items-end" : "items-start"}`}>
                       {/* Name, Tagline & Section Banner */}
                       <div className={`flex items-center gap-1.5 flex-wrap text-[10px] ${isMe ? "justify-end" : "justify-start"}`}>
                         <button
@@ -259,13 +265,13 @@ export function ClassShoutbox() {
 
                       {/* Bubble Text */}
                       <div
-                        className={`p-2.5 rounded-2xl break-words leading-relaxed ${
+                        className={`w-fit max-w-full px-3.5 py-2 rounded-2xl break-words leading-relaxed text-left ${
                           isMe
                             ? "bg-blue-600 text-white rounded-tr-xs shadow-xs"
                             : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/70 dark:border-slate-700/70"
                         }`}
                       >
-                        <p className="text-[11.5px] font-medium">{msg.text}</p>
+                        <p className="text-[11.5px] font-medium whitespace-pre-wrap">{msg.text}</p>
                       </div>
 
                       {/* Timestamp */}
