@@ -38,6 +38,20 @@ export function MockExam({ subject, onSelectMode }) {
   const [maxStreak, setMaxStreak] = useState(0);
   const [xp, setXp] = useState(0);
   const [streakBanner, setStreakBanner] = useState(null);
+  const [brokenStreakToast, setBrokenStreakToast] = useState(null);
+
+  const BROKEN_STREAK_QUOTES = [
+    "Aray ko po! Nalusaw ang streak mo parang kape sa init ng tanghali. Bawi agad! ☕",
+    "Sayang ang streak! Wag papatalo kay Proctors Joel at Lyka, babawi tayo next question! ⚡",
+    "Patay tayo diyan, lumipad ang streak mo papuntang San Pablo Cathedral. 🕊️",
+    "Nasilaw sa choices! Hinga nang malalim sabay banat ulit, laban 4th year! 🧘‍♂️",
+    "Lagot sa PRC Board Exam! Buti na lang reviewer pa lang to. Reset streak, bawi! 🎯",
+    "Crying in Thesis and Design 2 tears... 😭 Next question is yours!",
+    "Error 404: Correct answer not found. Reboot at bumawi agad! 💻",
+    "Nasamid sa formula! Konting tubig lang katapat niyan, tuloy ang laban! 💧",
+    "Muntik na! Konting tiwala pa sa sarili, kaya mo yan BSCPE! 💪",
+    "Wag mawalan ng pag-asa, mas masakit pa rin ma-reject sa Capstone! Laban! 🔨",
+  ];
 
   // Initialize questions according to mode
   useEffect(() => {
@@ -154,28 +168,64 @@ export function MockExam({ subject, onSelectMode }) {
       setStreak(newStreak);
       if (newStreak > maxStreak) setMaxStreak(newStreak);
 
-      const addedXp = 100 + (newStreak > 1 ? newStreak * 25 : 0);
+      const addedXp = 100 + (newStreak > 1 ? newStreak * 30 : 0);
       setXp((prev) => prev + addedXp);
+      setBrokenStreakToast(null);
 
-      // Streak celebration milestones
-      if (newStreak === 3) {
+      // Elevated streak celebration milestones & visual fanfare
+      if (newStreak === 2) {
+        setStreakBanner({
+          text: "⚡ 2x COMBO! Getting in the zone!",
+          color: "from-amber-500 to-orange-500 text-white"
+        });
+        setTimeout(() => setStreakBanner(null), 2000);
+      } else if (newStreak === 3) {
         sound.playStreak();
-        setStreakBanner("🔥 3 IN A ROW! COMBO ACTIVE!");
+        confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+        setStreakBanner({
+          text: "🔥 3 IN A ROW! Combo Multiplier Unlocked!",
+          color: "from-orange-500 to-rose-500 text-white shadow-orange-500/40"
+        });
         setTimeout(() => setStreakBanner(null), 2500);
       } else if (newStreak === 5) {
         sound.playStreak();
-        setStreakBanner("⚡ 5 STREAK! YOU'RE ON FIRE!");
-        confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
-        setTimeout(() => setStreakBanner(null), 2500);
-      } else if (newStreak >= 8 && newStreak % 4 === 0) {
-        sound.playStreak();
-        setStreakBanner(`👑 ${newStreak} STREAK! TOPNOTCHER STATUS!`);
-        confetti({ particleCount: 60, spread: 80, origin: { y: 0.6 } });
+        confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+        setStreakBanner({
+          text: "⚡ 5x UNSTOPPABLE! Room 106 Legend in the making!",
+          color: "from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-amber-400/50"
+        });
         setTimeout(() => setStreakBanner(null), 3000);
+      } else if (newStreak === 7) {
+        sound.playStreak();
+        confetti({ particleCount: 75, spread: 85, origin: { y: 0.5 } });
+        setStreakBanner({
+          text: "💥 7x GODLIKE STREAK! PRC Top 10 Energy!",
+          color: "from-cyan-400 via-blue-500 to-indigo-600 text-white font-black shadow-blue-500/50"
+        });
+        setTimeout(() => setStreakBanner(null), 3500);
+      } else if (newStreak >= 10 && newStreak % 5 === 0) {
+        sound.playMegaStreak();
+        confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+        setStreakBanner({
+          text: `👑 ${newStreak}x ULTRA INSTINCT TOPNOTCHER! Unmatched Focus!`,
+          color: "from-purple-600 via-pink-500 to-amber-400 text-white font-black shadow-purple-500/50 animate-pulse"
+        });
+        setTimeout(() => setStreakBanner(null), 4000);
       }
     } else {
-      sound.playWrong();
+      if (streak >= 2) {
+        sound.playWomp();
+        const quote = BROKEN_STREAK_QUOTES[Math.floor(Math.random() * BROKEN_STREAK_QUOTES.length)];
+        setBrokenStreakToast({
+          count: streak,
+          quote: quote,
+        });
+        setTimeout(() => setBrokenStreakToast(null), 5000);
+      } else {
+        sound.playWrong();
+      }
       setStreak(0);
+      setStreakBanner(null);
     }
   };
 
@@ -336,10 +386,25 @@ export function MockExam({ subject, onSelectMode }) {
         </div>
       </div>
 
-      {/* Streak Alert Toast — Clean vibrant pill without white inner background */}
+      {/* Dynamic Streak Alert Banner */}
       {streakBanner && (
-        <div className="py-2.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white font-black text-sm tracking-wide text-center shadow-lg shadow-amber-500/30 animate-popIn">
-          {streakBanner}
+        <div className={`py-2.5 px-6 rounded-2xl bg-gradient-to-r ${streakBanner.color} font-black text-xs sm:text-sm tracking-wide text-center shadow-lg animate-popIn`}>
+          {streakBanner.text}
+        </div>
+      )}
+
+      {/* Witty Filipino Broken Streak Toast */}
+      {brokenStreakToast && (
+        <div className="py-2.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 text-white shadow-lg shadow-rose-600/30 flex items-center gap-3 animate-popIn">
+          <span className="text-2xl animate-bounce shrink-0">💔</span>
+          <div className="text-left text-xs leading-tight">
+            <span className="font-black text-amber-200 uppercase tracking-wider block text-[10px] sm:text-xs">
+              Streak of {brokenStreakToast.count} Melted!
+            </span>
+            <span className="font-semibold text-white/95 text-[11px] sm:text-xs">
+              {brokenStreakToast.quote}
+            </span>
+          </div>
         </div>
       )}
 
@@ -519,42 +584,141 @@ export function MockExam({ subject, onSelectMode }) {
       </div>
 
       {/* Performance Score Summary (When Submitted) */}
-      {isSubmitted && (
-        <div className="double-bezel-outer animate-popIn">
-          <div className="double-bezel-inner p-8 text-center space-y-5 bg-gradient-to-b from-white to-slate-50">
-            <Award className="w-12 h-12 mx-auto text-amber-500" />
-            <div className="space-y-1">
-              <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full border ${rank.color}`}>
-                {rank.title}
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
-                Score: {score} / {questions.length} ({percentScore}%)
-              </h3>
-              <p className="text-xs text-slate-500">
-                Total Experience Earned: <strong className="text-blue-600">+{xp} XP</strong> • Max Streak: <strong className="text-amber-600">{maxStreak}</strong>
-              </p>
-            </div>
+      {isSubmitted && (() => {
+        const missedQuestions = questions.filter((q) => selectedAnswers[q.id] !== q.correctAnswer);
+        const missedCategories = [...new Set(missedQuestions.map((q) => q.category).filter(Boolean))];
 
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <button
-                onClick={() => resetGame(gameMode)}
-                className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20"
-              >
-                <Shuffle className="w-4 h-4" />
-                <span>Play New Round</span>
-              </button>
+        let coachingTitle = "";
+        let coachingBadge = "";
+        let coachingText = "";
+        let coachingEmoji = "🌟";
 
-              <button
-                onClick={() => setIsLeaderboardOpen(true)}
-                className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20"
-              >
-                <Trophy className="w-4 h-4" />
-                <span>View Room 106 Standings</span>
-              </button>
+        if (percentScore >= 80) {
+          coachingBadge = "PRC Board Topnotcher Tier 🏆";
+          coachingTitle = "Sensational Work! You are Midterm Ready!";
+          coachingText = `Your grasp of ${subject.code} (${subject.title}) is phenomenal. Keep this momentum rolling — try testing your reaction speed in 10-Q Rapid Blitz to defend your rank on the ${subject.code} Course Leaderboard!`;
+          coachingEmoji = "🌟";
+        } else if (percentScore >= 50) {
+          coachingBadge = "Solid Foundation & High Potential ⚡";
+          coachingTitle = "Good Showing! Just A Few Traps Left to Master!";
+          coachingText = `You clearly understand the core fundamentals, but a few tricky exam questions caught you${missedCategories.length > 0 ? ` (notably in: ${missedCategories.slice(0, 3).join(", ")})` : ""}. A quick 5-minute pass through the 10-Minute Cram Sheet will easily push you into the 90%+ Topnotcher bracket!`;
+          coachingEmoji = "🎯";
+        } else {
+          coachingBadge = "Reviewer in High Growth Mode 🌱";
+          coachingTitle = "No Stress at All — This Is Why We Review Early!";
+          coachingText = `Engineering concepts require repetition to stick. Making mistakes here in practice means you WON'T make them during the actual exam! Flip through the 3D Flashcards for 5 minutes, then jump back into another 10-Q Blitz. You've got this!`;
+          coachingEmoji = "💪";
+        }
+
+        return (
+          <div className="double-bezel-outer animate-popIn">
+            <div className="double-bezel-inner p-6 sm:p-9 text-center space-y-6 bg-gradient-to-b from-white via-slate-50 to-blue-50/40">
+              
+              {/* Header Trophy & Rank */}
+              <div className="space-y-2">
+                <span className="text-4xl block animate-bounce">{coachingEmoji}</span>
+                <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full border ${rank.color}`}>
+                  {rank.title} • {coachingBadge}
+                </span>
+                <h3 className="text-2xl sm:text-4xl font-serif font-black text-slate-900 tracking-tight">
+                  Score: {score} / {questions.length} ({percentScore}%)
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Total Experience Earned: <strong className="text-blue-600">+{xp} XP</strong> • Max Streak: <strong className="text-amber-600">{maxStreak}</strong>
+                </p>
+              </div>
+
+              {/* Personalized Coaching & Inspiration Box */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-blue-200/90 shadow-xs text-left space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-black text-xs shrink-0">
+                    💡
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    {coachingTitle}
+                  </h4>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed pl-9">
+                  {coachingText}
+                </p>
+              </div>
+
+              {/* Next Study Steps (Quick 1-Click Jumpers) */}
+              <div className="space-y-2 text-left">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block text-center sm:text-left">
+                  Recommended Study Next Steps:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    onClick={() => {
+                      if (onSelectMode) onSelectMode("cram");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="btn-haptic p-3 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all flex flex-col gap-0.5 cursor-pointer shadow-2xs"
+                  >
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <span>⚡</span> 10-Min Cram Sheet
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      High-yield summary formulas
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (onSelectMode) onSelectMode("flashcards");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="btn-haptic p-3 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all flex flex-col gap-0.5 cursor-pointer shadow-2xs"
+                  >
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <span>🗂️</span> 3D Flashcards
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      Active recall on missed terms
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (onSelectMode) onSelectMode("reviewer");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="btn-haptic p-3 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all flex flex-col gap-0.5 cursor-pointer shadow-2xs"
+                  >
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <span>📖</span> Study Notes & PDF
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      In-depth textbook explanations
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => resetGame(gameMode)}
+                  className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20 cursor-pointer"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  <span>Play Another Round</span>
+                </button>
+
+                <button
+                  onClick={() => setIsLeaderboardOpen(true)}
+                  className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  <Trophy className="w-4 h-4" />
+                  <span>View {subject.code} Course Standings</span>
+                </button>
+              </div>
+
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

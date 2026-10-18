@@ -64,6 +64,7 @@ function AppContent() {
 
   const handleSelectSubject = (id) => {
     setActiveSubjectId(id);
+    setLeaderboardSubject(id);
     setSearchQuery("");
   };
 
@@ -470,6 +471,7 @@ function AppContent() {
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
         onOpenPassCard={() => setIsPassCardOpen(true)}
+        defaultSubject={activeSubjectId}
       />
 
       {/* Digital Student Pass Card & Phone Sync Modal */}

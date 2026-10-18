@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { encodeScorecard } from "../utils/gamification";
 import { 
@@ -32,7 +32,7 @@ const SUBJECT_TABS = [
   { id: "engwork", label: "ENGWORK • Workplace", icon: "📝" },
 ];
 
-export function LeaderboardModal({ isOpen, onClose, onOpenPassCard }) {
+export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubject = "all" }) {
   const { 
     profile, 
     levelInfo, 
@@ -43,7 +43,14 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard }) {
     isSyncing,
     syncWithCloud
   } = useUser();
-  const [selectedSubject, setSelectedSubject] = useState("all");
+  const [selectedSubject, setSelectedSubject] = useState(defaultSubject || "all");
+
+  useEffect(() => {
+    if (isOpen && defaultSubject) {
+      setSelectedSubject(defaultSubject);
+    }
+  }, [isOpen, defaultSubject]);
+
   const [filter, setFilter] = useState("xp"); // "xp" | "speed" | "score"
   const [copied, setCopied] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);

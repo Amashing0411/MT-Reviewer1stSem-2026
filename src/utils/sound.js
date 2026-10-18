@@ -110,6 +110,70 @@ class SoundManager {
     }
   }
 
+  // Play comical "womp womp" sound when streak breaks
+  playWomp() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      
+      // Note 1: 220Hz -> 175Hz
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = "sawtooth";
+      osc1.frequency.setValueAtTime(220, now);
+      osc1.frequency.exponentialRampToValueAtTime(175, now + 0.18);
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.22);
+
+      // Note 2: 165Hz -> 120Hz with slight vibrato
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = "sawtooth";
+      osc2.frequency.setValueAtTime(165, now + 0.22);
+      osc2.frequency.exponentialRampToValueAtTime(120, now + 0.45);
+      gain2.gain.setValueAtTime(0.09, now + 0.22);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+      osc2.start(now + 0.22);
+      osc2.stop(now + 0.5);
+    } catch (e) {}
+  }
+
+  // Play mega streak fanfare
+  playMegaStreak() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5]; // C5, E5, G5, C6, E6
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + idx * 0.07;
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.12, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.3);
+      });
+    } catch (e) {}
+  }
+
   // Play card flip sound
   playFlip() {
     if (!this.enabled) return;
