@@ -170,7 +170,7 @@ export function Flashcards({ subject }) {
         >
           {/* FRONT OF CARD (Question) */}
           <div className="double-bezel-outer absolute inset-0 backface-hidden">
-            <div className="double-bezel-inner h-full p-8 sm:p-10 flex flex-col justify-between border border-blue-100/50">
+            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between border border-blue-100/50">
               <div className="flex items-center justify-between">
                 <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-blue-50 text-blue-700 border border-blue-200/70 rounded-full">
                   {currentCard.category || "Concept"}
@@ -197,7 +197,7 @@ export function Flashcards({ subject }) {
 
           {/* BACK OF CARD (Answer) */}
           <div className="double-bezel-outer absolute inset-0 backface-hidden rotate-y-180">
-            <div className="double-bezel-inner h-full p-8 sm:p-10 flex flex-col justify-between bg-emerald-50/20 border border-emerald-200/60">
+            <div className="double-bezel-inner h-full p-5 sm:p-10 flex flex-col justify-between bg-emerald-50/20 border border-emerald-200/60">
               <div className="flex items-center justify-between">
                 <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full">
                   Answer & Rationale

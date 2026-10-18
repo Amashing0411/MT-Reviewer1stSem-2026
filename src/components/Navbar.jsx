@@ -44,11 +44,11 @@ export function Navbar({
   };
 
   const modes = [
-    { id: "reviewer", label: "Study Notes", icon: BookOpen, desc: "Zen Textbook & Formulas" },
-    { id: "flashcards", label: "Flashcards", icon: Layers, desc: "3D Active Recall" },
-    { id: "mock", label: "Quiz Battle", icon: CheckSquare, desc: "Streaks, XP & Exam Mode" },
-    { id: "cram", label: "Cram Sheet", icon: FileText, desc: "10-Min Hallway Scan" },
-    { id: "leaderboard", label: "Leaderboard", icon: Trophy, desc: "Room 106 Standings" },
+    { id: "reviewer", label: "Study Notes", icon: BookOpen },
+    { id: "flashcards", label: "Flashcards", icon: Layers },
+    { id: "mock", label: "Quiz Battle", icon: CheckSquare },
+    { id: "cram", label: "Cram Sheet", icon: FileText },
+    { id: "leaderboard", label: "Leaderboard", icon: Trophy },
   ];
 
   const allSubjects = [
@@ -57,21 +57,22 @@ export function Navbar({
   ];
 
   return (
-    <header className="sticky top-3 z-40 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full transition-all">
+    <header className="sticky top-2 sm:top-3 z-40 px-2 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full transition-all">
       {/* Floating Island Navigation Container */}
       <div className="double-bezel-outer backdrop-blur-xl bg-white/95 shadow-md shadow-slate-200/50">
-        <div className="double-bezel-inner p-3 sm:p-4 space-y-3">
+        <div className="double-bezel-inner p-2.5 sm:p-4 space-y-2 sm:space-y-3">
           
-          {/* Top Bar: Institution Header, Quick Subject Dropdown, Sound & Timetable */}
-          <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-100">
-            {/* Left: Branding & Active Subject Quick Dropdown */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-blue-600/20 shrink-0">
+          {/* Top Bar: Institution Header, Quick Subject Switcher, Sound & Timetable */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+            {/* Left: Branding & Active Subject Switcher */}
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-blue-600/20 shrink-0">
                 4D
               </div>
+
               <div className="min-w-0 relative">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider truncate">
-                  <span>DLSP Engineering</span>
+                <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider truncate">
+                  <span>DLSP BSCPE</span>
                   <span className="text-slate-300">•</span>
                   <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/60 font-mono">
                     Room 106
@@ -81,13 +82,13 @@ export function Navbar({
                 {/* Active Subject Selector Button */}
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 tracking-tight hover:text-blue-700 transition-colors text-left"
+                  className="flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-900 tracking-tight hover:text-blue-700 transition-colors text-left"
                   title="Click to switch subject from list"
                 >
-                  <span className="bg-blue-100/80 text-blue-800 px-1.5 py-0.5 rounded text-[11px] font-extrabold">
+                  <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[11px] font-extrabold shrink-0">
                     {activeSubject.code}
                   </span>
-                  <span className="truncate max-w-[140px] sm:max-w-[260px] md:max-w-[340px]">
+                  <span className="truncate max-w-[110px] sm:max-w-[200px] md:max-w-[320px]">
                     {activeSubject.title}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
@@ -100,16 +101,16 @@ export function Navbar({
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsDropdownOpen(false)}
                     />
-                    <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 z-50 animate-scaleIn">
+                    <div className="absolute left-0 top-full mt-2 w-72 sm:w-88 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 z-50 animate-scaleIn">
                       <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2 border-b border-slate-100 flex items-center justify-between">
-                        <span>Select Exam Subject (8 Total)</span>
+                        <span>Select Subject (8 Total)</span>
                         <span className="text-blue-600 font-semibold">Room 106</span>
                       </div>
 
-                      <div className="mt-2 space-y-3 max-h-[60vh] overflow-y-auto">
+                      <div className="mt-2 space-y-2.5 max-h-[55vh] overflow-y-auto">
                         {/* Day 1 Section */}
                         <div>
-                          <span className="text-[10px] font-extrabold text-blue-700 uppercase tracking-wider px-2 py-0.5 block bg-blue-50/60 rounded">
+                          <span className="text-[9px] font-extrabold text-blue-700 uppercase tracking-wider px-2 py-0.5 block bg-blue-50/70 rounded">
                             Monday, Oct 19 (Day 1)
                           </span>
                           <div className="mt-1 space-y-1">
@@ -123,16 +124,16 @@ export function Navbar({
                                     setIsDropdownOpen(false);
                                     sound.playFlip();
                                   }}
-                                  className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                                  className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
                                     isCur ? "bg-blue-600 text-white font-bold" : "hover:bg-slate-100 text-slate-800"
                                   }`}
                                 >
-                                  <div>
-                                    <div className="flex items-center gap-2">
+                                  <div className="min-w-0 pr-2">
+                                    <div className="flex items-center gap-1.5">
                                       <span className={isCur ? "text-white" : "font-extrabold text-blue-700"}>{exam.code}</span>
-                                      <span className={isCur ? "text-blue-100 text-[11px]" : "text-slate-500 text-[11px]"}>{exam.time}</span>
+                                      <span className={isCur ? "text-blue-100 text-[10px]" : "text-slate-500 text-[10px]"}>{exam.time.split("-")[0].trim()}</span>
                                     </div>
-                                    <div className={`text-[11px] truncate max-w-[240px] ${isCur ? "text-blue-100" : "text-slate-600"}`}>
+                                    <div className={`text-[11px] truncate ${isCur ? "text-blue-100" : "text-slate-600"}`}>
                                       {exam.title}
                                     </div>
                                   </div>
@@ -145,7 +146,7 @@ export function Navbar({
 
                         {/* Day 2 Section */}
                         <div>
-                          <span className="text-[10px] font-extrabold text-indigo-700 uppercase tracking-wider px-2 py-0.5 block bg-indigo-50/60 rounded">
+                          <span className="text-[9px] font-extrabold text-indigo-700 uppercase tracking-wider px-2 py-0.5 block bg-indigo-50/70 rounded">
                             Tuesday, Oct 20 (Day 2)
                           </span>
                           <div className="mt-1 space-y-1">
@@ -159,16 +160,16 @@ export function Navbar({
                                     setIsDropdownOpen(false);
                                     sound.playFlip();
                                   }}
-                                  className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                                  className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
                                     isCur ? "bg-indigo-600 text-white font-bold" : "hover:bg-slate-100 text-slate-800"
                                   }`}
                                 >
-                                  <div>
-                                    <div className="flex items-center gap-2">
+                                  <div className="min-w-0 pr-2">
+                                    <div className="flex items-center gap-1.5">
                                       <span className={isCur ? "text-white" : "font-extrabold text-indigo-700"}>{exam.code}</span>
-                                      <span className={isCur ? "text-indigo-100 text-[11px]" : "text-slate-500 text-[11px]"}>{exam.time}</span>
+                                      <span className={isCur ? "text-indigo-100 text-[10px]" : "text-slate-500 text-[10px]"}>{exam.time.split("-")[0].trim()}</span>
                                     </div>
-                                    <div className={`text-[11px] truncate max-w-[240px] ${isCur ? "text-indigo-100" : "text-slate-600"}`}>
+                                    <div className={`text-[11px] truncate ${isCur ? "text-indigo-100" : "text-slate-600"}`}>
                                       {exam.title}
                                     </div>
                                   </div>
@@ -185,13 +186,13 @@ export function Navbar({
               </div>
             </div>
 
-            {/* Right: Profile, Leaderboard, Audio Toggle & Timetable */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Right: Profile, Leaderboard, Audio & Schedule */}
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Student Profile Pill */}
               <button
                 onClick={() => setIsWelcomeOpen(true)}
-                className="btn-haptic flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2.5 py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800"
-                title="Edit Profile, Section & Avatar"
+                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800"
+                title="Profile"
               >
                 <div className="w-6 h-6 rounded-lg bg-white shadow-2xs border border-slate-200 flex items-center justify-center text-xs overflow-hidden shrink-0">
                   {profile.customPhoto ? (
@@ -202,47 +203,42 @@ export function Navbar({
                 </div>
                 <div className="flex flex-col text-left leading-tight hidden lg:flex">
                   <span className="text-[11px] font-bold truncate max-w-[85px]">{profile.name}</span>
-                  <span className="text-[9px] text-blue-600 font-extrabold">Lv. {levelInfo.level} • {profile.xp} XP</span>
+                  <span className="text-[9px] text-blue-600 font-extrabold">Lv. {levelInfo.level}</span>
                 </div>
               </button>
 
-              {/* Room 106 Leaderboard Button */}
+              {/* Leaderboard Button */}
               <button
                 onClick={() => setIsLeaderboardOpen(true)}
-                className="btn-haptic group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all"
-                title="Room 106 Class Leaderboard"
+                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all"
+                title="Room 106 Standings"
               >
-                <Trophy className="w-3.5 h-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline">Leaderboard</span>
+                <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="hidden sm:inline">Rank</span>
               </button>
 
               {/* Sound FX Toggle Button */}
               <button
                 onClick={toggleAudio}
-                className={`btn-haptic flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                className={`btn-haptic p-1.5 sm:px-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   isSoundOn
                     ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                     : "bg-slate-100 text-slate-500 border-slate-200"
                 }`}
-                title={isSoundOn ? "Sound Effects ON" : "Sound Effects MUTED"}
+                title={isSoundOn ? "Audio ON" : "Muted"}
               >
                 {isSoundOn ? (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="hidden md:inline">Audio ON</span>
-                  </>
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
                 ) : (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="hidden md:inline">Muted</span>
-                  </>
+                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
                 )}
               </button>
 
-              {/* Timetable Button */}
+              {/* Schedule Button */}
               <button
                 onClick={onOpenSchedule}
-                className="btn-haptic group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 rounded-xl transition-all"
+                className="btn-haptic p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 rounded-xl transition-all flex items-center gap-1"
+                title="Schedule"
               >
                 <Calendar className="w-3.5 h-3.5 text-blue-600" />
                 <span className="hidden md:inline">Schedule</span>
@@ -250,12 +246,39 @@ export function Navbar({
             </div>
           </div>
 
-          {/* Subject Navigation: Day Filter Tabs + 100% Visible Subject Grid */}
-          <div className="space-y-2 pt-0.5">
-            {/* Filter Pills */}
+          {/* MOBILE ONLY: Single-Line Horizontal Swipeable Ribbon (< 768px) */}
+          <div className="flex md:hidden items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+            {allSubjects.map((exam) => {
+              const isSelected = activeSubject.id === exam.id;
+              return (
+                <button
+                  key={exam.id}
+                  onClick={() => {
+                    onSelectSubject(exam.id);
+                    sound.playFlip();
+                  }}
+                  className={`btn-haptic px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
+                    isSelected
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "bg-slate-100 text-slate-700 border border-slate-200/80"
+                  }`}
+                >
+                  <span>{exam.code}</span>
+                  <span className={`text-[9px] font-semibold px-1 py-0.2 rounded ${
+                    isSelected ? "bg-white/20 text-white" : "text-slate-500 bg-white"
+                  }`}>
+                    {exam.time.split("-")[0].trim()}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* DESKTOP ONLY: Day Filter Tabs & 2-Row Day Matrix (>= 768px) */}
+          <div className="hidden md:block space-y-2 pt-0.5">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1 sm:gap-1.5 text-xs">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1 hidden sm:inline">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
                   Filter by Day:
                 </span>
                 <button
@@ -292,14 +315,13 @@ export function Navbar({
                 </button>
               </div>
 
-              <div className="text-[11px] text-slate-400 font-medium hidden md:block">
+              <div className="text-[11px] text-slate-400 font-medium">
                 All 8 subjects visible • Click any to review
               </div>
             </div>
 
-            {/* Subject Buttons Grouped by Day — No horizontal scrolling needed! */}
+            {/* Subject Buttons Grouped by Day */}
             <div className="space-y-1.5">
-              {/* Day 1: Monday */}
               {(dayFilter === "all" || dayFilter === "day1") && (
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-1 rounded-lg shrink-0">
@@ -314,7 +336,7 @@ export function Navbar({
                           onSelectSubject(exam.id);
                           sound.playFlip();
                         }}
-                        className={`btn-haptic px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        className={`btn-haptic px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                           isSelected
                             ? "bg-blue-600 text-white shadow-md shadow-blue-600/25 ring-2 ring-blue-500 scale-[1.02]"
                             : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80"
@@ -332,7 +354,6 @@ export function Navbar({
                 </div>
               )}
 
-              {/* Day 2: Tuesday */}
               {(dayFilter === "all" || dayFilter === "day2") && (
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-1 rounded-lg shrink-0">
@@ -347,7 +368,7 @@ export function Navbar({
                           onSelectSubject(exam.id);
                           sound.playFlip();
                         }}
-                        className={`btn-haptic px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        className={`btn-haptic px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                           isSelected
                             ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-500 scale-[1.02]"
                             : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80"
@@ -367,9 +388,9 @@ export function Navbar({
             </div>
           </div>
 
-          {/* Mode Selector Pill Buttons & Search */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none flex-1">
+          {/* DESKTOP ONLY: Mode Selector Pills (On mobile, moved to bottom nav) */}
+          <div className="hidden md:flex pt-2 border-t border-slate-100 items-center justify-between gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none flex-1">
               {modes.map((mode) => {
                 const Icon = mode.icon;
                 const isActive = currentMode === mode.id;
@@ -377,7 +398,7 @@ export function Navbar({
                   <button
                     key={mode.id}
                     onClick={() => onSelectMode(mode.id)}
-                    className={`btn-haptic group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
+                    className={`btn-haptic group flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
                       isActive
                         ? "bg-slate-900 text-white shadow-sm ring-1 ring-slate-800"
                         : "bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900"
@@ -391,7 +412,7 @@ export function Navbar({
             </div>
 
             {/* Quick Filter Search */}
-            <div className="relative w-40 sm:w-56 shrink-0 hidden md:block">
+            <div className="relative w-44 lg:w-56 shrink-0">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"

@@ -13,7 +13,7 @@ export function CramSheet({ subject }) {
     <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
       {/* Header Bar with Double-Bezel */}
       <div className="double-bezel-outer">
-        <div className="double-bezel-inner p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="double-bezel-inner p-4 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -43,7 +43,7 @@ export function CramSheet({ subject }) {
 
       {/* High Yield Bullet Points in Double Bezel Container */}
       <div className="double-bezel-outer">
-        <div className="double-bezel-inner p-6 sm:p-8 space-y-4">
+        <div className="double-bezel-inner p-4 sm:p-8 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-500" />

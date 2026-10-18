@@ -19,9 +19,14 @@ import {
   Clock, 
   Award,
   Share2,
-  Check
+  Check,
+  BookOpen,
+  Layers,
+  CheckSquare,
+  FileText
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { sound } from "./utils/sound";
 
 function AppContent() {
   const subjectKeys = ["cpe414", "cpe411", "cpe416", "cpe415", "cpe412", "elect3", "cpe413", "engwork"];
@@ -91,7 +96,7 @@ function AppContent() {
       />
 
       {/* Main Study Arena with Macro Whitespace */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-8 pb-28 sm:pb-12">
         {currentMode === "reviewer" && (
           <ReviewerNotes 
             subject={activeSubject} 
@@ -379,7 +384,7 @@ function AppContent() {
       />
 
       {/* Institutional Footer */}
-      <footer className="mt-auto border-t border-slate-200/70 bg-white/60 backdrop-blur-md py-6 text-xs text-slate-500">
+      <footer className="mt-auto border-t border-slate-200/70 bg-white/60 backdrop-blur-md py-6 pb-24 md:pb-6 text-xs text-slate-500">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <GraduationCap className="w-4 h-4 text-blue-600" />
@@ -395,6 +400,46 @@ function AppContent() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Floating Thumb Navigation Bar (Hidden on Desktop) */}
+      <nav 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5"
+        aria-label="Mobile Navigation"
+      >
+        <div className="flex items-center justify-around max-w-md mx-auto">
+          {[
+            { id: "reviewer", label: "Notes", icon: BookOpen },
+            { id: "flashcards", label: "Cards", icon: Layers },
+            { id: "mock", label: "Quiz", icon: CheckSquare },
+            { id: "cram", label: "Cram", icon: FileText },
+            { id: "leaderboard", label: "Rank", icon: Trophy },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = currentMode === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  sound.playFlip();
+                  setCurrentMode(tab.id);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`btn-haptic flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative ${
+                  isActive 
+                    ? "text-blue-700 font-extrabold scale-105" 
+                    : "text-slate-400 hover:text-slate-700 font-medium"
+                }`}
+              >
+                <Icon className={`w-5 h-5 mb-0.5 transition-transform ${isActive ? "text-blue-600 stroke-[2.5]" : "stroke-[1.75]"}`} />
+                <span className="text-[10px] tracking-tight">{tab.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

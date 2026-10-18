@@ -78,60 +78,57 @@ export function ReviewerNotes({ subject, searchQuery }) {
     <div className="space-y-8 animate-fadeIn">
       {/* Top Reading View Switcher & Action Controls */}
       <div className="no-print double-bezel-outer">
-        <div className="double-bezel-inner p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 hidden sm:inline">
-              Layout Style:
-            </span>
+        <div className="double-bezel-inner p-2 sm:p-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setReadingView("zen")}
-              className={`btn-haptic flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 readingView === "zen"
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-blue-400" />
-              <span>Zen Document (PDF / Textbook)</span>
+              <FileText className="w-3.5 h-3.5 text-blue-600" />
+              <span>Zen Reader</span>
             </button>
             <button
               onClick={() => setReadingView("cards")}
-              className={`btn-haptic flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 readingView === "cards"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <LayoutGrid className="w-3.5 h-3.5 text-blue-200" />
-              <span>Modular Study Cards</span>
+              <LayoutGrid className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Study Cards</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => window.print()}
-              className="btn-haptic flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all"
+              className="btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all shrink-0"
               title="Print to PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-slate-500" />
-              <span>Print to PDF</span>
+              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">Print to PDF</span>
             </button>
 
             {readingView === "cards" && (
-              <>
+              <div className="hidden sm:flex items-center gap-1">
                 <button
                   onClick={expandAll}
-                  className="btn-haptic px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
                 >
-                  Expand All
+                  Expand
                 </button>
                 <button
                   onClick={collapseAll}
-                  className="btn-haptic px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
                 >
-                  Collapse All
+                  Collapse
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -139,7 +136,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
 
       {/* Subject Header Card */}
       <div className="double-bezel-outer">
-        <div className="double-bezel-inner p-6 sm:p-8">
+        <div className="double-bezel-inner p-4 sm:p-8 space-y-3 sm:space-y-4">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 text-xs font-black tracking-wide text-white bg-blue-700 rounded-lg shadow-xs">
@@ -225,7 +222,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
         <div className="space-y-12">
           {filteredTopics.map((unit) => (
             <section key={unit.unitId} className="double-bezel-outer">
-              <div className="double-bezel-inner p-8 sm:p-12 space-y-8">
+              <div className="double-bezel-inner p-4 sm:p-8 sm:p-12 space-y-6 sm:space-y-8">
                 {/* Unit Section Title */}
                 <div className="border-b border-slate-200/80 pb-4">
                   <div className="flex items-center justify-between gap-4">
@@ -363,7 +360,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
                         {/* Card Title Header */}
                         <div
                           onClick={() => toggleCard(card.id)}
-                          className="p-5 flex items-start justify-between gap-3 cursor-pointer select-none bg-slate-50/60 hover:bg-slate-100/60 transition-colors border-b border-slate-100"
+                          className="p-3.5 sm:p-5 flex items-start justify-between gap-3 cursor-pointer select-none bg-slate-50/60 hover:bg-slate-100/60 transition-colors border-b border-slate-100"
                         >
                           <div className="space-y-1.5 min-w-0">
                             <div className="flex items-center gap-2">
@@ -387,7 +384,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
 
                         {/* Card Content Body */}
                         {isExpanded && (
-                          <div className="p-5 space-y-4 bg-white">
+                          <div className="p-3.5 sm:p-5 space-y-4 bg-white">
                             <div className="text-sm text-slate-700 leading-relaxed font-normal">
                               <FormattedText text={card.content} />
                             </div>

@@ -4,7 +4,10 @@ import {
   saveProfile, 
   createDefaultProfile, 
   getLevelInfo,
-  buildLeaderboard 
+  buildLeaderboard,
+  loadClassRoster,
+  saveClassRoster,
+  decodeScorecard
 } from "../utils/gamification";
 import { sound } from "../utils/sound";
 import confetti from "canvas-confetti";
@@ -23,12 +26,42 @@ export function UserProvider({ children }) {
   });
 
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [rosterVersion, setRosterVersion] = useState(0);
   const [xpToast, setXpToast] = useState(null);
 
   // Sync to localStorage whenever profile changes
   useEffect(() => {
     saveProfile(profile);
   }, [profile]);
+
+  // Import score from URL query parameter (if someone shared a link)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const scoreCode = params.get("score");
+      if (scoreCode) {
+        const imported = importScorecard(scoreCode);
+        if (imported) {
+          setXpToast("🏆 Added classmate to your Room 106 Leaderboard!");
+          setTimeout(() => setXpToast(null), 3500);
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
+  }, []);
+
+  // Import a classmate's scorecard code
+  const importScorecard = (code) => {
+    const entry = decodeScorecard(code);
+    if (!entry) return false;
+    const roster = loadClassRoster();
+    // Avoid duplicate entries with same name
+    const filtered = roster.filter((c) => c.name.toLowerCase() !== entry.name.toLowerCase() && c.id !== "me");
+    filtered.push(entry);
+    saveClassRoster(filtered);
+    setRosterVersion((v) => v + 1);
+    return true;
+  };
 
   // Add XP with optional celebratory sound & toast
   const addXp = (amount, reason = "Study Reward") => {
@@ -95,6 +128,7 @@ export function UserProvider({ children }) {
   };
 
   const levelInfo = getLevelInfo(profile.xp);
+  // Leaderboard rebuilds with real submissions only
   const leaderboard = buildLeaderboard(profile);
 
   return (
@@ -110,14 +144,15 @@ export function UserProvider({ children }) {
         addXp,
         recordExamResult,
         updateProfile,
+        importScorecard,
       }}
     >
       {children}
 
       {/* Floating Global XP / Level-Up Toast */}
       {xpToast && (
-        <div className="fixed bottom-6 right-6 z-50 pointer-events-none animate-popIn">
-          <div className="px-4 py-2.5 bg-slate-900/95 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-2xl border border-slate-700/80 flex items-center gap-2.5 backdrop-blur-md">
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 pointer-events-none animate-popIn">
+          <div className="px-3.5 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-2xl border border-slate-700/80 flex items-center gap-2 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span>{xpToast}</span>
           </div>

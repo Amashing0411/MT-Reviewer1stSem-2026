@@ -313,7 +313,7 @@ export function MockExam({ subject }) {
 
       {/* Main Question & Solution Card */}
       <div className="double-bezel-outer">
-        <div className="double-bezel-inner p-6 sm:p-8 space-y-6">
+        <div className="double-bezel-inner p-4 sm:p-8 space-y-5 sm:space-y-6">
           {/* Question Header & Flagging */}
           <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="space-y-1.5">

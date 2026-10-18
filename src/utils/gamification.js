@@ -49,6 +49,7 @@ export function getLevelInfo(xp) {
 }
 
 const STORAGE_KEY = "mt_reviewer_student_profile_2026";
+const ROSTER_KEY = "mt_reviewer_class_roster_2026";
 
 export function loadProfile() {
   try {
@@ -69,6 +70,24 @@ export function saveProfile(profile) {
   }
 }
 
+export function loadClassRoster() {
+  try {
+    const raw = localStorage.getItem(ROSTER_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveClassRoster(roster) {
+  try {
+    localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+  } catch (e) {
+    console.error("Failed to save class roster:", e);
+  }
+}
+
 export function createDefaultProfile() {
   const randomSuffix = Math.floor(100 + Math.random() * 900);
   return {
@@ -77,32 +96,23 @@ export function createDefaultProfile() {
     section: "BSCPE 4D",
     isAnon: true,
     avatar: "🤖",
-    customPhoto: null, // data URL if uploaded
+    customPhoto: null,
     xp: 0,
     streak: 0,
     maxStreak: 0,
     fastestBlitzSeconds: null,
     highestScorePercent: 0,
     totalQuizzesTaken: 0,
-    masteredFlashcards: {}, // { [subjectId]: [cardIds] }
-    completedUnits: {},     // { [subjectId]: [unitIds] }
+    masteredFlashcards: {},
+    completedUnits: {},
     joinedAt: new Date().toISOString(),
   };
 }
 
-// Room 106 Simulated Classmates Leaderboard
-export const CLASS_BENCHMARKS = [
-  { id: "bench-1", name: "Aaron (DSP Ace)", section: "BSCPE 4D", avatar: "🚀", customPhoto: null, xp: 5400, fastestBlitz: 34, highestPercent: 100 },
-  { id: "bench-2", name: "Maria Clara", section: "BSCPE 4D", avatar: "🧠", customPhoto: null, xp: 4850, fastestBlitz: 42, highestPercent: 95 },
-  { id: "bench-3", name: "Lyka's Favorite", section: "BSCPE 4D", avatar: "🏆", customPhoto: null, xp: 4100, fastestBlitz: 48, highestPercent: 90 },
-  { id: "bench-4", name: "KernelPanic_4D", section: "BSCPE 4D", avatar: "💻", customPhoto: null, xp: 3600, fastestBlitz: 51, highestPercent: 85 },
-  { id: "bench-5", name: "NightOwl_CPE", section: "BSCPE 4D", avatar: "🦉", customPhoto: null, xp: 2950, fastestBlitz: 59, highestPercent: 80 },
-  { id: "bench-6", name: "Anon #411", section: "BSCPE 4D", avatar: "🛠️", customPhoto: null, xp: 2200, fastestBlitz: 65, highestPercent: 75 },
-  { id: "bench-7", name: "CircuitBreaker", section: "BSCPE 4D", avatar: "⚡", customPhoto: null, xp: 1800, fastestBlitz: 72, highestPercent: 70 },
-  { id: "bench-8", name: "CaffeineOverdrive", section: "BSCPE 4D", avatar: "☕", customPhoto: null, xp: 1250, fastestBlitz: 84, highestPercent: 65 },
-];
-
+// Builds leaderboard containing ONLY real user submissions (Zero fake benchmark people!)
 export function buildLeaderboard(currentUser) {
+  const roster = loadClassRoster();
+  
   const userEntry = {
     id: "me",
     name: currentUser.name || (currentUser.isAnon ? "You (Anonymous)" : "You"),
@@ -115,12 +125,52 @@ export function buildLeaderboard(currentUser) {
     isCurrentUser: true,
   };
 
+  // Filter out any duplicates matching current user name or id
+  const otherClassmates = roster.filter(
+    (c) => c.name !== currentUser.name && c.id !== "me"
+  );
+
   // Sort by XP descending
-  const list = [...CLASS_BENCHMARKS, userEntry].sort((a, b) => b.xp - a.xp);
+  const list = [userEntry, ...otherClassmates].sort((a, b) => b.xp - a.xp);
   
   return list.map((item, index) => ({
     ...item,
     rank: index + 1,
     levelInfo: getLevelInfo(item.xp),
   }));
+}
+
+// Encodes a student's scorecard for sharing with classmates
+export function encodeScorecard(profile) {
+  const payload = {
+    n: profile.name,
+    s: profile.section || "BSCPE 4D",
+    a: profile.avatar || "🤖",
+    x: profile.xp || 0,
+    b: profile.fastestBlitzSeconds || null,
+    p: profile.highestScorePercent || 0,
+  };
+  return btoa(JSON.stringify(payload));
+}
+
+// Decodes and imports a classmate's shared scorecard
+export function decodeScorecard(codeStr) {
+  try {
+    const raw = atob(codeStr.trim());
+    const data = JSON.parse(raw);
+    if (!data.n) return null;
+    return {
+      id: "classmate-" + Math.random().toString(36).substr(2, 9),
+      name: data.n,
+      section: data.s || "BSCPE 4D",
+      avatar: data.a || "🤖",
+      customPhoto: null,
+      xp: data.x || 0,
+      fastestBlitz: data.b || null,
+      highestPercent: data.p || 0,
+      isCurrentUser: false,
+    };
+  } catch (e) {
+    return null;
+  }
 }
