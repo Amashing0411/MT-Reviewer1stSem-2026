@@ -70,10 +70,10 @@ The platform features an interactive section switchable schedule mapping specifi
 ### 4. ⚡ 10-Minute Hallway Cram Sheets
 - Ultra-concise, high-yield bulleted cheat sheets designed for quick review right before stepping into the examination room.
 
-### 5. 🌙 Cyber Dark Mode / ☀️ Light Mode & Hardware-Accelerated Interactive Background
-- **Interactive Parallax & Constellation Background:** A custom hardware-accelerated 2D canvas dynamically traces mouse movements, drawing energy halo fields, magnetic node connections, and subtle depth parallax.
+### 5. 🌌 Aceternity Aurora Background & Dual Theme Engine
+- **Aceternity UI Aurora Background Engine:** Powered by repeating linear-gradient color sweeps (`blue-500`, `indigo-300`, `blue-300`, `violet-200`, `blue-400`) with smooth 60s CSS keyframe animation (`animate-aurora`) and radial ellipse masks.
+- **Harmonious Palette:** Uses clean `bg-zinc-50` for Day / Light Mode and deep `bg-zinc-900` for Night / Dark Mode, completely eliminating harsh pitch-black backgrounds and preserving translucent glassmorphic cards.
 - **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean light mode default on initial load with persistent dark mode when toggled.
-- **Dual Aesthetic Palette:** Crisp architectural drafting grid for Light Mode; deep `#070b14` void with luminescent cyan/indigo circuit traces for Dark Mode.
 
 ---
 

@@ -9,7 +9,7 @@ import { ScheduleModal } from "./components/ScheduleModal";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { LeaderboardModal } from "./components/LeaderboardModal";
 import { StudentPassCardModal } from "./components/StudentPassCardModal";
-import { InteractiveBackground } from "./components/InteractiveBackground";
+import { AuroraBackground } from "./components/ui/aurora-background";
 import { ClassShoutbox } from "./components/ClassShoutbox";
 import { StudentProfileModal } from "./components/StudentProfileModal";
 import { UserProvider, useUser } from "./context/UserContext";
@@ -108,9 +108,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col antialiased selection:bg-blue-600 selection:text-white relative transition-colors duration-300">
-      {/* Interactive Cyber Constellation / Parallax Background */}
-      <InteractiveBackground />
+    <AuroraBackground>
 
       {/* Top Floating Island Header & Subject Navigation */}
       <Navbar
@@ -578,7 +576,7 @@ function AppContent() {
           })}
         </div>
       </nav>
-    </div>
+    </AuroraBackground>
   );
 }
 
