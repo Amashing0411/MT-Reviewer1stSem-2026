@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
-import { createSyncUrl, AVATAR_FRAMES } from "../utils/gamification";
+import { createSyncUrl, AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
 import { 
   Download, 
   Copy, 
@@ -188,7 +188,7 @@ export function StudentPassCardModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
       <div 
-        className="double-bezel-outer w-full max-w-lg max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900"
+        className="double-bezel-outer w-full max-w-lg max-h-[92vh] overflow-y-auto animate-scaleIn text-slate-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="double-bezel-inner p-5 sm:p-7 relative space-y-5">
@@ -196,21 +196,21 @@ export function StudentPassCardModal({ isOpen, onClose }) {
           {/* Close button */}
           <button
             onClick={onClose}
-            className="btn-haptic absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+            className="btn-haptic absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-full font-bold text-xs uppercase tracking-wider">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/50 rounded-full font-bold text-xs uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>Official Student Pass & Device Sync</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900">
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">
               Save Your Reviewer Pass
             </h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
               Download this pass to your photo gallery so you never forget your 4-digit PIN when switching between your laptop and phone!
             </p>
           </div>
@@ -247,7 +247,7 @@ export function StudentPassCardModal({ isOpen, onClose }) {
 
               <div className="space-y-0.5 truncate">
                 <span className="text-xs text-slate-400 font-semibold block">Student Reviewer</span>
-                <h4 className="text-base sm:text-lg font-bold text-white truncate">
+                <h4 className={`text-base sm:text-lg font-bold truncate ${NAME_EFFECTS.find(fx => fx.id === profile.nameFx)?.cssClass || "text-white"}`}>
                   {studentName}
                 </h4>
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-blue-300 font-semibold">

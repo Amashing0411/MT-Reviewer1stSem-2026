@@ -9,7 +9,9 @@ import { ScheduleModal } from "./components/ScheduleModal";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { LeaderboardModal } from "./components/LeaderboardModal";
 import { StudentPassCardModal } from "./components/StudentPassCardModal";
+import { InteractiveBackground } from "./components/InteractiveBackground";
 import { UserProvider, useUser } from "./context/UserContext";
+import { AVATAR_FRAMES, NAME_EFFECTS } from "./utils/gamification";
 import { 
   GraduationCap, 
   MapPin, 
@@ -102,7 +104,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col antialiased selection:bg-blue-600 selection:text-white relative transition-colors duration-300">
+      {/* Interactive Cyber Constellation / Parallax Background */}
+      <InteractiveBackground />
+
       {/* Top Floating Island Header & Subject Navigation */}
       <Navbar
         activeSubject={activeSubject}
@@ -186,7 +191,9 @@ function AppContent() {
                 {/* Current Student Highlight Card */}
                 <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-3xl overflow-hidden shrink-0">
+                    <div className={`w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl overflow-hidden shrink-0 transition-all ${
+                      AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
+                    }`}>
                       {profile.customPhoto ? (
                         <img src={profile.customPhoto} alt="Me" className="w-full h-full object-cover" />
                       ) : (
@@ -195,7 +202,9 @@ function AppContent() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-base sm:text-lg">{profile.name}</span>
+                        <span className={`font-extrabold text-base sm:text-lg ${
+                          NAME_EFFECTS.find((fx) => fx.id === profile.nameFx)?.cssClass || ""
+                        }`}>{profile.name}</span>
                         <span className="text-[10px] font-bold bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-400/30">
                           {profile.section}
                         </span>
@@ -362,14 +371,16 @@ function AppContent() {
                         key={item.id}
                         className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                           isMe
-                            ? "bg-blue-50/90 border-blue-400/90 shadow-xs ring-2 ring-blue-500/20"
-                            : "bg-white hover:bg-slate-50 border-slate-200/80"
+                            ? "bg-blue-50/90 dark:bg-blue-950/50 border-blue-400/90 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20"
+                            : "bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200/80 dark:border-slate-700"
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           {rankBadge}
 
-                          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-xl overflow-hidden shrink-0">
+                          <div className={`w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-xl overflow-hidden shrink-0 transition-all ${
+                            AVATAR_FRAMES.find((f) => f.id === item.frame)?.cssClass || "avatar-frame-default"
+                          }`}>
                             {item.customPhoto ? (
                               <img src={item.customPhoto} alt={item.name} className="w-full h-full object-cover" />
                             ) : (
@@ -378,15 +389,22 @@ function AppContent() {
                           </div>
 
                           <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-xs sm:text-sm font-bold truncate ${isMe ? "text-blue-900" : "text-slate-800"}`}>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={`text-xs sm:text-sm font-bold truncate ${
+                                NAME_EFFECTS.find((fx) => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")
+                              }`}>
                                 {item.name} {isMe && "(You)"}
                               </span>
-                              <span className="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200 shrink-0">
+                              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 shrink-0">
                                 {item.section}
                               </span>
+                              {item.tagline && (
+                                <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[130px]">
+                                  {item.tagline}
+                                </span>
+                              )}
                             </div>
-                            <div className="text-[11px] text-slate-400 font-medium truncate">
+                            <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
                               Level {item.levelInfo.level} • {item.levelInfo.title}
                             </div>
                           </div>
@@ -489,17 +507,17 @@ function AppContent() {
       />
 
       {/* Institutional Footer */}
-      <footer className="mt-auto border-t border-slate-200/70 bg-white/60 backdrop-blur-md py-6 pb-24 md:pb-6 text-xs text-slate-500">
+      <footer className="mt-auto border-t border-slate-200/70 dark:border-slate-800/80 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md py-6 pb-24 md:pb-6 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <GraduationCap className="w-4 h-4 text-blue-600" />
-            <span className="font-bold text-slate-700">Dalubhasaan ng Lungsod ng San Pablo (DLSP)</span>
-            <span className="text-slate-300">•</span>
+            <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="font-bold text-slate-700 dark:text-slate-200">Dalubhasaan ng Lungsod ng San Pablo (DLSP)</span>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
             <span>College of Engineering</span>
           </div>
           <div className="flex items-center gap-2 font-medium">
             <span>Official Midterm Platform for</span>
-            <strong className="text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+            <strong className="text-blue-700 dark:text-blue-300 font-bold bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-800/40">
               BSCPE 4th Year • Sections 4A - 4D
             </strong>
           </div>

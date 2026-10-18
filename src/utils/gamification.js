@@ -16,42 +16,268 @@ export const AVATAR_PRESETS = [
 ];
 
 export const AVATAR_FRAMES = [
-  { id: "default", name: "Classic Minimal", minLevel: 1, cssClass: "avatar-frame-default", label: "Clean" },
-  { id: "bronze", name: "Bronze Circuit", minLevel: 2, cssClass: "avatar-frame-bronze", label: "Bronze" },
-  { id: "silver", name: "Silver Silicon", minLevel: 3, cssClass: "avatar-frame-silver", label: "Silver" },
-  { id: "cyber", name: "Cyber Neon Cyan", minLevel: 4, cssClass: "avatar-frame-cyber", label: "Cyber" },
-  { id: "emerald", name: "Matrix Phosphor", minLevel: 5, cssClass: "avatar-frame-emerald", label: "Matrix" },
-  { id: "gold", name: "Dean's List Gold", minLevel: 7, cssClass: "avatar-frame-gold", label: "Gold" },
-  { id: "ruby", name: "Ruby Overclock", minLevel: 8, cssClass: "avatar-frame-ruby", label: "Ruby" },
-  { id: "valkyrie", name: "Prismatic Valkyrie", minLevel: 10, cssClass: "avatar-frame-valkyrie", label: "Valkyrie" },
+  { 
+    id: "default", 
+    name: "Classic Minimal", 
+    minLevel: 1, 
+    cssClass: "avatar-frame-default", 
+    label: "Clean",
+    desc: "Standard clean student border",
+    tier: "Common"
+  },
+  { 
+    id: "bronze", 
+    name: "Bronze Circuit", 
+    minLevel: 2, 
+    cssClass: "avatar-frame-bronze", 
+    label: "Circuit",
+    desc: "Pulsing copper trace & amber energy nodes",
+    tier: "Uncommon"
+  },
+  { 
+    id: "silver", 
+    name: "Silver Chrome", 
+    minLevel: 3, 
+    cssClass: "avatar-frame-silver", 
+    label: "Chrome",
+    desc: "Liquid metallic chrome sweeping specular shine",
+    tier: "Rare"
+  },
+  { 
+    id: "cyber", 
+    name: "Cyber Glitch", 
+    minLevel: 4, 
+    cssClass: "avatar-frame-cyber", 
+    label: "Glitch",
+    desc: "RGB chromatic aberration & twitching scanlines",
+    tier: "Epic"
+  },
+  { 
+    id: "emerald", 
+    name: "Matrix Phosphor", 
+    minLevel: 5, 
+    cssClass: "avatar-frame-emerald", 
+    label: "Matrix",
+    desc: "Streaming terminal green code rain & CRT glow",
+    tier: "Epic"
+  },
+  { 
+    id: "lightning", 
+    name: "High-Voltage Overload", 
+    minLevel: 7, 
+    cssClass: "avatar-frame-lightning", 
+    label: "Lightning",
+    desc: "Crackling electric arcs & blue spark bursts",
+    tier: "Legendary"
+  },
+  { 
+    id: "ruby", 
+    name: "Inferno Overclock 🔥", 
+    minLevel: 8, 
+    cssClass: "avatar-frame-ruby", 
+    label: "Burning Fire",
+    desc: "Roaring animated hellfire flames & incandescent heat",
+    tier: "Mythic"
+  },
+  { 
+    id: "cosmic", 
+    name: "Quantum Singularity 🌌", 
+    minLevel: 9, 
+    cssClass: "avatar-frame-cosmic", 
+    label: "Void Singularity",
+    desc: "Gravitational event horizon vortex with stardust",
+    tier: "Ascended"
+  },
+  { 
+    id: "valkyrie", 
+    name: "Prismatic Valkyrie 🌈", 
+    minLevel: 10, 
+    cssClass: "avatar-frame-valkyrie", 
+    label: "Rainbow Bifrost",
+    desc: "Hyper-prismatic shifting aurora crystal halo",
+    tier: "Ascended"
+  },
+  { 
+    id: "deity", 
+    name: "Eternal Deity Corona ⚡", 
+    minLevel: 12, 
+    cssClass: "avatar-frame-deity", 
+    label: "Godlike Solar",
+    desc: "Blinding solar flare god-rays & pulsating divinity",
+    tier: "Godlike"
+  },
+];
+
+export const NAME_EFFECTS = [
+  { id: "none", name: "Standard Clean", minLevel: 1, cssClass: "name-fx-none", label: "Clean" },
+  { id: "glitch", name: "Cyber Glitch RGB", minLevel: 4, cssClass: "name-fx-glitch", label: "👾 Glitch" },
+  { id: "matrix", name: "Terminal Phosphor", minLevel: 5, cssClass: "name-fx-matrix", label: "📟 Matrix" },
+  { id: "lightning", name: "Electric Arc Zap", minLevel: 7, cssClass: "name-fx-lightning", label: "⚡ Lightning" },
+  { id: "fire", name: "Burning Flame 🔥", minLevel: 8, cssClass: "name-fx-fire", label: "🔥 Burning" },
+  { id: "prismatic", name: "Rainbow Aurora 🌈", minLevel: 10, cssClass: "name-fx-prismatic", label: "🌈 Prismatic" },
+  { id: "godlike", name: "Golden Deity Radiance 👑", minLevel: 12, cssClass: "name-fx-godlike", label: "👑 Godlike" },
 ];
 
 export const VANITY_TAGLINES = [
-  "🎓 4th Year Candidate",
-  "⚡ Room 106 Dean's Lister",
-  "☕ Powered by 3 Hours of Sleep",
-  "🔨 Design 2 Thesis Survivor",
-  "🛡️ Cyber Defense Commander",
-  "📡 DSP Fourier Master",
-  "⚖️ RA 9292 Legal Scholar",
-  "🎯 PRC Board Top 1 Aspirant",
-  "💻 System Architecture Lead",
-  "🔥 Rapid Blitz Streak Striker",
+  { id: "tag-1", label: "🎓 4th Year Candidate", minLevel: 1, tier: "Starter" },
+  { id: "tag-2", label: "⚡ Circuit Overclocker", minLevel: 2, tier: "Uncommon" },
+  { id: "tag-3", label: "💻 System Architecture Lead", minLevel: 3, tier: "Rare" },
+  { id: "tag-4", label: "☕ Powered by 3 Hours of Sleep", minLevel: 4, tier: "Epic" },
+  { id: "tag-5", label: "🛡️ Cyber Defense Commander", minLevel: 5, tier: "Epic" },
+  { id: "tag-6", label: "📡 DSP Fourier Master", minLevel: 6, tier: "Master" },
+  { id: "tag-7", label: "⚖️ RA 9292 Legal Scholar", minLevel: 7, tier: "Legendary" },
+  { id: "tag-8", label: "🎖️ Room 106 Dean's Lister", minLevel: 8, tier: "Mythic" },
+  { id: "tag-9", label: "🔨 Design 2 Thesis Survivor", minLevel: 9, tier: "Ascended" },
+  { id: "tag-10", label: "🎯 PRC Board Top 1 Aspirant", minLevel: 10, tier: "Ascended" },
+  { id: "tag-11", label: "✨ Midterm Valkyrie (Ascended)", minLevel: 11, tier: "Ascended" },
+  { id: "tag-12", label: "👑 Eternal DLSP Engineering Deity", minLevel: 12, tier: "Godlike" },
 ];
 
 export const LEVELS = [
-  { level: 1, title: "Novice Trainee", minXp: 0, maxXp: 300, icon: "🌱", unlockedFrame: "default", rewardDesc: "Default Frame" },
-  { level: 2, title: "Junior Circuit Hacker", minXp: 300, maxXp: 800, icon: "⚡", unlockedFrame: "bronze", rewardDesc: "Unlocked: Bronze Circuit Frame" },
-  { level: 3, title: "System Architect", minXp: 800, maxXp: 1600, icon: "💻", unlockedFrame: "silver", rewardDesc: "Unlocked: Silver Silicon Frame" },
-  { level: 4, title: "Logic Gate Wizard", minXp: 1600, maxXp: 2700, icon: "🔮", unlockedFrame: "cyber", rewardDesc: "Unlocked: Cyber Neon Frame" },
-  { level: 5, title: "Kernel Commander", minXp: 2700, maxXp: 4200, icon: "🛡️", unlockedFrame: "emerald", rewardDesc: "Unlocked: Matrix Phosphor Frame" },
-  { level: 6, title: "DSP Frequency Master", minXp: 4200, maxXp: 6200, icon: "📡", unlockedFrame: null, rewardDesc: "Next Frame at Level 7" },
-  { level: 7, title: "Cloud Security Architect", minXp: 6200, maxXp: 8800, icon: "⚔️", unlockedFrame: "gold", rewardDesc: "Unlocked: Dean's List Gold Frame" },
-  { level: 8, title: "Room 106 Dean's Lister", minXp: 8800, maxXp: 12000, icon: "🎖️", unlockedFrame: "ruby", rewardDesc: "Unlocked: Ruby Overclock Frame" },
-  { level: 9, title: "National Topnotcher Candidate", minXp: 12000, maxXp: 16000, icon: "👑", unlockedFrame: null, rewardDesc: "Next Frame at Level 10" },
-  { level: 10, title: "Legendary PRC Board Top 1 🏆", minXp: 16000, maxXp: 22000, icon: "🌟", unlockedFrame: "valkyrie", rewardDesc: "Unlocked: Prismatic Valkyrie Frame" },
-  { level: 11, title: "Midterm Valkyrie (Ascended) ✨", minXp: 22000, maxXp: 30000, icon: "✨", unlockedFrame: null, rewardDesc: "Ascended Honor" },
-  { level: 12, title: "Eternal DLSP Engineering Deity ⚡", minXp: 30000, maxXp: Infinity, icon: "👑", unlockedFrame: null, rewardDesc: "MAX PRESTIGE" },
+  { 
+    level: 1, 
+    title: "Novice Trainee", 
+    minXp: 0, 
+    maxXp: 300, 
+    icon: "🌱", 
+    unlockedFrame: "default", 
+    unlockedTagline: "🎓 4th Year Candidate",
+    unlockedNameFx: "none",
+    rewardTitle: "Trainee Starter Pack", 
+    rewardDesc: "Novice Trainee Title & Starter Badge" 
+  },
+  { 
+    level: 2, 
+    title: "Junior Circuit Hacker", 
+    minXp: 300, 
+    maxXp: 800, 
+    icon: "⚡", 
+    unlockedFrame: "bronze", 
+    unlockedTagline: "⚡ Circuit Overclocker",
+    unlockedNameFx: null,
+    rewardTitle: "Bronze Circuit Frame", 
+    rewardDesc: "Animated copper energy circuit avatar border" 
+  },
+  { 
+    level: 3, 
+    title: "System Architect", 
+    minXp: 800, 
+    maxXp: 1600, 
+    icon: "💻", 
+    unlockedFrame: "silver", 
+    unlockedTagline: "💻 System Architecture Lead",
+    unlockedNameFx: null,
+    rewardTitle: "Silver Chrome Frame", 
+    rewardDesc: "Liquid metallic chrome sweeping shine" 
+  },
+  { 
+    level: 4, 
+    title: "Logic Gate Wizard", 
+    minXp: 1600, 
+    maxXp: 2700, 
+    icon: "🔮", 
+    unlockedFrame: "cyber", 
+    unlockedTagline: "☕ Powered by 3 Hours of Sleep",
+    unlockedNameFx: "glitch",
+    rewardTitle: "Cyber Glitch Frame & Glitch Name FX", 
+    rewardDesc: "RGB chromatic glitch border + glitching name text!" 
+  },
+  { 
+    level: 5, 
+    title: "Kernel Commander", 
+    minXp: 2700, 
+    maxXp: 4200, 
+    icon: "🛡️", 
+    unlockedFrame: "emerald", 
+    unlockedTagline: "🛡️ Cyber Defense Commander",
+    unlockedNameFx: "matrix",
+    rewardTitle: "Matrix Phosphor Frame & Terminal Name FX", 
+    rewardDesc: "CRT green digital code stream + phosphor hacker name!" 
+  },
+  { 
+    level: 6, 
+    title: "DSP Frequency Master", 
+    minXp: 4200, 
+    maxXp: 6200, 
+    icon: "📡", 
+    unlockedFrame: null, 
+    unlockedTagline: "📡 DSP Fourier Master",
+    unlockedNameFx: null,
+    rewardTitle: "Custom Vanity Creation Unlocked!", 
+    rewardDesc: "You can now create and save custom engineering taglines!" 
+  },
+  { 
+    level: 7, 
+    title: "Cloud Security Architect", 
+    minXp: 6200, 
+    maxXp: 8800, 
+    icon: "⚔️", 
+    unlockedFrame: "lightning", 
+    unlockedTagline: "⚖️ RA 9292 Legal Scholar",
+    unlockedNameFx: "lightning",
+    rewardTitle: "High-Voltage Lightning Arc Frame & Electric Name FX", 
+    rewardDesc: "Crackling electric blue lightning border + sparking name!" 
+  },
+  { 
+    level: 8, 
+    title: "Room 106 Dean's Lister", 
+    minXp: 8800, 
+    maxXp: 12000, 
+    icon: "🎖️", 
+    unlockedFrame: "ruby", 
+    unlockedTagline: "🎖️ Room 106 Dean's Lister",
+    unlockedNameFx: "fire",
+    rewardTitle: "Inferno Overclock / Burning Fire Frame & Flame Name FX", 
+    rewardDesc: "Roaring animated hellfire flame border + burning name text!" 
+  },
+  { 
+    level: 9, 
+    title: "National Topnotcher Candidate", 
+    minXp: 12000, 
+    maxXp: 16000, 
+    icon: "👑", 
+    unlockedFrame: "cosmic", 
+    unlockedTagline: "🔨 Design 2 Thesis Survivor",
+    unlockedNameFx: null,
+    rewardTitle: "Quantum Singularity Void Frame", 
+    rewardDesc: "Deep cosmic gravitational event-horizon vortex with stardust!" 
+  },
+  { 
+    level: 10, 
+    title: "Legendary PRC Board Top 1 🏆", 
+    minXp: 16000, 
+    maxXp: 22000, 
+    icon: "🌟", 
+    unlockedFrame: "valkyrie", 
+    unlockedTagline: "🎯 PRC Board Top 1 Aspirant",
+    unlockedNameFx: "prismatic",
+    rewardTitle: "Prismatic Valkyrie Frame & Rainbow Flow Name FX", 
+    rewardDesc: "Continuous rainbow aurora bifrost crystal shine + chromatic text!" 
+  },
+  { 
+    level: 11, 
+    title: "Midterm Valkyrie (Ascended) ✨", 
+    minXp: 22000, 
+    maxXp: 30000, 
+    icon: "✨", 
+    unlockedFrame: null, 
+    unlockedTagline: "✨ Midterm Valkyrie (Ascended)",
+    unlockedNameFx: null,
+    rewardTitle: "Ascended Valkyrie Prestige", 
+    rewardDesc: "Elite recognition across DLSP College of Engineering!" 
+  },
+  { 
+    level: 12, 
+    title: "Eternal DLSP Engineering Deity ⚡", 
+    minXp: 30000, 
+    maxXp: Infinity, 
+    icon: "👑", 
+    unlockedFrame: "deity", 
+    unlockedTagline: "👑 Eternal DLSP Engineering Deity",
+    unlockedNameFx: "godlike",
+    rewardTitle: "Solar Deity Corona Frame & Godlike Radiance Name FX", 
+    rewardDesc: "Blinding solar flare god-rays + pulsating divine molten gold name!" 
+  },
 ];
 
 export function getLevelInfo(xp) {
@@ -119,6 +345,28 @@ export function saveClassRoster(roster) {
   }
 }
 
+export function getNewlyUnlockedRewards(oldXp, newXp) {
+  const oldLevel = getLevelInfo(oldXp).level;
+  const newLevelInfo = getLevelInfo(newXp);
+  const newLevel = newLevelInfo.level;
+  if (newLevel <= oldLevel) return null;
+
+  const crossedLevels = LEVELS.filter((l) => l.level > oldLevel && l.level <= newLevel);
+  if (crossedLevels.length === 0) return null;
+
+  const topLevel = crossedLevels[crossedLevels.length - 1];
+  return {
+    level: topLevel.level,
+    title: topLevel.title,
+    icon: topLevel.icon,
+    rewardTitle: topLevel.rewardTitle,
+    rewardDesc: topLevel.rewardDesc,
+    unlockedFrame: topLevel.unlockedFrame,
+    unlockedTagline: topLevel.unlockedTagline,
+    unlockedNameFx: topLevel.unlockedNameFx,
+  };
+}
+
 export function createDefaultProfile() {
   const randomSuffix = Math.floor(100 + Math.random() * 900);
   const uniqueId = "student_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 6);
@@ -133,6 +381,7 @@ export function createDefaultProfile() {
     pin: "",
     frame: "default",
     tagline: "🎓 4th Year Candidate",
+    nameFx: "none",
     xp: 0,
     streak: 0,
     maxStreak: 0,
@@ -250,6 +499,7 @@ export function encodeScorecard(profile, includePin = false) {
       a: profile.avatar || "🤖",
       fr: profile.frame || "default",
       tg: profile.tagline || "",
+      fx: profile.nameFx || "none",
       x: profile.xp || 0,
       b: profile.fastestBlitzSeconds || null,
       p: profile.highestScorePercent || 0,
@@ -309,6 +559,7 @@ export function decodeScorecard(codeStr) {
       avatar: data.a || "🤖",
       frame: data.fr || "default",
       tagline: data.tg || "🎓 4th Year Candidate",
+      nameFx: data.fx || "none",
       pin: data.pin || "",
       customPhoto: null,
       xp: data.x || 0,

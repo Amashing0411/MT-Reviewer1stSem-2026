@@ -133,13 +133,16 @@
 }
 
 /* Dark Mode Global Styles */
+html.dark, html.dark body, html.dark #root {
+  background-color: #080c14 !important;
+  color: #f1f5f9 !important;
+}
+
 html.dark body {
-  background-color: #0b0f19;
-  color: #f1f5f9;
   background-image: 
     radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
 }
 
 html.dark .double-bezel-outer {
@@ -155,15 +158,15 @@ html.dark .double-bezel-outer:hover {
 }
 
 html.dark .double-bezel-inner {
-  background: #111827;
+  background: #0f172a !important;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-html.dark .bg-white {
-  background-color: #111827 !important;
+html.dark .bg-white, html.dark .bg-white\/95 {
+  background-color: #0f172a !important;
 }
 html.dark .bg-slate-50, html.dark .bg-gray-50 {
-  background-color: #0f172a !important;
+  background-color: #0a0f1d !important;
 }
 html.dark .bg-slate-100, html.dark .bg-gray-100 {
   background-color: #1e293b !important;
@@ -193,55 +196,242 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
 
-/* Avatar Frame Prestige Effects */
+/* ========================================================
+   GAME-GRADE ANIMATED AVATAR FRAMES
+   ======================================================== */
 .avatar-frame-default {
   box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.4);
 }
+
+/* Bronze Circuit: Rotating copper trace with pulsating energy nodes */
 .avatar-frame-bronze {
-  box-shadow: 0 0 0 2px #b45309, 0 0 10px rgba(180, 83, 9, 0.45);
+  box-shadow: 0 0 0 2px #d97706, 0 0 12px rgba(217, 119, 6, 0.5);
+  animation: bronzeCircuitPulse 2.5s linear infinite;
+  position: relative;
 }
+@keyframes bronzeCircuitPulse {
+  0%, 100% { box-shadow: 0 0 0 2px #d97706, 0 0 8px rgba(217, 119, 6, 0.4); }
+  50% { box-shadow: 0 0 0 3px #fbbf24, 0 0 16px rgba(245, 158, 11, 0.8), inset 0 0 6px rgba(217, 119, 6, 0.4); }
+}
+
+/* Silver Chrome: Sweeping liquid metallic specular shine */
 .avatar-frame-silver {
-  box-shadow: 0 0 0 2px #cbd5e1, 0 0 12px rgba(203, 213, 225, 0.6);
+  box-shadow: 0 0 0 2px #94a3b8, 0 0 14px rgba(203, 213, 225, 0.7);
+  animation: silverSpecularSweep 3s ease-in-out infinite;
 }
+@keyframes silverSpecularSweep {
+  0% { box-shadow: 0 0 0 2px #94a3b8, 0 0 8px rgba(203, 213, 225, 0.4); }
+  50% { box-shadow: 0 0 0 3px #ffffff, 0 0 20px rgba(255, 255, 255, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.6); }
+  100% { box-shadow: 0 0 0 2px #94a3b8, 0 0 8px rgba(203, 213, 225, 0.4); }
+}
+
+/* Cyber Glitch: Jittery RGB chromatic split & twitching scanlines */
 .avatar-frame-cyber {
-  box-shadow: 0 0 0 2px #06b6d4, 0 0 14px rgba(6, 182, 212, 0.7);
-  animation: cyberPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 2px #06b6d4, 0 0 16px rgba(6, 182, 212, 0.75);
+  animation: cyberGlitchJitter 2s steps(2, start) infinite;
 }
+@keyframes cyberGlitchJitter {
+  0%, 100% { box-shadow: -2px 0 0 #06b6d4, 2px 0 0 #ec4899, 0 0 12px rgba(6, 182, 212, 0.6); transform: translate(0, 0); }
+  15% { box-shadow: 2px 0 0 #06b6d4, -2px 0 0 #ec4899, 0 0 16px rgba(236, 72, 153, 0.8); transform: translate(-1px, 1px); }
+  30% { box-shadow: -1px -1px 0 #06b6d4, 1px 1px 0 #ec4899, 0 0 14px rgba(6, 182, 212, 0.7); transform: translate(1px, -1px); }
+  45% { box-shadow: 0 0 0 2.5px #22d3ee, 0 0 18px rgba(34, 211, 238, 0.9); transform: translate(0, 0); }
+  60% { box-shadow: -2px 0 0 #ec4899, 2px 0 0 #06b6d4, 0 0 15px rgba(236, 72, 153, 0.7); transform: translate(1px, 0); }
+  75% { box-shadow: 0 0 0 2px #06b6d4, 0 0 10px rgba(6, 182, 212, 0.5); transform: translate(0, 0); }
+}
+
+/* Matrix Phosphor: Glowing green terminal data stream */
 .avatar-frame-emerald {
-  box-shadow: 0 0 0 2px #10b981, 0 0 14px rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 0 2px #10b981, 0 0 16px rgba(16, 185, 129, 0.8);
+  animation: matrixStreamFlicker 1.8s ease-in-out infinite;
 }
-.avatar-frame-gold {
-  box-shadow: 0 0 0 2px #f59e0b, 0 0 16px rgba(245, 158, 11, 0.75);
-  animation: goldPulse 2.5s ease-in-out infinite;
+@keyframes matrixStreamFlicker {
+  0%, 100% { box-shadow: 0 0 0 2px #10b981, 0 0 10px rgba(16, 185, 129, 0.5); }
+  50% { box-shadow: 0 0 0 3px #34d399, 0 0 22px rgba(52, 211, 153, 0.9), inset 0 0 6px rgba(16, 185, 129, 0.6); }
 }
+
+/* High-Voltage Lightning Arc: Electric crackle with violet & cyan spark bursts */
+.avatar-frame-lightning {
+  box-shadow: 0 0 0 2px #38bdf8, 0 0 16px rgba(56, 189, 248, 0.8), 0 0 28px rgba(139, 92, 246, 0.6);
+  animation: lightningArcCrackle 1.4s ease infinite;
+}
+@keyframes lightningArcCrackle {
+  0%, 100% { box-shadow: 0 0 0 2px #38bdf8, 0 0 12px rgba(56, 189, 248, 0.6), 0 0 20px rgba(139, 92, 246, 0.4); }
+  20% { box-shadow: 0 0 0 3px #ffffff, 0 0 24px rgba(56, 189, 248, 1), 0 0 36px rgba(168, 85, 247, 0.9); }
+  25% { box-shadow: 0 0 0 1.5px #818cf8, 0 0 8px rgba(129, 140, 248, 0.5); }
+  50% { box-shadow: 0 0 0 3.5px #38bdf8, 0 0 26px rgba(56, 189, 248, 0.95), 0 0 40px rgba(139, 92, 246, 0.7); }
+  70% { box-shadow: 0 0 0 2px #a855f7, 0 0 14px rgba(168, 85, 247, 0.7); }
+}
+
+/* Inferno Overclock: Roaring fire flames rising with incandescent red/orange/yellow */
 .avatar-frame-ruby {
-  box-shadow: 0 0 0 2px #f43f5e, 0 0 18px rgba(244, 63, 94, 0.8);
-  animation: rubyPulse 2s ease-in-out infinite;
+  box-shadow: 
+    0 -3px 12px #f97316, 
+    0 -6px 20px #ef4444, 
+    0 0 0 2px #e11d48, 
+    0 0 18px rgba(244, 63, 94, 0.9);
+  animation: infernoRoar 1.6s ease-in-out infinite alternate;
 }
+@keyframes infernoRoar {
+  0% {
+    box-shadow: 
+      0 -2px 10px #f97316, 
+      0 -5px 18px #ef4444, 
+      0 0 0 2px #e11d48, 
+      0 0 14px rgba(244, 63, 94, 0.8);
+  }
+  50% {
+    box-shadow: 
+      0 -5px 16px #fbbf24, 
+      0 -9px 26px #f97316, 
+      0 0 0 3px #ef4444, 
+      0 0 24px rgba(239, 68, 68, 1),
+      inset 0 0 8px rgba(249, 115, 22, 0.5);
+  }
+  100% {
+    box-shadow: 
+      0 -4px 14px #f59e0b, 
+      0 -8px 24px #ef4444, 
+      0 0 0 2.5px #f43f5e, 
+      0 0 20px rgba(244, 63, 94, 0.9);
+  }
+}
+
+/* Quantum Singularity: Gravitational vortex with swirling violet/indigo stardust */
+.avatar-frame-cosmic {
+  box-shadow: 0 0 0 2px #7c3aed, 0 0 18px rgba(124, 58, 237, 0.8), 0 0 32px rgba(99, 102, 241, 0.6);
+  animation: cosmicVoidVortex 4s ease-in-out infinite;
+}
+@keyframes cosmicVoidVortex {
+  0% { box-shadow: 0 0 0 2px #7c3aed, 0 0 16px rgba(124, 58, 237, 0.8), 0 0 28px rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 0 3px #a855f7, 0 0 26px rgba(168, 85, 247, 0.95), 0 0 42px rgba(236, 72, 153, 0.7); }
+  100% { box-shadow: 0 0 0 2px #7c3aed, 0 0 16px rgba(124, 58, 237, 0.8), 0 0 28px rgba(99, 102, 241, 0.5); }
+}
+
+/* Prismatic Valkyrie: Shifting rainbow aurora bifrost */
 .avatar-frame-valkyrie {
-  box-shadow: 0 0 0 2px #a855f7, 0 0 20px rgba(168, 85, 247, 0.85);
-  animation: valkyrieShift 4s ease infinite;
+  box-shadow: 0 0 0 2.5px #a855f7, 0 0 22px rgba(168, 85, 247, 0.9);
+  animation: valkyriePrismShift 3.5s linear infinite;
+}
+@keyframes valkyriePrismShift {
+  0% { box-shadow: 0 0 0 2.5px #ec4899, 0 0 22px rgba(236, 72, 153, 0.9), 0 0 35px rgba(168, 85, 247, 0.5); }
+  25% { box-shadow: 0 0 0 2.5px #8b5cf6, 0 0 22px rgba(139, 92, 246, 0.9), 0 0 35px rgba(6, 182, 212, 0.5); }
+  50% { box-shadow: 0 0 0 2.5px #06b6d4, 0 0 22px rgba(6, 182, 212, 0.9), 0 0 35px rgba(16, 185, 129, 0.5); }
+  75% { box-shadow: 0 0 0 2.5px #f59e0b, 0 0 22px rgba(245, 158, 11, 0.9), 0 0 35px rgba(239, 68, 68, 0.5); }
+  100% { box-shadow: 0 0 0 2.5px #ec4899, 0 0 22px rgba(236, 72, 153, 0.9), 0 0 35px rgba(168, 85, 247, 0.5); }
 }
 
-@keyframes cyberPulse {
-  0%, 100% { box-shadow: 0 0 0 2px #06b6d4, 0 0 10px rgba(6, 182, 212, 0.4); }
-  50% { box-shadow: 0 0 0 3px #22d3ee, 0 0 18px rgba(6, 182, 212, 0.85); }
+/* Eternal Deity Corona: Blinding solar flare god-rays & golden divinity */
+.avatar-frame-deity {
+  box-shadow: 
+    0 0 0 3px #fbbf24, 
+    0 0 25px rgba(251, 191, 36, 0.9), 
+    0 0 45px rgba(245, 158, 11, 0.7),
+    inset 0 0 10px rgba(255, 255, 255, 0.6);
+  animation: deitySolarCorona 2.5s ease-in-out infinite;
+}
+@keyframes deitySolarCorona {
+  0%, 100% { 
+    box-shadow: 
+      0 0 0 3px #fbbf24, 
+      0 0 20px rgba(251, 191, 36, 0.8), 
+      0 0 40px rgba(245, 158, 11, 0.6); 
+  }
+  50% { 
+    box-shadow: 
+      0 0 0 4px #ffffff, 
+      0 0 35px rgba(255, 255, 255, 1), 
+      0 0 60px rgba(251, 191, 36, 1),
+      inset 0 0 14px rgba(255, 255, 255, 0.9);
+  }
 }
 
-@keyframes goldPulse {
-  0%, 100% { box-shadow: 0 0 0 2px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.5); }
-  50% { box-shadow: 0 0 0 3px #fbbf24, 0 0 20px rgba(245, 158, 11, 0.9); }
+/* ========================================================
+   ANIMATED NAME TYPOGRAPHY EFFECTS
+   ======================================================== */
+.name-fx-none {
+  /* standard typography */
 }
 
-@keyframes rubyPulse {
-  0%, 100% { box-shadow: 0 0 0 2px #f43f5e, 0 0 12px rgba(244, 63, 94, 0.5); }
-  50% { box-shadow: 0 0 0 3px #fb7185, 0 0 22px rgba(244, 63, 94, 0.9); }
+/* Glitch Name Effect */
+.name-fx-glitch {
+  position: relative;
+  font-weight: 800;
+  text-shadow: -1px 0 #06b6d4, 1px 0 #ec4899;
+  animation: nameGlitchFlicker 2s steps(2, start) infinite;
+}
+@keyframes nameGlitchFlicker {
+  0%, 100% { text-shadow: -1px 0 #06b6d4, 1px 0 #ec4899; transform: none; }
+  20% { text-shadow: 1.5px 0 #06b6d4, -1.5px 0 #ec4899; transform: skewX(-2deg); }
+  40% { text-shadow: -1px 1px #06b6d4, 1px -1px #ec4899; transform: skewX(1deg); }
+  60% { text-shadow: -1.5px 0 #ec4899, 1.5px 0 #06b6d4; }
+  80% { text-shadow: 0 0 6px #22d3ee; }
 }
 
-@keyframes valkyrieShift {
-  0% { box-shadow: 0 0 0 2px #8b5cf6, 0 0 16px rgba(139, 92, 246, 0.8); }
-  33% { box-shadow: 0 0 0 2.5px #ec4899, 0 0 18px rgba(236, 72, 153, 0.8); }
-  66% { box-shadow: 0 0 0 2.5px #06b6d4, 0 0 18px rgba(6, 182, 212, 0.8); }
-  100% { box-shadow: 0 0 0 2px #8b5cf6, 0 0 16px rgba(139, 92, 246, 0.8); }
+/* Matrix Terminal Green Name Effect */
+.name-fx-matrix {
+  color: #10b981 !important;
+  font-family: monospace, sans-serif;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 16px rgba(52, 211, 153, 0.6);
+  animation: nameMatrixScan 2s ease-in-out infinite alternate;
+}
+@keyframes nameMatrixScan {
+  0% { opacity: 0.9; text-shadow: 0 0 6px rgba(16, 185, 129, 0.7); }
+  100% { opacity: 1; text-shadow: 0 0 12px rgba(16, 185, 129, 1), 0 0 20px rgba(52, 211, 153, 0.8); }
+}
+
+/* Electric Lightning Spark Name Effect */
+.name-fx-lightning {
+  color: #38bdf8 !important;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.9), 0 0 16px rgba(139, 92, 246, 0.7);
+  animation: nameLightningFlash 1.6s ease infinite;
+}
+@keyframes nameLightningFlash {
+  0%, 100% { text-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }
+  18% { text-shadow: 0 0 14px #ffffff, 0 0 22px rgba(56, 189, 248, 1), 0 0 30px rgba(168, 85, 247, 0.9); }
+  50% { text-shadow: 0 0 8px rgba(139, 92, 246, 0.8); }
+}
+
+/* Burning Flame Name Effect */
+.name-fx-fire {
+  background: linear-gradient(0deg, #ef4444 0%, #f97316 45%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.85)) drop-shadow(0 -3px 8px rgba(239, 68, 68, 0.7));
+  animation: nameFireHeat 1.4s ease-in-out infinite alternate;
+}
+@keyframes nameFireHeat {
+  0% { filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.7)) drop-shadow(0 -2px 6px rgba(239, 68, 68, 0.6)); }
+  100% { filter: drop-shadow(0 0 10px rgba(251, 191, 36, 1)) drop-shadow(0 -4px 12px rgba(239, 68, 68, 0.9)); }
+}
+
+/* Rainbow Prismatic Aurora Name Effect */
+.name-fx-prismatic {
+  background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b, #ec4899);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  animation: namePrismFlow 3s linear infinite;
+}
+@keyframes namePrismFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Godlike Divine Gold Radiance Name Effect */
+.name-fx-godlike {
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.6));
+  animation: nameGodlikePulse 2s ease-in-out infinite;
+}
+@keyframes nameGodlikePulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8)); }
+  50% { filter: drop-shadow(0 0 14px rgba(255, 255, 255, 1)) drop-shadow(0 0 24px rgba(251, 191, 36, 1)); }
 }
 

@@ -23,7 +23,7 @@ import {
 import { SCHEDULE_DATA, SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
 import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
-import { AVATAR_FRAMES } from "../utils/gamification";
+import { AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
 
 export function Navbar({
   activeSubject,
@@ -47,6 +47,8 @@ export function Navbar({
 
   const activeFrame = AVATAR_FRAMES.find((f) => f.id === profile?.frame) || AVATAR_FRAMES[0];
   const frameClass = activeFrame?.cssClass || "avatar-frame-default";
+  const activeNameFx = NAME_EFFECTS.find((fx) => fx.id === profile?.nameFx);
+  const nameFxClass = activeNameFx?.cssClass || "";
 
   const toggleAudio = () => {
     const newState = sound.toggleSound();
@@ -202,7 +204,7 @@ export function Navbar({
               {/* Student Profile Pill */}
               <button
                 onClick={() => setIsWelcomeOpen(true)}
-                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800 cursor-pointer"
+                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/90 dark:border-slate-700 rounded-xl text-xs font-bold transition-all text-slate-800 dark:text-slate-100 cursor-pointer"
                 title={`Profile: ${profile.name} • Lv. ${levelInfo.level} ${levelInfo.title} (${activeFrame.name})`}
               >
                 <div className={`w-6 h-6 rounded-lg bg-white flex items-center justify-center text-xs overflow-hidden shrink-0 transition-all ${frameClass}`}>
@@ -213,8 +215,8 @@ export function Navbar({
                   )}
                 </div>
                 <div className="flex flex-col text-left leading-tight hidden lg:flex">
-                  <span className="text-[11px] font-bold truncate max-w-[85px]">{profile.name}</span>
-                  <span className="text-[9px] text-blue-600 font-extrabold flex items-center gap-0.5">
+                  <span className={`text-[11px] font-bold truncate max-w-[85px] ${nameFxClass}`}>{profile.name}</span>
+                  <span className="text-[9px] text-blue-600 dark:text-blue-400 font-extrabold flex items-center gap-0.5">
                     <span>Lv. {levelInfo.level}</span>
                     <span>{levelInfo.icon}</span>
                   </span>
@@ -224,10 +226,10 @@ export function Navbar({
               {/* Leaderboard Button */}
               <button
                 onClick={() => setIsLeaderboardOpen(true)}
-                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all cursor-pointer"
+                className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200/80 dark:border-amber-800/50 rounded-xl transition-all cursor-pointer"
                 title={`${currentSec.name} Standings`}
               >
-                <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <Trophy className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="hidden sm:inline">Rank</span>
               </button>
 
@@ -235,10 +237,10 @@ export function Navbar({
               {onOpenPassCard && (
                 <button
                   onClick={onOpenPassCard}
-                  className="btn-haptic hidden sm:flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-xl transition-all cursor-pointer"
+                  className="btn-haptic hidden sm:flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-blue-900 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/80 dark:border-blue-800/50 rounded-xl transition-all cursor-pointer"
                   title="My Reviewer Pass & 4-Digit PIN"
                 >
-                  <KeyRound className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <KeyRound className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                   <span className="hidden xl:inline">Pass & PIN</span>
                 </button>
               )}
@@ -246,13 +248,13 @@ export function Navbar({
               {/* Dark / Light Mode Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
-                className="btn-haptic p-1.5 sm:px-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all border bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200/90 cursor-pointer"
+                className="btn-haptic p-1.5 sm:px-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all border bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-slate-700 cursor-pointer"
                 title={theme === "dark" ? "Switch to Light Mode (☀️)" : "Switch to Dark Mode (🌙)"}
               >
                 {theme === "dark" ? (
                   <Sun className="w-3.5 h-3.5 text-amber-400" />
                 ) : (
-                  <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                  <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 )}
               </button>
 

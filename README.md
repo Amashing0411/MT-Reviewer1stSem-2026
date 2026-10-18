@@ -68,33 +68,48 @@ The platform features an interactive section switchable schedule mapping specifi
 ### 4. ⚡ 10-Minute Hallway Cram Sheets
 - Ultra-concise, high-yield bulleted cheat sheets designed for quick review right before stepping into the examination room.
 
-### 5. 🌙 Dark Mode / ☀️ Light Mode Theme Architecture
-- **One-Click Theme Toggle:** Seamlessly switch between crisp architectural drafting mode and sleek Cyber Dark Mode directly from the top navigation bar or settings modal.
-- **Eye Strain Reduction:** Specially tuned dark contrast for late-night hallway and dorm study sessions.
-- **Full State Persistence:** Theme preference saved in `localStorage` with automatic fallback to system OS dark mode preference.
+### 5. 🌙 Cyber Dark Mode / ☀️ Light Mode & Hardware-Accelerated Interactive Background
+- **Interactive Parallax & Constellation Background:** A custom hardware-accelerated 2D canvas dynamically traces mouse movements, drawing energy halo fields, magnetic node connections, and subtle depth parallax.
+- **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean dark mode persistence even across hard reloads.
+- **Dual Aesthetic Palette:** Crisp architectural drafting grid for Light Mode; deep `#070b14` void with luminescent cyan/indigo circuit traces for Dark Mode.
 
 ---
 
-## 🏆 Gamification, Prestige & Cloud Leaderboard
+## 🏆 Game-Grade Gamification, Prestige & Cloud Leaderboard
 
-- **Student Identity & 4-Digit Restore PIN:** Choose or customize avatar icons, upload photos, set codename, pick section (`BSCPE 4A`, `4B`, `4C`, `4D`), and secure your profile with a **4-Digit Restore PIN**.
-- **🎖️ 12-Tier Prestige Level Progression:** Earn XP for reviewing notes, mastering flashcards, and finishing quizzes:
-  - `Lvl 1 Novice Trainee` $\rightarrow$ `Lvl 2 Junior Circuit Hacker` $\rightarrow$ `Lvl 4 Logic Gate Wizard` $\rightarrow$ `Lvl 7 Cloud Security Architect` $\rightarrow$ `Lvl 8 Room 106 Dean's Lister` $\rightarrow$ `Lvl 10 Legendary PRC Board Top 1 🏆` $\rightarrow$ `Lvl 12 Eternal DLSP Engineering Deity ⚡`
-- **✨ Unlockable Avatar Prestige Frames:** Leveling up unlocks glowing dynamic avatar borders:
-  - **Classic Minimal** (Lv. 1) • **Bronze Circuit** (Lv. 2) • **Silver Silicon** (Lv. 3) • **Cyber Neon Cyan** (Lv. 4) • **Matrix Phosphor** (Lv. 5) • **Dean's List Gold** (Lv. 7) • **Ruby Overclock** (Lv. 8) • **Prismatic Valkyrie** (Lv. 10)
-  - Dynamically displayed with animated glows on the Top Bar, Leaderboard Standings, and Digital ID Pass.
-- **🏷️ Engineering Vanity Taglines:** Choose from engineering badges like `🎓 4th Year Candidate`, `⚡ Room 106 Dean's Lister`, `☕ Powered by 3 Hours of Sleep`, `🔨 Design 2 Thesis Survivor`, `🎯 PRC Board Top 1 Aspirant`, or type your custom tagline.
+- **Student Identity & 4-Digit Restore PIN:** Choose codenames, avatar icons, or custom photo uploads, select 4th-year cohort section (`BSCPE 4A`, `4B`, `4C`, `4D`), and secure your profile with an encrypted **4-Digit PIN**.
+- **🎖️ 12-Tier Prestige Level Progression:** Earn XP for reviewing notes, mastering flashcards, rapid blitz sprints, and midterm simulations:
+  - `Lvl 1 Novice Trainee` $\rightarrow$ `Lvl 2 Junior Circuit Hacker` $\rightarrow$ `Lvl 3 System Architect` $\rightarrow$ `Lvl 4 Logic Gate Wizard` $\rightarrow$ `Lvl 5 Kernel Commander` $\rightarrow$ `Lvl 6 DSP Frequency Master` $\rightarrow$ `Lvl 7 Cloud Security Architect` $\rightarrow$ `Lvl 8 Room 106 Dean's Lister` $\rightarrow$ `Lvl 9 National Topnotcher Candidate` $\rightarrow$ `Lvl 10 Legendary PRC Board Top 1 🏆` $\rightarrow$ `Lvl 11 Midterm Valkyrie (Ascended) ✨` $\rightarrow$ `Lvl 12 Eternal DLSP Engineering Deity ⚡`
+- **🎉 Level-Up Victory Modal:**
+  - Whenever a student earns enough XP to advance, a celebratory game victory modal triggers with fanfare audio, confetti blasts, and a showcase of newly unlocked frames, taglines, and name FX with an **"Equip All & Continue"** 1-tap action.
+- **🔥 Animated Avatar Frames (Real Game Effects):**
+  - **Bronze Circuit** (Lv. 2): Pulsating copper energy traces.
+  - **Silver Chrome** (Lv. 3): Liquid metallic chrome sweeping shine.
+  - **Cyber Glitch** (Lv. 4): RGB chromatic aberration with twitching scanlines.
+  - **Matrix Phosphor** (Lv. 5): CRT terminal green phosphor scan code stream.
+  - **High-Voltage Arc** (Lv. 7): Crackling electric lightning arcs and blue spark bursts.
+  - **Inferno Overclock 🔥** (Lv. 8): Roaring animated hellfire flame borders.
+  - **Quantum Singularity 🌌** (Lv. 9): Gravitational event horizon vortex with stardust.
+  - **Prismatic Valkyrie 🌈** (Lv. 10): Shifting aurora crystal bifrost halo.
+  - **Eternal Deity Corona ⚡** (Lv. 12): Blinding solar flare god-rays with pulsating gold corona.
+- **✨ Animated Name Typography Effects:**
+  - Equip custom animated CSS typography to stand out in the class standings:
+  - **Glitch RGB** (Lv. 4) • **Matrix Phosphor** (Lv. 5) • **Lightning Arc Zap** (Lv. 7) • **Inferno Flame** (Lv. 8) • **Rainbow Aurora** (Lv. 10) • **Golden Deity Radiance** (Lv. 12).
+- **🏷️ Earned Vanity Taglines & Level-Locking:**
+  - Vanity taglines are **earned**, not given free! Progression unlocks specific badges like `⚡ Circuit Overclocker` (Lv. 2), `🛡️ Cyber Defense Commander` (Lv. 5), `🎖️ Room 106 Dean's Lister` (Lv. 8), and `🎯 PRC Board Top 1 Aspirant` (Lv. 10).
+  - Custom Tagline Creation unlocks exclusively at **Level 6 (DSP Frequency Master)**.
 - **🔥 Multi-Tier Streak Fanfare & Witty Broken-Streak Quotes:**
-  - Dynamic combo banners (3x, 5x, 8x, 10x, 15x GODLIKE) with sound effects.
+  - Dynamic combo multipliers (3x, 5x, 8x, 10x, 15x GODLIKE) with celebratory sound effects.
   - Comical broken-streak quotes with Filipino engineering humor and post-exam diagnostic review recommendations.
 - **📲 Seamless Cross-Device Sync (PC $\leftrightarrow$ Phone):**
-  - **Restore via Name + PIN:** Open the reviewer on your phone, click **"Restore Account"**, and enter your Name + 4-Digit PIN to reload your exact Level, XP, flashcards, and quiz history.
+  - **Restore via Name + PIN:** Open the reviewer on your mobile browser, click **"Restore Account"**, and enter your Name + 4-Digit PIN to reload your exact Level, XP, flashcards, and exam statistics.
   - **1-Tap Device Link:** Copy your personal sync URL from your PC and open it on your phone for zero-typing automatic login.
 - **💳 Digital Student Reviewer Pass (.PNG Download):**
   - Generates a sleek, high-resolution digital student ID card directly on HTML5 Canvas with your equipped prestige frame, tagline, and prominent 4-Digit PIN.
-- **🛡️ Anti-Impersonation Protection:**
-  - Prevents classmates from claiming someone else's registered name on the leaderboard without entering the correct PIN.
-- **Global & Section Leaderboards:** Real-time standings filterable by Overall or per-subject (`CPE411`, `CPE416`, `CPE415`, `CPE412`, `ELECT3`, `CPE413`, `ENGWORK`), sortable by XP, fastest blitz time, or highest score.
+- **🛡️ Anti-Looping & Anti-Impersonation Protection:**
+  - Default guest visits (`Student #...` with 0 XP) are never pushed to the cloud database, preventing phantom user spam.
+  - Prevents classmates from claiming someone else's registered name without the matching PIN.
+- **Global & Section Leaderboards:** Real-time standings filterable by Overall or per-subject (`CPE414`, `CPE411`, `CPE416`, `CPE415`, `CPE412`, `ELECT3`, `CPE413`, `ENGWORK`), sortable by XP, fastest blitz time, or highest score.
 - **Vercel KV Cloud Synchronization:** Synchronizes scores across mobile phones and desktop browsers in real time.
 
 ---

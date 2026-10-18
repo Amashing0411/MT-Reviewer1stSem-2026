@@ -188,6 +188,7 @@ export default async function handler(req, res) {
         avatar: String(student.avatar || "🤖").slice(0, 10),
         frame: String(student.frame || "default").slice(0, 30),
         tagline: String(student.tagline || "").slice(0, 80),
+        nameFx: String(student.nameFx || "none").slice(0, 30),
         pin: student.pin ? String(student.pin).trim().slice(0, 8) : null,
         customPhoto:
           student.customPhoto &&

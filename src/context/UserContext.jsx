@@ -8,10 +8,12 @@ import {
   loadClassRoster,
   saveClassRoster,
   decodeScorecard,
-  mergeCloudRoster
+  mergeCloudRoster,
+  getNewlyUnlockedRewards
 } from "../utils/gamification";
 import { sound } from "../utils/sound";
 import confetti from "canvas-confetti";
+import { LevelUpModal } from "../components/LevelUpModal";
 
 const UserContext = createContext(null);
 
@@ -31,6 +33,7 @@ export function UserProvider({ children }) {
   const [xpToast, setXpToast] = useState(null);
   const [isCloudConnected, setIsCloudConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [levelUpReward, setLevelUpReward] = useState(null);
 
   // Theme Management (Light / Dark Mode with localStorage persistence)
   const [theme, setTheme] = useState(() => {
@@ -72,6 +75,7 @@ export function UserProvider({ children }) {
         avatar: currentProfile.avatar || "🤖",
         frame: currentProfile.frame || "default",
         tagline: currentProfile.tagline || "",
+        nameFx: currentProfile.nameFx || "none",
         customPhoto: currentProfile.customPhoto || null,
         xp: currentProfile.xp || 0,
         levelInfo: getLevelInfo(currentProfile.xp),
@@ -121,6 +125,7 @@ export function UserProvider({ children }) {
           avatar: p.avatar || "🤖",
           frame: p.frame || "default",
           tagline: p.tagline || "🎓 4th Year Candidate",
+          nameFx: p.nameFx || "none",
           customPhoto: p.customPhoto || null,
           pin: pin ? pin.trim() : (p.pin || ""),
           xp: Number(p.xp) || 0,
@@ -234,6 +239,9 @@ export function UserProvider({ children }) {
             name: entry.name,
             section: entry.section || "BSCPE 4D",
             avatar: entry.avatar || "🤖",
+            frame: entry.frame || "default",
+            tagline: entry.tagline || "🎓 4th Year Candidate",
+            nameFx: entry.nameFx || "none",
             customPhoto: entry.customPhoto || null,
             pin: entry.pin || params.get("pin") || profile.pin || "",
             xp: Number(entry.xp) || 0,
@@ -289,13 +297,17 @@ export function UserProvider({ children }) {
 
       // Level up celebration!
       if (newLevelInfo.level > prevLevel) {
-        sound.playStreak();
+        sound.playFanfare();
         confetti({
-          particleCount: 100,
-          spread: 80,
+          particleCount: 120,
+          spread: 85,
           origin: { y: 0.5 },
         });
-        setXpToast(`🎉 LEVEL UP! You are now Level ${newLevelInfo.level} — ${newLevelInfo.title}!`);
+        const unlocked = getNewlyUnlockedRewards(prev.xp, newXp);
+        if (unlocked) {
+          setLevelUpReward(unlocked);
+        }
+        setXpToast(`🎉 LEVEL UP! You reached Level ${newLevelInfo.level} — ${newLevelInfo.title}!`);
         setTimeout(() => setXpToast(null), 4000);
       } else {
         setXpToast(`+${amount} XP: ${reason}`);
@@ -369,6 +381,21 @@ export function UserProvider({ children }) {
     }));
   };
 
+  // Equip newly unlocked rewards (frame, tagline, nameFx)
+  const equipRewards = ({ frame, tagline, nameFx }) => {
+    setProfile((prev) => {
+      const updated = { ...prev };
+      if (frame) updated.frame = frame;
+      if (tagline) updated.tagline = tagline;
+      if (nameFx) updated.nameFx = nameFx;
+      saveProfile(updated);
+      return updated;
+    });
+    setLevelUpReward(null);
+    setXpToast("✨ New prestige rewards equipped!");
+    setTimeout(() => setXpToast(null), 3000);
+  };
+
   const levelInfo = getLevelInfo(profile.xp);
   // Leaderboard rebuilds with real submissions only
   const leaderboard = buildLeaderboard(profile, "all");
@@ -388,6 +415,9 @@ export function UserProvider({ children }) {
         setIsWelcomeOpen,
         isLeaderboardOpen,
         setIsLeaderboardOpen,
+        levelUpReward,
+        setLevelUpReward,
+        equipRewards,
         addXp,
         recordExamResult,
         updateProfile,
@@ -400,6 +430,14 @@ export function UserProvider({ children }) {
       }}
     >
       {children}
+
+      {/* Prestige Level-Up Victory Modal */}
+      <LevelUpModal
+        rewardData={levelUpReward}
+        profile={profile}
+        onEquipAll={equipRewards}
+        onClose={() => setLevelUpReward(null)}
+      />
 
       {/* Floating Global XP / Level-Up Toast */}
       {xpToast && (

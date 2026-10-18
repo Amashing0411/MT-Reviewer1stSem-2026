@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { encodeScorecard, AVATAR_FRAMES } from "../utils/gamification";
+import { encodeScorecard, AVATAR_FRAMES, NAME_EFFECTS } from "../utils/gamification";
 import { 
   Trophy, 
   Flame, 
@@ -235,7 +235,7 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-extrabold text-sm truncate">{profile.name}</span>
+                  <span className={`font-extrabold text-sm truncate ${NAME_EFFECTS.find(fx => fx.id === profile.nameFx)?.cssClass || ""}`}>{profile.name}</span>
                   <span className="text-[9px] font-bold bg-blue-500/30 text-blue-200 px-2 py-0.2 rounded-full border border-blue-400/30 shrink-0">
                     {profile.section}
                   </span>
@@ -458,8 +458,8 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                   key={item.id}
                   className={`p-2.5 sm:p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 ${
                     isMe
-                      ? "bg-blue-50/90 border-blue-400 shadow-xs ring-1 ring-blue-500/20"
-                      : "bg-white hover:bg-slate-50 border-slate-200/80"
+                      ? "bg-blue-50/90 dark:bg-blue-950/50 border-blue-400 dark:border-blue-600 shadow-xs ring-1 ring-blue-500/20"
+                      : "bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200/80 dark:border-slate-700"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -475,14 +475,14 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`text-xs font-bold truncate ${isMe ? "text-blue-900" : "text-slate-800"}`}>
+                        <span className={`text-xs font-bold truncate ${NAME_EFFECTS.find(fx => fx.id === item.nameFx)?.cssClass || (isMe ? "text-blue-900 dark:text-blue-300" : "text-slate-800 dark:text-slate-200")}`}>
                           {item.name} {isMe && "(You)"}
                         </span>
-                        <span className="text-[9px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.2 rounded border border-slate-200 shrink-0">
+                        <span className="text-[9px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                           {item.section}
                         </span>
                         {item.tagline && (
-                          <span className="text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200/50 truncate max-w-[130px]">
+                          <span className="text-[9px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[130px]">
                             {item.tagline}
                           </span>
                         )}
