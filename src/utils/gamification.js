@@ -15,17 +15,43 @@ export const AVATAR_PRESETS = [
   { id: "fire", emoji: "🔥", label: "Combo Striker" },
 ];
 
+export const AVATAR_FRAMES = [
+  { id: "default", name: "Classic Minimal", minLevel: 1, cssClass: "avatar-frame-default", label: "Clean" },
+  { id: "bronze", name: "Bronze Circuit", minLevel: 2, cssClass: "avatar-frame-bronze", label: "Bronze" },
+  { id: "silver", name: "Silver Silicon", minLevel: 3, cssClass: "avatar-frame-silver", label: "Silver" },
+  { id: "cyber", name: "Cyber Neon Cyan", minLevel: 4, cssClass: "avatar-frame-cyber", label: "Cyber" },
+  { id: "emerald", name: "Matrix Phosphor", minLevel: 5, cssClass: "avatar-frame-emerald", label: "Matrix" },
+  { id: "gold", name: "Dean's List Gold", minLevel: 7, cssClass: "avatar-frame-gold", label: "Gold" },
+  { id: "ruby", name: "Ruby Overclock", minLevel: 8, cssClass: "avatar-frame-ruby", label: "Ruby" },
+  { id: "valkyrie", name: "Prismatic Valkyrie", minLevel: 10, cssClass: "avatar-frame-valkyrie", label: "Valkyrie" },
+];
+
+export const VANITY_TAGLINES = [
+  "🎓 4th Year Candidate",
+  "⚡ Room 106 Dean's Lister",
+  "☕ Powered by 3 Hours of Sleep",
+  "🔨 Design 2 Thesis Survivor",
+  "🛡️ Cyber Defense Commander",
+  "📡 DSP Fourier Master",
+  "⚖️ RA 9292 Legal Scholar",
+  "🎯 PRC Board Top 1 Aspirant",
+  "💻 System Architecture Lead",
+  "🔥 Rapid Blitz Streak Striker",
+];
+
 export const LEVELS = [
-  { level: 1, title: "Novice Trainee", minXp: 0, maxXp: 300, icon: "🌱" },
-  { level: 2, title: "Junior Circuit Hacker", minXp: 300, maxXp: 800, icon: "⚡" },
-  { level: 3, title: "System Operator", minXp: 800, maxXp: 1600, icon: "💻" },
-  { level: 4, title: "Logic Gate Wizard", minXp: 1600, maxXp: 2700, icon: "🔮" },
-  { level: 5, title: "Kernel Architect", minXp: 2700, maxXp: 4200, icon: "🛡️" },
-  { level: 6, title: "DSP Mastermind", minXp: 4200, maxXp: 6200, icon: "📡" },
-  { level: 7, title: "Cyber Defense Commander", minXp: 6200, maxXp: 8800, icon: "⚔️" },
-  { level: 8, title: "Room 106 Dean's Lister", minXp: 8800, maxXp: 12000, icon: "🎖️" },
-  { level: 9, title: "National Topnotcher Candidate", minXp: 12000, maxXp: 16000, icon: "👑" },
-  { level: 10, title: "Legendary PRC Board Top 1 🏆", minXp: 16000, maxXp: Infinity, icon: "🌟" },
+  { level: 1, title: "Novice Trainee", minXp: 0, maxXp: 300, icon: "🌱", unlockedFrame: "default", rewardDesc: "Default Frame" },
+  { level: 2, title: "Junior Circuit Hacker", minXp: 300, maxXp: 800, icon: "⚡", unlockedFrame: "bronze", rewardDesc: "Unlocked: Bronze Circuit Frame" },
+  { level: 3, title: "System Architect", minXp: 800, maxXp: 1600, icon: "💻", unlockedFrame: "silver", rewardDesc: "Unlocked: Silver Silicon Frame" },
+  { level: 4, title: "Logic Gate Wizard", minXp: 1600, maxXp: 2700, icon: "🔮", unlockedFrame: "cyber", rewardDesc: "Unlocked: Cyber Neon Frame" },
+  { level: 5, title: "Kernel Commander", minXp: 2700, maxXp: 4200, icon: "🛡️", unlockedFrame: "emerald", rewardDesc: "Unlocked: Matrix Phosphor Frame" },
+  { level: 6, title: "DSP Frequency Master", minXp: 4200, maxXp: 6200, icon: "📡", unlockedFrame: null, rewardDesc: "Next Frame at Level 7" },
+  { level: 7, title: "Cloud Security Architect", minXp: 6200, maxXp: 8800, icon: "⚔️", unlockedFrame: "gold", rewardDesc: "Unlocked: Dean's List Gold Frame" },
+  { level: 8, title: "Room 106 Dean's Lister", minXp: 8800, maxXp: 12000, icon: "🎖️", unlockedFrame: "ruby", rewardDesc: "Unlocked: Ruby Overclock Frame" },
+  { level: 9, title: "National Topnotcher Candidate", minXp: 12000, maxXp: 16000, icon: "👑", unlockedFrame: null, rewardDesc: "Next Frame at Level 10" },
+  { level: 10, title: "Legendary PRC Board Top 1 🏆", minXp: 16000, maxXp: 22000, icon: "🌟", unlockedFrame: "valkyrie", rewardDesc: "Unlocked: Prismatic Valkyrie Frame" },
+  { level: 11, title: "Midterm Valkyrie (Ascended) ✨", minXp: 22000, maxXp: 30000, icon: "✨", unlockedFrame: null, rewardDesc: "Ascended Honor" },
+  { level: 12, title: "Eternal DLSP Engineering Deity ⚡", minXp: 30000, maxXp: Infinity, icon: "👑", unlockedFrame: null, rewardDesc: "MAX PRESTIGE" },
 ];
 
 export function getLevelInfo(xp) {
@@ -105,6 +131,8 @@ export function createDefaultProfile() {
     avatar: "🤖",
     customPhoto: null,
     pin: "",
+    frame: "default",
+    tagline: "🎓 4th Year Candidate",
     xp: 0,
     streak: 0,
     maxStreak: 0,
@@ -220,6 +248,8 @@ export function encodeScorecard(profile, includePin = false) {
       n: profile.name || "Student",
       s: profile.section || "BSCPE 4D",
       a: profile.avatar || "🤖",
+      fr: profile.frame || "default",
+      tg: profile.tagline || "",
       x: profile.xp || 0,
       b: profile.fastestBlitzSeconds || null,
       p: profile.highestScorePercent || 0,
@@ -277,6 +307,8 @@ export function decodeScorecard(codeStr) {
       name: data.n,
       section: data.s || "BSCPE 4D",
       avatar: data.a || "🤖",
+      frame: data.fr || "default",
+      tagline: data.tg || "🎓 4th Year Candidate",
       pin: data.pin || "",
       customPhoto: null,
       xp: data.x || 0,

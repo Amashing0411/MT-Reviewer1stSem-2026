@@ -68,25 +68,33 @@ The platform features an interactive section switchable schedule mapping specifi
 ### 4. ⚡ 10-Minute Hallway Cram Sheets
 - Ultra-concise, high-yield bulleted cheat sheets designed for quick review right before stepping into the examination room.
 
+### 5. 🌙 Dark Mode / ☀️ Light Mode Theme Architecture
+- **One-Click Theme Toggle:** Seamlessly switch between crisp architectural drafting mode and sleek Cyber Dark Mode directly from the top navigation bar or settings modal.
+- **Eye Strain Reduction:** Specially tuned dark contrast for late-night hallway and dorm study sessions.
+- **Full State Persistence:** Theme preference saved in `localStorage` with automatic fallback to system OS dark mode preference.
+
 ---
 
-## 🏆 Gamification & Cloud Leaderboard
+## 🏆 Gamification, Prestige & Cloud Leaderboard
 
-- **Student Identity & 4-Digit Restore PIN:** Choose or customize avatar icons, set student name, pick your graduating section (`BSCPE 4A`, `4B`, `4C`, `4D`), and secure your profile with a personalized **4-Digit Restore PIN**.
+- **Student Identity & 4-Digit Restore PIN:** Choose or customize avatar icons, upload photos, set codename, pick section (`BSCPE 4A`, `4B`, `4C`, `4D`), and secure your profile with a **4-Digit Restore PIN**.
+- **🎖️ 12-Tier Prestige Level Progression:** Earn XP for reviewing notes, mastering flashcards, and finishing quizzes:
+  - `Lvl 1 Novice Trainee` $\rightarrow$ `Lvl 2 Junior Circuit Hacker` $\rightarrow$ `Lvl 4 Logic Gate Wizard` $\rightarrow$ `Lvl 7 Cloud Security Architect` $\rightarrow$ `Lvl 8 Room 106 Dean's Lister` $\rightarrow$ `Lvl 10 Legendary PRC Board Top 1 🏆` $\rightarrow$ `Lvl 12 Eternal DLSP Engineering Deity ⚡`
+- **✨ Unlockable Avatar Prestige Frames:** Leveling up unlocks glowing dynamic avatar borders:
+  - **Classic Minimal** (Lv. 1) • **Bronze Circuit** (Lv. 2) • **Silver Silicon** (Lv. 3) • **Cyber Neon Cyan** (Lv. 4) • **Matrix Phosphor** (Lv. 5) • **Dean's List Gold** (Lv. 7) • **Ruby Overclock** (Lv. 8) • **Prismatic Valkyrie** (Lv. 10)
+  - Dynamically displayed with animated glows on the Top Bar, Leaderboard Standings, and Digital ID Pass.
+- **🏷️ Engineering Vanity Taglines:** Choose from engineering badges like `🎓 4th Year Candidate`, `⚡ Room 106 Dean's Lister`, `☕ Powered by 3 Hours of Sleep`, `🔨 Design 2 Thesis Survivor`, `🎯 PRC Board Top 1 Aspirant`, or type your custom tagline.
+- **🔥 Multi-Tier Streak Fanfare & Witty Broken-Streak Quotes:**
+  - Dynamic combo banners (3x, 5x, 8x, 10x, 15x GODLIKE) with sound effects.
+  - Comical broken-streak quotes with Filipino engineering humor and post-exam diagnostic review recommendations.
 - **📲 Seamless Cross-Device Sync (PC $\leftrightarrow$ Phone):**
-  - **Restore via Name + PIN:** Open the reviewer on your phone, click **"Restore Account"**, and enter your Name + 4-Digit PIN to instantly load your exact Level, XP, flashcards, and quiz history.
-  - **1-Tap Device Link:** Copy your personal sync URL from your PC and open it on your phone (via Messenger, AirDrop, or Notes) for zero-typing automatic login.
+  - **Restore via Name + PIN:** Open the reviewer on your phone, click **"Restore Account"**, and enter your Name + 4-Digit PIN to reload your exact Level, XP, flashcards, and quiz history.
+  - **1-Tap Device Link:** Copy your personal sync URL from your PC and open it on your phone for zero-typing automatic login.
 - **💳 Digital Student Reviewer Pass (.PNG Download):**
-  - Generates a sleek, high-resolution digital student ID card directly on HTML5 Canvas.
-  - Displays your student name, section, room number, current level title, and prominent 4-Digit PIN.
-  - Downloadable in 1-click directly into your phone photos or files so you never forget your PIN.
+  - Generates a sleek, high-resolution digital student ID card directly on HTML5 Canvas with your equipped prestige frame, tagline, and prominent 4-Digit PIN.
 - **🛡️ Anti-Impersonation Protection:**
-  - Prevents classmates from accidentally or intentionally using someone else's registered name on the leaderboard without entering the correct PIN.
-- **10-Tier Leveling Progression:** Earn XP for reviewing notes, mastering flashcards, and finishing quizzes:
-  - `Lvl 1 Novice Reviewer` $\rightarrow$ `Lvl 3 Gate Keeper` $\rightarrow$ `Lvl 7 Pipeline Architect` $\rightarrow$ `Lvl 10 Midterm Valkyrie`
+  - Prevents classmates from claiming someone else's registered name on the leaderboard without entering the correct PIN.
 - **Global & Section Leaderboards:** Real-time standings filterable by Overall or per-subject (`CPE411`, `CPE416`, `CPE415`, `CPE412`, `ELECT3`, `CPE413`, `ENGWORK`), sortable by XP, fastest blitz time, or highest score.
-- **Fresh Clean Start:** Database reset to provide a clean, level playing field for all 4th-year BSCPE students.
-- **P2P Scorecard Import/Export:** Share encoded scorecard links directly with classmates to add scores locally even when offline.
 - **Vercel KV Cloud Synchronization:** Synchronizes scores across mobile phones and desktop browsers in real time.
 
 ---

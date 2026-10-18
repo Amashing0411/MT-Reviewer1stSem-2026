@@ -16,11 +16,14 @@ import {
   ChevronDown,
   Check,
   Trophy,
-  KeyRound
+  KeyRound,
+  Sun,
+  Moon
 } from "lucide-react";
 import { SCHEDULE_DATA, SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
 import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
+import { AVATAR_FRAMES } from "../utils/gamification";
 
 export function Navbar({
   activeSubject,
@@ -32,7 +35,7 @@ export function Navbar({
   onOpenSchedule,
   onOpenPassCard,
 }) {
-  const { profile, levelInfo, setIsWelcomeOpen, setIsLeaderboardOpen } = useUser();
+  const { profile, levelInfo, setIsWelcomeOpen, setIsLeaderboardOpen, theme, toggleTheme } = useUser();
   const secKey = normalizeSectionKey(profile?.section || "4D");
   const currentSec = SECTIONS[secKey] || SECTIONS["4D"];
   const currentSchedule = getScheduleForSection(secKey);
@@ -41,6 +44,9 @@ export function Navbar({
   const [isSoundOn, setIsSoundOn] = useState(sound.enabled);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dayFilter, setDayFilter] = useState("all"); // "all" | "day1" | "day2"
+
+  const activeFrame = AVATAR_FRAMES.find((f) => f.id === profile?.frame) || AVATAR_FRAMES[0];
+  const frameClass = activeFrame?.cssClass || "avatar-frame-default";
 
   const toggleAudio = () => {
     const newState = sound.toggleSound();
@@ -191,15 +197,15 @@ export function Navbar({
               </div>
             </div>
 
-            {/* Right: Profile, Leaderboard, Audio & Schedule */}
+            {/* Right: Profile, Leaderboard, Theme, Audio & Schedule */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Student Profile Pill */}
               <button
                 onClick={() => setIsWelcomeOpen(true)}
-                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800"
-                title="Profile"
+                className="btn-haptic flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800 cursor-pointer"
+                title={`Profile: ${profile.name} • Lv. ${levelInfo.level} ${levelInfo.title} (${activeFrame.name})`}
               >
-                <div className="w-6 h-6 rounded-lg bg-white shadow-2xs border border-slate-200 flex items-center justify-center text-xs overflow-hidden shrink-0">
+                <div className={`w-6 h-6 rounded-lg bg-white flex items-center justify-center text-xs overflow-hidden shrink-0 transition-all ${frameClass}`}>
                   {profile.customPhoto ? (
                     <img src={profile.customPhoto} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -208,7 +214,10 @@ export function Navbar({
                 </div>
                 <div className="flex flex-col text-left leading-tight hidden lg:flex">
                   <span className="text-[11px] font-bold truncate max-w-[85px]">{profile.name}</span>
-                  <span className="text-[9px] text-blue-600 font-extrabold">Lv. {levelInfo.level}</span>
+                  <span className="text-[9px] text-blue-600 font-extrabold flex items-center gap-0.5">
+                    <span>Lv. {levelInfo.level}</span>
+                    <span>{levelInfo.icon}</span>
+                  </span>
                 </div>
               </button>
 
@@ -233,6 +242,19 @@ export function Navbar({
                   <span className="hidden xl:inline">Pass & PIN</span>
                 </button>
               )}
+
+              {/* Dark / Light Mode Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className="btn-haptic p-1.5 sm:px-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all border bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200/90 cursor-pointer"
+                title={theme === "dark" ? "Switch to Light Mode (☀️)" : "Switch to Dark Mode (🌙)"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                )}
+              </button>
 
               {/* Sound FX Toggle Button */}
               <button

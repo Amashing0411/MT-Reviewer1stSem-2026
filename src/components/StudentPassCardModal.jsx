@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
-import { createSyncUrl } from "../utils/gamification";
+import { createSyncUrl, AVATAR_FRAMES } from "../utils/gamification";
 import { 
   Download, 
   Copy, 
@@ -107,9 +107,18 @@ export function StudentPassCardModal({ isOpen, onClose }) {
     ctx.font = "bold 15px 'Inter', sans-serif";
     ctx.fillText(`SECTION: ${section}  •  ${levelInfo.title}`, 185, 210);
 
-    ctx.fillStyle = "#94A3B8";
-    ctx.font = "13px 'Inter', sans-serif";
-    ctx.fillText(`TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  STATUS: VERIFIED CANDIDATE`, 185, 235);
+    if (profile.tagline) {
+      ctx.fillStyle = "#FBBF24";
+      ctx.font = "bold 13px 'Inter', sans-serif";
+      ctx.fillText(profile.tagline, 185, 233);
+      ctx.fillStyle = "#94A3B8";
+      ctx.font = "12px 'Inter', sans-serif";
+      ctx.fillText(`TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  STATUS: VERIFIED CANDIDATE`, 185, 252);
+    } else {
+      ctx.fillStyle = "#94A3B8";
+      ctx.font = "13px 'Inter', sans-serif";
+      ctx.fillText(`TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  STATUS: VERIFIED CANDIDATE`, 185, 235);
+    }
 
     // Big PIN Security Box (Bottom Right)
     const pinBoxX = 185;
@@ -226,7 +235,9 @@ export function StudentPassCardModal({ isOpen, onClose }) {
 
             {/* Profile Row */}
             <div className="flex items-center gap-3.5">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-800/80 border border-blue-400/40 flex items-center justify-center text-3xl sm:text-4xl shadow-inner shrink-0 overflow-hidden">
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-800/80 flex items-center justify-center text-3xl sm:text-4xl shadow-inner shrink-0 overflow-hidden transition-all ${
+                AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
+              }`}>
                 {profile.customPhoto ? (
                   <img src={profile.customPhoto} alt="Student" className="w-full h-full object-cover" />
                 ) : (
@@ -246,6 +257,13 @@ export function StudentPassCardModal({ isOpen, onClose }) {
                   <span>{levelInfo.title}</span>
                   <span className="text-amber-400">⚡ {(profile.xp || 0).toLocaleString()} XP</span>
                 </div>
+                {profile.tagline && (
+                  <div className="pt-0.5">
+                    <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30">
+                      {profile.tagline}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

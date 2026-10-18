@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { encodeScorecard } from "../utils/gamification";
+import { encodeScorecard, AVATAR_FRAMES } from "../utils/gamification";
 import { 
   Trophy, 
   Flame, 
@@ -224,7 +224,9 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
           {/* Current Student Highlight Card */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-lg shadow-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl overflow-hidden shrink-0">
+              <div className={`w-11 h-11 rounded-xl bg-white flex items-center justify-center text-2xl overflow-hidden shrink-0 transition-all ${
+                AVATAR_FRAMES.find((f) => f.id === profile.frame)?.cssClass || "avatar-frame-default"
+              }`}>
                 {profile.customPhoto ? (
                   <img src={profile.customPhoto} alt="Me" className="w-full h-full object-cover" />
                 ) : (
@@ -232,11 +234,16 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                 )}
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-sm truncate">{profile.name}</span>
                   <span className="text-[9px] font-bold bg-blue-500/30 text-blue-200 px-2 py-0.2 rounded-full border border-blue-400/30 shrink-0">
                     {profile.section}
                   </span>
+                  {profile.tagline && (
+                    <span className="text-[9px] font-bold text-amber-300 bg-amber-400/10 px-2 py-0.2 rounded-full border border-amber-400/30 truncate max-w-[150px]">
+                      {profile.tagline}
+                    </span>
+                  )}
                 </div>
                 <div className="text-[11px] text-blue-200 flex items-center gap-1">
                   <span>Lv. {levelInfo.level} • {levelInfo.title}</span>
@@ -444,6 +451,8 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                 );
               }
 
+              const itemFrameClass = AVATAR_FRAMES.find((f) => f.id === item.frame)?.cssClass || "avatar-frame-default";
+
               return (
                 <div
                   key={item.id}
@@ -456,7 +465,7 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                   <div className="flex items-center gap-2.5 min-w-0">
                     {rankBadge}
 
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center text-base overflow-hidden shrink-0">
+                    <div className={`w-8 h-8 rounded-lg bg-white flex items-center justify-center text-base overflow-hidden shrink-0 transition-all ${itemFrameClass}`}>
                       {item.customPhoto ? (
                         <img src={item.customPhoto} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
@@ -465,13 +474,18 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                     </div>
 
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className={`text-xs font-bold truncate ${isMe ? "text-blue-900" : "text-slate-800"}`}>
                           {item.name} {isMe && "(You)"}
                         </span>
                         <span className="text-[9px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.2 rounded border border-slate-200 shrink-0">
                           {item.section}
                         </span>
+                        {item.tagline && (
+                          <span className="text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200/50 truncate max-w-[130px]">
+                            {item.tagline}
+                          </span>
+                        )}
                       </div>
                       <div className="text-[10px] text-slate-400 font-medium truncate">
                         Lv. {item.levelInfo.level} • {item.levelInfo.title}

@@ -32,6 +32,32 @@ export function UserProvider({ children }) {
   const [isCloudConnected, setIsCloudConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // Theme Management (Light / Dark Mode with localStorage persistence)
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("mt_reviewer_theme_2026");
+      if (saved === "dark" || saved === "light") return saved;
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    } catch {
+      return "light";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      localStorage.setItem("mt_reviewer_theme_2026", theme);
+    } catch (e) {}
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   // Background helper to upload profile to Vercel KV cloud
   const pushProfileToCloud = async (currentProfile) => {
     // DO NOT upload unconfigured default profiles or ghost visits
@@ -44,6 +70,8 @@ export function UserProvider({ children }) {
         name: currentProfile.name,
         section: currentProfile.section || "BSCPE 4D",
         avatar: currentProfile.avatar || "🤖",
+        frame: currentProfile.frame || "default",
+        tagline: currentProfile.tagline || "",
         customPhoto: currentProfile.customPhoto || null,
         xp: currentProfile.xp || 0,
         levelInfo: getLevelInfo(currentProfile.xp),
@@ -91,6 +119,8 @@ export function UserProvider({ children }) {
           name: p.name,
           section: p.section || "BSCPE 4D",
           avatar: p.avatar || "🤖",
+          frame: p.frame || "default",
+          tagline: p.tagline || "🎓 4th Year Candidate",
           customPhoto: p.customPhoto || null,
           pin: pin ? pin.trim() : (p.pin || ""),
           xp: Number(p.xp) || 0,
@@ -351,6 +381,9 @@ export function UserProvider({ children }) {
         levelInfo,
         leaderboard,
         getLeaderboard,
+        theme,
+        toggleTheme,
+        setTheme,
         isWelcomeOpen,
         setIsWelcomeOpen,
         isLeaderboardOpen,
