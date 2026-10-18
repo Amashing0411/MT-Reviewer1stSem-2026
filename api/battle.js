@@ -1,6 +1,16 @@
 // api/battle.js
 // Vercel Serverless Function supporting Real-Time 1v1 Battle Exam Arenas & Twitch Spectator Chat via Upstash Redis
 
+// Silence cosmetic Node.js DEP0169 warning emitted by Vercel runtime's legacy bridge
+if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
+  const _origEmitWarning = process.emitWarning;
+  process.emitWarning = (warning, ...args) => {
+    if (typeof warning === "string" && warning.includes("url.parse()")) return;
+    if (typeof warning === "object" && (warning?.code === "DEP0169" || String(warning?.message || "").includes("url.parse()"))) return;
+    return _origEmitWarning.call(process, warning, ...args);
+  };
+}
+
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
