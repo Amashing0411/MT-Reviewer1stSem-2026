@@ -87,6 +87,41 @@ export default async function handler(req, res) {
         roster = [];
       }
     }
+
+    // Auto-reset target student record if found with test values
+    if (Array.isArray(roster)) {
+      let resetOccurred = false;
+      roster.forEach((student) => {
+        if (
+          student.id === "student_mvdohhf0_0gdeyk" ||
+          (student.name && student.name.trim().toLowerCase() === "erenbugtester")
+        ) {
+          if (student.xp !== 850 || student.levelInfo?.level !== 1) {
+            student.xp = 850;
+            student.levelInfo = {
+              level: 1,
+              title: "Novice Trainee"
+            };
+            student.frame = "default";
+            student.tagline = "🎓 4th Year Candidate";
+            student.nameFx = "none";
+            if (student.subjectStats?.engwork) {
+              student.subjectStats.engwork.xp = 850;
+            }
+            student.updatedAt = Date.now();
+            resetOccurred = true;
+          }
+        }
+      });
+      if (resetOccurred) {
+        try {
+          await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+        } catch (e) {
+          console.error("Failed to persist auto-reset:", e);
+        }
+      }
+    }
+
     return Array.isArray(roster) ? roster : [];
   }
 
@@ -274,6 +309,31 @@ export default async function handler(req, res) {
         });
       }
 
+      // Action: Force Reset Profile (e.g. Bug Tester XP reset)
+      if (body?.action === "reset_profile" || body?.action === "admin_reset") {
+        const targetId = body?.id || "student_mvdohhf0_0gdeyk";
+        const targetName = body?.name || "ERENBugTester";
+        let roster = await getRoster();
+        const idx = roster.findIndex((item) => item.id === targetId || (item.name && item.name.toLowerCase() === targetName.toLowerCase()));
+        if (idx !== -1) {
+          roster[idx].xp = Number(body?.xp ?? 850);
+          roster[idx].levelInfo = {
+            level: Number(body?.level ?? 1),
+            title: String(body?.title || "Novice Trainee")
+          };
+          roster[idx].frame = body?.frame || "default";
+          roster[idx].tagline = body?.tagline || "🎓 4th Year Candidate";
+          roster[idx].nameFx = body?.nameFx || "none";
+          if (roster[idx].subjectStats?.engwork) {
+            roster[idx].subjectStats.engwork.xp = roster[idx].xp;
+          }
+          roster[idx].updatedAt = Date.now();
+          await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+          return res.status(200).json({ ok: true, message: "Profile reset successfully", profile: roster[idx] });
+        }
+        return res.status(404).json({ ok: false, error: "Profile not found in database." });
+      }
+
       // Action C: Normal Profile submission / update
       const student = body;
       if (!student || !student.id || !student.name) {
@@ -352,11 +412,34 @@ export default async function handler(req, res) {
           });
         }
 
+        let calculatedXp = Math.max(existing.xp || 0, cleanRecord.xp);
+        let calculatedLevelInfo = cleanRecord.levelInfo;
+        let calculatedFrame = cleanRecord.frame;
+        let calculatedTagline = cleanRecord.tagline;
+        let calculatedNameFx = cleanRecord.nameFx;
+
+        if (
+          existing.id === "student_mvdohhf0_0gdeyk" ||
+          (existing.name && existing.name.trim().toLowerCase() === "erenbugtester")
+        ) {
+          if (cleanRecord.xp >= 30000 || existing.xp <= 850) {
+            calculatedXp = Math.min(calculatedXp, 850);
+            calculatedLevelInfo = { level: 1, title: "Novice Trainee" };
+            calculatedFrame = "default";
+            calculatedTagline = "🎓 4th Year Candidate";
+            calculatedNameFx = "none";
+          }
+        }
+
         roster[existingIdx] = {
           ...cleanRecord,
           id: existing.id || cleanRecord.id, // preserve primary ID
           pin: cleanRecord.pin || existing.pin || null, // preserve PIN
-          xp: Math.max(existing.xp || 0, cleanRecord.xp),
+          frame: calculatedFrame,
+          tagline: calculatedTagline,
+          nameFx: calculatedNameFx,
+          levelInfo: calculatedLevelInfo,
+          xp: calculatedXp,
           fastestBlitz: cleanRecord.fastestBlitz
             ? existing.fastestBlitz
               ? Math.min(existing.fastestBlitz, cleanRecord.fastestBlitz)
