@@ -11,8 +11,10 @@ import {
 import confetti from "canvas-confetti";
 import { FormattedText } from "./MathView";
 import { sound } from "../utils/sound";
+import { useUser } from "../context/UserContext";
 
 export function Flashcards({ subject }) {
+  const { addXp } = useUser();
   const rawCards = subject.flashcards || [];
   const [cards, setCards] = useState(rawCards);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -67,8 +69,10 @@ export function Flashcards({ subject }) {
       } else {
         next.add(id);
         sound.playCorrect();
+        addXp(25, `${subject.code} Flashcard Mastered`);
         if (next.size === cards.length) {
           sound.playStreak();
+          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`);
           confetti({
             particleCount: 100,
             spread: 80,

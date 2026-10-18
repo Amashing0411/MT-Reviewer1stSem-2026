@@ -1,0 +1,126 @@
+// Gamification, Leveling & LocalStorage Engine for MT-Reviewer 2026
+
+export const AVATAR_PRESETS = [
+  { id: "bot", emoji: "🤖", label: "Cyber Bot" },
+  { id: "circuit", emoji: "⚡", label: "Volt Hacker" },
+  { id: "laptop", emoji: "💻", label: "Dev Lead" },
+  { id: "brain", emoji: "🧠", label: "Quantum Mind" },
+  { id: "tools", emoji: "🛠️", label: "Hardware Eng" },
+  { id: "rocket", emoji: "🚀", label: "Topnotcher" },
+  { id: "trophy", emoji: "🏆", label: "Dean's Lister" },
+  { id: "owl", emoji: "🦉", label: "Night Owl" },
+  { id: "coffee", emoji: "☕", label: "Caffeine Fueled" },
+  { id: "target", emoji: "🎯", label: "Precision Sniper" },
+  { id: "shield", emoji: "🛡️", label: "Cyber Defender" },
+  { id: "fire", emoji: "🔥", label: "Combo Striker" },
+];
+
+export const LEVELS = [
+  { level: 1, title: "Novice Trainee", minXp: 0, maxXp: 300, icon: "🌱" },
+  { level: 2, title: "Junior Circuit Hacker", minXp: 300, maxXp: 800, icon: "⚡" },
+  { level: 3, title: "System Operator", minXp: 800, maxXp: 1600, icon: "💻" },
+  { level: 4, title: "Logic Gate Wizard", minXp: 1600, maxXp: 2700, icon: "🔮" },
+  { level: 5, title: "Kernel Architect", minXp: 2700, maxXp: 4200, icon: "🛡️" },
+  { level: 6, title: "DSP Mastermind", minXp: 4200, maxXp: 6200, icon: "📡" },
+  { level: 7, title: "Cyber Defense Commander", minXp: 6200, maxXp: 8800, icon: "⚔️" },
+  { level: 8, title: "Room 106 Dean's Lister", minXp: 8800, maxXp: 12000, icon: "🎖️" },
+  { level: 9, title: "National Topnotcher Candidate", minXp: 12000, maxXp: 16000, icon: "👑" },
+  { level: 10, title: "Legendary PRC Board Top 1 🏆", minXp: 16000, maxXp: Infinity, icon: "🌟" },
+];
+
+export function getLevelInfo(xp) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].minXp) {
+      const cur = LEVELS[i];
+      const next = LEVELS[i + 1] || null;
+      const progressInLevel = next ? xp - cur.minXp : 100;
+      const levelSpan = next ? next.minXp - cur.minXp : 100;
+      const percent = next ? Math.min(100, Math.round((progressInLevel / levelSpan) * 100)) : 100;
+      const xpNeeded = next ? next.minXp - xp : 0;
+      return {
+        ...cur,
+        percent,
+        xpNeeded,
+        nextTitle: next ? next.title : "MAX RANK",
+      };
+    }
+  }
+  return { ...LEVELS[0], percent: 0, xpNeeded: 300, nextTitle: LEVELS[1].title };
+}
+
+const STORAGE_KEY = "mt_reviewer_student_profile_2026";
+
+export function loadProfile() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("Failed to read user profile:", e);
+    return null;
+  }
+}
+
+export function saveProfile(profile) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  } catch (e) {
+    console.error("Failed to save user profile:", e);
+  }
+}
+
+export function createDefaultProfile() {
+  const randomSuffix = Math.floor(100 + Math.random() * 900);
+  return {
+    isConfigured: false,
+    name: `Student #${randomSuffix}`,
+    section: "BSCPE 4D",
+    isAnon: true,
+    avatar: "🤖",
+    customPhoto: null, // data URL if uploaded
+    xp: 0,
+    streak: 0,
+    maxStreak: 0,
+    fastestBlitzSeconds: null,
+    highestScorePercent: 0,
+    totalQuizzesTaken: 0,
+    masteredFlashcards: {}, // { [subjectId]: [cardIds] }
+    completedUnits: {},     // { [subjectId]: [unitIds] }
+    joinedAt: new Date().toISOString(),
+  };
+}
+
+// Room 106 Simulated Classmates Leaderboard
+export const CLASS_BENCHMARKS = [
+  { id: "bench-1", name: "Aaron (DSP Ace)", section: "BSCPE 4D", avatar: "🚀", customPhoto: null, xp: 5400, fastestBlitz: 34, highestPercent: 100 },
+  { id: "bench-2", name: "Maria Clara", section: "BSCPE 4D", avatar: "🧠", customPhoto: null, xp: 4850, fastestBlitz: 42, highestPercent: 95 },
+  { id: "bench-3", name: "Lyka's Favorite", section: "BSCPE 4D", avatar: "🏆", customPhoto: null, xp: 4100, fastestBlitz: 48, highestPercent: 90 },
+  { id: "bench-4", name: "KernelPanic_4D", section: "BSCPE 4D", avatar: "💻", customPhoto: null, xp: 3600, fastestBlitz: 51, highestPercent: 85 },
+  { id: "bench-5", name: "NightOwl_CPE", section: "BSCPE 4D", avatar: "🦉", customPhoto: null, xp: 2950, fastestBlitz: 59, highestPercent: 80 },
+  { id: "bench-6", name: "Anon #411", section: "BSCPE 4D", avatar: "🛠️", customPhoto: null, xp: 2200, fastestBlitz: 65, highestPercent: 75 },
+  { id: "bench-7", name: "CircuitBreaker", section: "BSCPE 4D", avatar: "⚡", customPhoto: null, xp: 1800, fastestBlitz: 72, highestPercent: 70 },
+  { id: "bench-8", name: "CaffeineOverdrive", section: "BSCPE 4D", avatar: "☕", customPhoto: null, xp: 1250, fastestBlitz: 84, highestPercent: 65 },
+];
+
+export function buildLeaderboard(currentUser) {
+  const userEntry = {
+    id: "me",
+    name: currentUser.name || (currentUser.isAnon ? "You (Anonymous)" : "You"),
+    section: currentUser.section || "BSCPE 4D",
+    avatar: currentUser.avatar || "🤖",
+    customPhoto: currentUser.customPhoto || null,
+    xp: currentUser.xp || 0,
+    fastestBlitz: currentUser.fastestBlitzSeconds || null,
+    highestPercent: currentUser.highestScorePercent || 0,
+    isCurrentUser: true,
+  };
+
+  // Sort by XP descending
+  const list = [...CLASS_BENCHMARKS, userEntry].sort((a, b) => b.xp - a.xp);
+  
+  return list.map((item, index) => ({
+    ...item,
+    rank: index + 1,
+    levelInfo: getLevelInfo(item.xp),
+  }));
+}

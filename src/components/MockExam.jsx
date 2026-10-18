@@ -18,8 +18,10 @@ import {
 import confetti from "canvas-confetti";
 import { FormattedText } from "./MathView";
 import { sound } from "../utils/sound";
+import { useUser } from "../context/UserContext";
 
 export function MockExam({ subject }) {
+  const { recordExamResult, setIsLeaderboardOpen, addXp } = useUser();
   const rawQuestions = subject.mockQuestions || [];
 
   const [gameMode, setGameMode] = useState("blitz"); // "blitz" (10 questions rapid fire) | "full" (all questions exam simulation)
@@ -158,12 +160,22 @@ export function MockExam({ subject }) {
     setIsSubmitted(true);
     setIsTimerRunning(false);
 
-    let score = 0;
+    let finalScore = 0;
     questions.forEach((q) => {
-      if (selectedAnswers[q.id] === q.correctAnswer) score++;
+      if (selectedAnswers[q.id] === q.correctAnswer) finalScore++;
     });
 
-    const percent = Math.round((score / questions.length) * 100);
+    const percent = questions.length > 0 ? Math.round((finalScore / questions.length) * 100) : 0;
+    const timeTaken = gameMode === "full" ? (60 * 60 - timeLeft) : (10 * 60 - timeLeft);
+
+    recordExamResult({
+      subjectId: subject.id,
+      score: finalScore,
+      total: questions.length,
+      timeSeconds: timeTaken,
+      mode: gameMode,
+    });
+
     if (percent >= 70) {
       sound.playStreak();
       confetti({
@@ -171,6 +183,8 @@ export function MockExam({ subject }) {
         spread: 90,
         origin: { y: 0.5 },
       });
+    } else {
+      sound.playWrong();
     }
   };
 
@@ -489,13 +503,21 @@ export function MockExam({ subject }) {
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => resetGame(gameMode)}
                 className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20"
               >
                 <Shuffle className="w-4 h-4" />
                 <span>Play New Round</span>
+              </button>
+
+              <button
+                onClick={() => setIsLeaderboardOpen(true)}
+                className="btn-haptic flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20"
+              >
+                <Trophy className="w-4 h-4" />
+                <span>View Room 106 Standings</span>
               </button>
             </div>
           </div>

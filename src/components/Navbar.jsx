@@ -14,10 +14,12 @@ import {
   Volume2,
   VolumeX,
   ChevronDown,
-  Check
+  Check,
+  Trophy
 } from "lucide-react";
 import { SCHEDULE_DATA } from "../data/scheduleData";
 import { sound } from "../utils/sound";
+import { useUser } from "../context/UserContext";
 
 export function Navbar({
   activeSubject,
@@ -30,6 +32,7 @@ export function Navbar({
 }) {
   const day1 = SCHEDULE_DATA[0];
   const day2 = SCHEDULE_DATA[1];
+  const { profile, levelInfo, setIsWelcomeOpen, setIsLeaderboardOpen } = useUser();
   const [isSoundOn, setIsSoundOn] = useState(sound.enabled);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dayFilter, setDayFilter] = useState("all"); // "all" | "day1" | "day2"
@@ -45,6 +48,7 @@ export function Navbar({
     { id: "flashcards", label: "Flashcards", icon: Layers, desc: "3D Active Recall" },
     { id: "mock", label: "Quiz Battle", icon: CheckSquare, desc: "Streaks, XP & Exam Mode" },
     { id: "cram", label: "Cram Sheet", icon: FileText, desc: "10-Min Hallway Scan" },
+    { id: "leaderboard", label: "Leaderboard", icon: Trophy, desc: "Room 106 Standings" },
   ];
 
   const allSubjects = [
@@ -181,8 +185,37 @@ export function Navbar({
               </div>
             </div>
 
-            {/* Right: Audio Toggle & Timetable */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Right: Profile, Leaderboard, Audio Toggle & Timetable */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Student Profile Pill */}
+              <button
+                onClick={() => setIsWelcomeOpen(true)}
+                className="btn-haptic flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2.5 py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-xl text-xs font-bold transition-all text-slate-800"
+                title="Edit Profile, Section & Avatar"
+              >
+                <div className="w-6 h-6 rounded-lg bg-white shadow-2xs border border-slate-200 flex items-center justify-center text-xs overflow-hidden shrink-0">
+                  {profile.customPhoto ? (
+                    <img src={profile.customPhoto} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{profile.avatar || "🤖"}</span>
+                  )}
+                </div>
+                <div className="flex flex-col text-left leading-tight hidden lg:flex">
+                  <span className="text-[11px] font-bold truncate max-w-[85px]">{profile.name}</span>
+                  <span className="text-[9px] text-blue-600 font-extrabold">Lv. {levelInfo.level} • {profile.xp} XP</span>
+                </div>
+              </button>
+
+              {/* Room 106 Leaderboard Button */}
+              <button
+                onClick={() => setIsLeaderboardOpen(true)}
+                className="btn-haptic group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl transition-all"
+                title="Room 106 Class Leaderboard"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline">Leaderboard</span>
+              </button>
+
               {/* Sound FX Toggle Button */}
               <button
                 onClick={toggleAudio}
@@ -196,12 +229,12 @@ export function Navbar({
                 {isSoundOn ? (
                   <>
                     <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="hidden sm:inline">Audio ON</span>
+                    <span className="hidden md:inline">Audio ON</span>
                   </>
                 ) : (
                   <>
                     <VolumeX className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="hidden sm:inline">Muted</span>
+                    <span className="hidden md:inline">Muted</span>
                   </>
                 )}
               </button>
@@ -209,10 +242,10 @@ export function Navbar({
               {/* Timetable Button */}
               <button
                 onClick={onOpenSchedule}
-                className="btn-haptic group flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 rounded-xl transition-all"
+                className="btn-haptic group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 rounded-xl transition-all"
               >
                 <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden sm:inline">Official Schedule</span>
+                <span className="hidden md:inline">Schedule</span>
               </button>
             </div>
           </div>
