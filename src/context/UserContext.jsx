@@ -118,7 +118,7 @@ export function UserProvider({ children }) {
       if (scoreCode) {
         const imported = importScorecard(scoreCode);
         if (imported) {
-          setXpToast("🏆 Added classmate to your Room 106 Leaderboard!");
+          setXpToast("🏆 Added classmate to your Standings Leaderboard!");
           setTimeout(() => setXpToast(null), 3500);
         }
         window.history.replaceState({}, document.title, window.location.pathname);

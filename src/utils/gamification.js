@@ -212,25 +212,57 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
   }));
 }
 
-// Encodes a student's scorecard for sharing with classmates (includes all 8 subjects)
+// Encodes a student's scorecard for sharing with classmates (Unicode-safe and URL-safe base64)
 export function encodeScorecard(profile) {
-  const payload = {
-    n: profile.name,
-    s: profile.section || "BSCPE 4D",
-    a: profile.avatar || "🤖",
-    x: profile.xp || 0,
-    b: profile.fastestBlitzSeconds || null,
-    p: profile.highestScorePercent || 0,
-    st: profile.subjectStats || {},
-  };
-  return btoa(JSON.stringify(payload));
+  try {
+    const payload = {
+      n: profile.name || "Student",
+      s: profile.section || "BSCPE 4D",
+      a: profile.avatar || "🤖",
+      x: profile.xp || 0,
+      b: profile.fastestBlitzSeconds || null,
+      p: profile.highestScorePercent || 0,
+      st: profile.subjectStats || {},
+    };
+    const jsonStr = JSON.stringify(payload);
+    const utf8Bytes = new TextEncoder().encode(jsonStr);
+    let binary = "";
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binary += String.fromCharCode(utf8Bytes[i]);
+    }
+    // URL-safe base64 without padding errors
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  } catch (err) {
+    console.error("Scorecard encoding error:", err);
+    return "";
+  }
 }
 
-// Decodes and imports a classmate's shared scorecard
+// Decodes and imports a classmate's shared scorecard (supports Unicode & URL-safe base64)
 export function decodeScorecard(codeStr) {
   try {
-    const raw = atob(codeStr.trim());
-    const data = JSON.parse(raw);
+    if (!codeStr || typeof codeStr !== "string") return null;
+    let cleanStr = codeStr.trim();
+    // Convert URL-safe back to standard base64
+    cleanStr = cleanStr.replace(/-/g, "+").replace(/_/g, "/");
+    while (cleanStr.length % 4) {
+      cleanStr += "=";
+    }
+
+    let jsonStr = "";
+    try {
+      const binary = atob(cleanStr);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      jsonStr = new TextDecoder().decode(bytes);
+    } catch {
+      // Fallback for legacy plain strings
+      jsonStr = atob(cleanStr);
+    }
+
+    const data = JSON.parse(jsonStr);
     if (!data.n) return null;
     return {
       id: "classmate-" + Math.random().toString(36).substr(2, 9),
@@ -245,6 +277,8 @@ export function decodeScorecard(codeStr) {
       isCurrentUser: false,
     };
   } catch (e) {
+    console.error("Scorecard decoding error:", e);
     return null;
   }
 }
+

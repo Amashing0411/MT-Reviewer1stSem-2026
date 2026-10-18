@@ -77,21 +77,38 @@ export function LeaderboardModal({ isOpen, onClose }) {
   const currentUserRank = sortedList.findIndex((item) => item.isCurrentUser) + 1;
 
   // Share scorecard link
-  const handleShare = () => {
-    const code = encodeScorecard(profile);
-    const link = `${window.location.origin}/?score=${code}`;
-    const text = `🎓 BSCPE 4th Year Midterm Reviewer\n` +
-      `👤 Student: ${profile.name} (${profile.section})\n` +
-      `⭐ Level: ${levelInfo.level} — ${levelInfo.title}\n` +
-      `⚡ Total XP: ${profile.xp.toLocaleString()} XP\n` +
-      `⏱️ Fastest Blitz: ${profile.fastestBlitzSeconds ? profile.fastestBlitzSeconds + "s" : "N/A"}\n` +
-      `🏆 Standings Rank: #${currentUserRank || 1}\n` +
-      `Add my score to your leaderboard: ${link}`;
+  const handleShare = async () => {
+    try {
+      const code = encodeScorecard(profile);
+      if (!code) return;
+      const link = `${window.location.origin}/?score=${code}`;
+      const text = `🎓 BSCPE 4th Year Midterm Reviewer\n` +
+        `👤 Student: ${profile.name || "Student"} (${profile.section || "BSCPE 4th Year"})\n` +
+        `⭐ Level: ${levelInfo.level} — ${levelInfo.title}\n` +
+        `⚡ Total XP: ${(profile.xp || 0).toLocaleString()} XP\n` +
+        `⏱️ Fastest Blitz: ${profile.fastestBlitzSeconds ? profile.fastestBlitzSeconds + "s" : "N/A"}\n` +
+        `🏆 Standings Rank: #${currentUserRank || 1}\n` +
+        `Add my score to your leaderboard: ${link}`;
 
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
-    setTimeout(() => setCopied(false), 2500);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      setCopied(true);
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error("Failed to copy scorecard link:", err);
+    }
   };
 
   const handleImportSubmit = (e) => {
