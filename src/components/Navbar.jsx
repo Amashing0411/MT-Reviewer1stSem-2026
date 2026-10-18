@@ -15,7 +15,8 @@ import {
   VolumeX,
   ChevronDown,
   Check,
-  Trophy
+  Trophy,
+  KeyRound
 } from "lucide-react";
 import { SCHEDULE_DATA, SECTIONS, getScheduleForSection, normalizeSectionKey } from "../data/scheduleData";
 import { sound } from "../utils/sound";
@@ -29,6 +30,7 @@ export function Navbar({
   searchQuery,
   onSearchChange,
   onOpenSchedule,
+  onOpenPassCard,
 }) {
   const { profile, levelInfo, setIsWelcomeOpen, setIsLeaderboardOpen } = useUser();
   const secKey = normalizeSectionKey(profile?.section || "4D");
@@ -219,6 +221,18 @@ export function Navbar({
                 <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span className="hidden sm:inline">Rank</span>
               </button>
+
+              {/* Reviewer Pass & PIN Button */}
+              {onOpenPassCard && (
+                <button
+                  onClick={onOpenPassCard}
+                  className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-xl transition-all cursor-pointer"
+                  title="My Reviewer Pass & 4-Digit PIN"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span className="hidden xl:inline">Pass & PIN</span>
+                </button>
+              )}
 
               {/* Sound FX Toggle Button */}
               <button

@@ -104,6 +104,7 @@ export function createDefaultProfile() {
     isAnon: true,
     avatar: "🤖",
     customPhoto: null,
+    pin: "",
     xp: 0,
     streak: 0,
     maxStreak: 0,
@@ -212,8 +213,8 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
   }));
 }
 
-// Encodes a student's scorecard for sharing with classmates (Unicode-safe and URL-safe base64)
-export function encodeScorecard(profile) {
+// Encodes a student's scorecard for sharing or device sync (Unicode-safe and URL-safe base64)
+export function encodeScorecard(profile, includePin = false) {
   try {
     const payload = {
       n: profile.name || "Student",
@@ -223,6 +224,7 @@ export function encodeScorecard(profile) {
       b: profile.fastestBlitzSeconds || null,
       p: profile.highestScorePercent || 0,
       st: profile.subjectStats || {},
+      ...(includePin && profile.pin ? { pin: profile.pin } : {}),
     };
     const jsonStr = JSON.stringify(payload);
     const utf8Bytes = new TextEncoder().encode(jsonStr);
@@ -236,6 +238,12 @@ export function encodeScorecard(profile) {
     console.error("Scorecard encoding error:", err);
     return "";
   }
+}
+
+// Generates a 1-tap device sync link
+export function createSyncUrl(profile) {
+  const code = encodeScorecard(profile, true);
+  return `${window.location.origin}/?sync=${code}`;
 }
 
 // Decodes and imports a classmate's shared scorecard (supports Unicode & URL-safe base64)
@@ -269,6 +277,7 @@ export function decodeScorecard(codeStr) {
       name: data.n,
       section: data.s || "BSCPE 4D",
       avatar: data.a || "🤖",
+      pin: data.pin || "",
       customPhoto: null,
       xp: data.x || 0,
       fastestBlitz: data.b || null,

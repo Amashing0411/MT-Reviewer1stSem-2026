@@ -15,7 +15,8 @@ import {
   Users,
   RefreshCw,
   Cloud,
-  Info
+  Info,
+  Smartphone
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -31,7 +32,7 @@ const SUBJECT_TABS = [
   { id: "engwork", label: "ENGWORK • Workplace", icon: "📝" },
 ];
 
-export function LeaderboardModal({ isOpen, onClose }) {
+export function LeaderboardModal({ isOpen, onClose, onOpenPassCard }) {
   const { 
     profile, 
     levelInfo, 
@@ -357,10 +358,22 @@ export function LeaderboardModal({ isOpen, onClose }) {
                 <button
                   onClick={handleShare}
                   className="btn-haptic flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-lg text-xs font-bold transition-all"
+                  title="Share your scorecard link with classmates"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5 text-blue-600" />}
                   <span>{copied ? "Link Copied!" : "Share Link"}</span>
                 </button>
+
+                {onOpenPassCard && (
+                  <button
+                    onClick={onOpenPassCard}
+                    className="btn-haptic flex items-center gap-1.5 px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 rounded-lg text-xs font-bold transition-all"
+                    title="View your Reviewer Pass & 4-Digit PIN to sync with phone"
+                  >
+                    <Smartphone className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="hidden sm:inline">Sync to Phone</span>
+                  </button>
+                )}
               </div>
             </div>
 

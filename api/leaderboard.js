@@ -1,5 +1,5 @@
 // api/leaderboard.js
-// Vercel Serverless Function supporting Vercel KV / Upstash Redis for Room 106 Leaderboard
+// Vercel Serverless Function supporting Vercel KV / Upstash Redis with Cross-Device Sync & PIN Security
 
 export default async function handler(req, res) {
   // CORS headers
@@ -29,6 +29,9 @@ export default async function handler(req, res) {
 
   const kvUrl = rawUrl ? rawUrl.replace(/\/$/, "") : null;
 
+  // Fresh storage key for 4th year batch — wipes old test data
+  const KEY = "bscpe4th_clean_leaderboard_2026";
+
   // If KV is not configured yet in Vercel Dashboard
   if (!kvUrl || !kvToken) {
     const presentKeys = Object.keys(process.env).filter((k) =>
@@ -40,8 +43,7 @@ export default async function handler(req, res) {
         ok: false,
         isCloudConnected: false,
         detectedKeys: presentKeys,
-        message:
-          "Upstash Redis / Vercel KV environment variables not detected. Please trigger a redeploy in Vercel to load the newly connected database.",
+        message: "Upstash Redis / Vercel KV environment variables not detected.",
         roster: []
       });
     }
@@ -52,8 +54,6 @@ export default async function handler(req, res) {
       message: "Upstash Redis not connected"
     });
   }
-
-  const KEY = "room106_leaderboard_2026";
 
   // Helper to execute Upstash command via body array
   async function upstashCommand(commandArray) {
@@ -68,75 +68,115 @@ export default async function handler(req, res) {
     return await resp.json();
   }
 
+  // Helper to fetch roster
+  async function getRoster() {
+    let data = await upstashCommand(["GET", KEY]);
+    if (!data || data.error) {
+      const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
+        headers: { Authorization: `Bearer ${kvToken}` }
+      });
+      data = await pathResp.json();
+    }
+
+    let roster = [];
+    if (data && data.result) {
+      try {
+        roster = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
+      } catch (e) {
+        roster = [];
+      }
+    }
+    return Array.isArray(roster) ? roster : [];
+  }
+
   try {
-    // 1. GET: Fetch the current class leaderboard
+    // 1. GET: Fetch the current class leaderboard (Strips PINs for privacy)
     if (req.method === "GET") {
-      let data = await upstashCommand(["GET", KEY]);
+      const roster = await getRoster();
 
-      // Fallback to path-based GET if array format failed
-      if (!data || data.error) {
-        const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
-          headers: { Authorization: `Bearer ${kvToken}` }
-        });
-        data = await pathResp.json();
-      }
-
-      let roster = [];
-      if (data && data.result) {
-        try {
-          roster = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
-        } catch (e) {
-          roster = [];
-        }
-      }
+      // Never expose student PINs to the public leaderboard
+      const safeRoster = roster.map(({ pin, ...safe }) => safe);
 
       return res.status(200).json({
         ok: true,
         isCloudConnected: true,
-        roster: Array.isArray(roster) ? roster : []
+        roster: safeRoster
       });
     }
 
-    // 2. POST: Submit / Update a student's score
+    // 2. POST: Submit / Update score, Restore profile, or Admin flush
     if (req.method === "POST") {
-      let student = req.body;
-      if (typeof student === "string") {
+      let body = req.body;
+      if (typeof body === "string") {
         try {
-          student = JSON.parse(student);
+          body = JSON.parse(body);
         } catch (e) {
-          student = {};
+          body = {};
         }
       }
 
+      // Action A: Force flush/clear DB for fresh start
+      if (body?.action === "flush_clean_all") {
+        await upstashCommand(["DEL", "room106_leaderboard_2026"]);
+        await upstashCommand(["DEL", "bscpe_leaderboard_2026"]);
+        await upstashCommand(["SET", KEY, JSON.stringify([])]);
+        return res.status(200).json({
+          ok: true,
+          message: "Database successfully cleared. Fresh start active!",
+          roster: []
+        });
+      }
+
+      // Action B: Restore profile by Name + 4-Digit PIN
+      if (body?.action === "restore") {
+        const queryName = String(body.name || "").trim().toLowerCase();
+        const queryPin = String(body.pin || "").trim();
+
+        if (!queryName) {
+          return res.status(400).json({ ok: false, error: "Please enter your student name." });
+        }
+
+        const roster = await getRoster();
+        const found = roster.find((item) => item.name && item.name.trim().toLowerCase() === queryName);
+
+        if (!found) {
+          return res.status(404).json({
+            ok: false,
+            error: `No existing student profile found with the name "${body.name}". Check your spelling or create a new profile.`
+          });
+        }
+
+        // If existing profile has a PIN, verify it
+        if (found.pin) {
+          if (!queryPin || found.pin !== queryPin) {
+            return res.status(403).json({
+              ok: false,
+              error: "Incorrect 4-digit PIN for this student. Please check your Reviewer Pass image or try again."
+            });
+          }
+        }
+
+        return res.status(200).json({
+          ok: true,
+          message: "Profile verified & restored!",
+          profile: found
+        });
+      }
+
+      // Action C: Normal Profile submission / update
+      const student = body;
       if (!student || !student.id || !student.name) {
         return res.status(400).json({ ok: false, error: "Missing student data" });
       }
 
-      // Fetch current roster
-      let getData = await upstashCommand(["GET", KEY]);
-      if (!getData || getData.error) {
-        const pathResp = await fetch(`${kvUrl}/get/${KEY}`, {
-          headers: { Authorization: `Bearer ${kvToken}` }
-        });
-        getData = await pathResp.json();
-      }
+      let roster = await getRoster();
 
-      let roster = [];
-      if (getData && getData.result) {
-        try {
-          roster = typeof getData.result === "string" ? JSON.parse(getData.result) : getData.result;
-        } catch (e) {
-          roster = [];
-        }
-      }
-      if (!Array.isArray(roster)) roster = [];
-
-      // Clean and sanitize student payload
       const cleanRecord = {
         id: String(student.id).slice(0, 50),
         name: String(student.name).slice(0, 40),
         section: String(student.section || "BSCPE 4D").slice(0, 20),
         avatar: String(student.avatar || "🤖").slice(0, 10),
+        pin: student.pin ? String(student.pin).trim().slice(0, 8) : null,
         customPhoto:
           student.customPhoto &&
           typeof student.customPhoto === "string" &&
@@ -147,7 +187,7 @@ export default async function handler(req, res) {
         xp: Number(student.xp) || 0,
         levelInfo: {
           level: Number(student.levelInfo?.level) || 1,
-          title: String(student.levelInfo?.title || "Engineering Recruit").slice(0, 40)
+          title: String(student.levelInfo?.title || "Novice Trainee").slice(0, 40)
         },
         fastestBlitz: student.fastestBlitz ? Number(student.fastestBlitz) : null,
         highestPercent: Number(student.highestPercent) || 0,
@@ -155,10 +195,21 @@ export default async function handler(req, res) {
         updatedAt: Date.now()
       };
 
-      // Merge or update student in roster
-      const existingIdx = roster.findIndex((item) => item.id === cleanRecord.id);
+      // Match existing profile by ID OR Name (case-insensitive)
+      const existingIdx = roster.findIndex(
+        (item) => item.id === cleanRecord.id || item.name.trim().toLowerCase() === cleanRecord.name.trim().toLowerCase()
+      );
+
       if (existingIdx >= 0) {
         const existing = roster[existingIdx];
+
+        // Security check: If existing profile has a PIN, ensure submitter has matching PIN or same ID
+        if (existing.pin && cleanRecord.pin && existing.pin !== cleanRecord.pin && existing.id !== cleanRecord.id) {
+          return res.status(403).json({
+            ok: false,
+            error: `The student name "${cleanRecord.name}" is claimed with a PIN. Please enter the correct PIN to update this profile.`
+          });
+        }
 
         // Merge subject stats
         const mergedSubjectStats = { ...(existing.subjectStats || {}) };
@@ -179,6 +230,8 @@ export default async function handler(req, res) {
 
         roster[existingIdx] = {
           ...cleanRecord,
+          id: existing.id || cleanRecord.id, // preserve primary ID
+          pin: cleanRecord.pin || existing.pin || null, // preserve PIN
           xp: Math.max(existing.xp || 0, cleanRecord.xp),
           fastestBlitz: cleanRecord.fastestBlitz
             ? existing.fastestBlitz
@@ -197,13 +250,16 @@ export default async function handler(req, res) {
       roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
       if (roster.length > 150) roster = roster.slice(0, 150);
 
-      // Save updated roster to Upstash Redis using array-based SET
+      // Save updated roster to Upstash Redis
       await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+
+      // Safe roster without PINs for return
+      const safeRoster = roster.map(({ pin, ...safe }) => safe);
 
       return res.status(200).json({
         ok: true,
         isCloudConnected: true,
-        roster
+        roster: safeRoster
       });
     }
 

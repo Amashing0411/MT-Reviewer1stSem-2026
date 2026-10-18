@@ -47,6 +47,7 @@ export function UserProvider({ children }) {
         fastestBlitz: currentProfile.fastestBlitzSeconds || null,
         highestPercent: currentProfile.highestScorePercent || 0,
         subjectStats: currentProfile.subjectStats || {},
+        pin: currentProfile.pin || null,
       };
       const res = await fetch("/api/leaderboard", {
         method: "POST",
@@ -63,6 +64,78 @@ export function UserProvider({ children }) {
         }
       }
     } catch (e) {}
+  };
+
+  // Restore profile from Vercel KV cloud by Name + 4-Digit PIN
+  const restoreProfileFromCloud = async (name, pin) => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "restore",
+          name: name.trim(),
+          pin: pin ? pin.trim() : "",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.profile) {
+        const p = data.profile;
+        const restored = {
+          ...profile,
+          id: p.id || profile.id,
+          name: p.name,
+          section: p.section || "BSCPE 4D",
+          avatar: p.avatar || "🤖",
+          customPhoto: p.customPhoto || null,
+          pin: pin ? pin.trim() : (p.pin || ""),
+          xp: Number(p.xp) || 0,
+          fastestBlitzSeconds: p.fastestBlitz || null,
+          highestScorePercent: p.highestPercent || 0,
+          subjectStats: p.subjectStats || {},
+          isConfigured: true,
+          isAnon: false,
+        };
+        setProfile(restored);
+        saveProfile(restored);
+        sound.playFanfare();
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.5 } });
+        setXpToast(`🎉 Restored ${restored.name} (${restored.xp.toLocaleString()} XP) to this device!`);
+        setTimeout(() => setXpToast(null), 4500);
+        return { ok: true, profile: restored };
+      } else {
+        return { ok: false, error: data.error || "Profile could not be restored." };
+      }
+    } catch (err) {
+      return { ok: false, error: err.message || "Network error. Please try again." };
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Force flush cloud database for a completely clean start
+  const flushCloudDatabase = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "flush_clean_all" }),
+      });
+      if (res.ok) {
+        saveClassRoster([]);
+        setRosterVersion((v) => v + 1);
+        setXpToast("✨ Clean start! Cloud leaderboard has been cleared.");
+        setTimeout(() => setXpToast(null), 3500);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   // Synchronize with Vercel KV cloud database
@@ -110,10 +183,43 @@ export function UserProvider({ children }) {
     syncWithCloud();
   }, []);
 
-  // Import score from URL query parameter (if someone shared a link)
+  // Handle URL query parameters: 1-Tap Sync (?sync=...) or Classmate Scorecard (?score=...)
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      
+      // 1-Tap Device Sync (Transfer account to phone)
+      const syncCode = params.get("sync");
+      if (syncCode) {
+        const entry = decodeScorecard(syncCode);
+        if (entry && entry.name) {
+          const restored = {
+            ...profile,
+            id: entry.id || profile.id,
+            name: entry.name,
+            section: entry.section || "BSCPE 4D",
+            avatar: entry.avatar || "🤖",
+            customPhoto: entry.customPhoto || null,
+            pin: entry.pin || params.get("pin") || profile.pin || "",
+            xp: Number(entry.xp) || 0,
+            fastestBlitzSeconds: entry.fastestBlitz || null,
+            highestScorePercent: entry.highestPercent || 0,
+            subjectStats: entry.subjectStats || {},
+            isConfigured: true,
+            isAnon: false,
+          };
+          setProfile(restored);
+          saveProfile(restored);
+          sound.playStreak();
+          confetti({ particleCount: 80, spread: 60, origin: { y: 0.5 } });
+          setXpToast(`📱 Restored ${restored.name} (${restored.xp.toLocaleString()} XP) on this device!`);
+          setTimeout(() => setXpToast(null), 4500);
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      // Classmate Scorecard share
       const scoreCode = params.get("score");
       if (scoreCode) {
         const imported = importScorecard(scoreCode);
@@ -251,6 +357,8 @@ export function UserProvider({ children }) {
         isCloudConnected,
         isSyncing,
         syncWithCloud,
+        restoreProfileFromCloud,
+        flushCloudDatabase,
       }}
     >
       {children}

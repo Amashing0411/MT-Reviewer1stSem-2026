@@ -8,6 +8,7 @@ import { CramSheet } from "./components/CramSheet";
 import { ScheduleModal } from "./components/ScheduleModal";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { LeaderboardModal } from "./components/LeaderboardModal";
+import { StudentPassCardModal } from "./components/StudentPassCardModal";
 import { UserProvider, useUser } from "./context/UserContext";
 import { 
   GraduationCap, 
@@ -35,6 +36,7 @@ function AppContent() {
   const [currentMode, setCurrentMode] = useState("reviewer");
   const [searchQuery, setSearchQuery] = useState("");
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isPassCardOpen, setIsPassCardOpen] = useState(false);
 
   const { 
     profile, 
@@ -109,6 +111,7 @@ function AppContent() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onOpenSchedule={() => setIsScheduleOpen(true)}
+        onOpenPassCard={() => setIsPassCardOpen(true)}
       />
 
       {/* Main Study Arena with Macro Whitespace */}
@@ -459,12 +462,20 @@ function AppContent() {
       <WelcomeModal
         isOpen={isWelcomeOpen}
         onClose={() => setIsWelcomeOpen(false)}
+        onSaved={() => setIsPassCardOpen(true)}
       />
 
-      {/* Room 106 Standings Leaderboard Modal */}
+      {/* BSCPE Standings Leaderboard Modal */}
       <LeaderboardModal
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
+        onOpenPassCard={() => setIsPassCardOpen(true)}
+      />
+
+      {/* Digital Student Pass Card & Phone Sync Modal */}
+      <StudentPassCardModal
+        isOpen={isPassCardOpen}
+        onClose={() => setIsPassCardOpen(false)}
       />
 
       {/* Examination Schedule Modal */}

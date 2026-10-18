@@ -72,10 +72,20 @@ The platform features an interactive section switchable schedule mapping specifi
 
 ## 🏆 Gamification & Cloud Leaderboard
 
-- **Student Identity:** Choose or customize avatar icons, set student name, and select your graduating section (`BSCPE 4A`, `4B`, `4C`, `4D`).
+- **Student Identity & 4-Digit Restore PIN:** Choose or customize avatar icons, set student name, pick your graduating section (`BSCPE 4A`, `4B`, `4C`, `4D`), and secure your profile with a personalized **4-Digit Restore PIN**.
+- **📲 Seamless Cross-Device Sync (PC $\leftrightarrow$ Phone):**
+  - **Restore via Name + PIN:** Open the reviewer on your phone, click **"Restore Account"**, and enter your Name + 4-Digit PIN to instantly load your exact Level, XP, flashcards, and quiz history.
+  - **1-Tap Device Link:** Copy your personal sync URL from your PC and open it on your phone (via Messenger, AirDrop, or Notes) for zero-typing automatic login.
+- **💳 Digital Student Reviewer Pass (.PNG Download):**
+  - Generates a sleek, high-resolution digital student ID card directly on HTML5 Canvas.
+  - Displays your student name, section, room number, current level title, and prominent 4-Digit PIN.
+  - Downloadable in 1-click directly into your phone photos or files so you never forget your PIN.
+- **🛡️ Anti-Impersonation Protection:**
+  - Prevents classmates from accidentally or intentionally using someone else's registered name on the leaderboard without entering the correct PIN.
 - **10-Tier Leveling Progression:** Earn XP for reviewing notes, mastering flashcards, and finishing quizzes:
   - `Lvl 1 Novice Reviewer` $\rightarrow$ `Lvl 3 Gate Keeper` $\rightarrow$ `Lvl 7 Pipeline Architect` $\rightarrow$ `Lvl 10 Midterm Valkyrie`
 - **Global & Section Leaderboards:** Real-time standings filterable by Overall or per-subject (`CPE411`, `CPE416`, `CPE415`, `CPE412`, `ELECT3`, `CPE413`, `ENGWORK`), sortable by XP, fastest blitz time, or highest score.
+- **Fresh Clean Start:** Database reset to provide a clean, level playing field for all 4th-year BSCPE students.
 - **P2P Scorecard Import/Export:** Share encoded scorecard links directly with classmates to add scores locally even when offline.
 - **Vercel KV Cloud Synchronization:** Synchronizes scores across mobile phones and desktop browsers in real time.
 
