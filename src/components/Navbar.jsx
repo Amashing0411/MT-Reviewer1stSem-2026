@@ -70,7 +70,7 @@ export function Navbar({
   return (
     <header className="sticky top-2 sm:top-3 z-40 px-2 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full transition-all">
       {/* Floating Island Navigation Container */}
-      <div className="double-bezel-outer backdrop-blur-xl bg-white/95 shadow-md shadow-slate-200/50">
+      <div className="double-bezel-outer backdrop-blur-xl bg-white/95 dark:bg-slate-900/95 shadow-md shadow-slate-200/50 dark:shadow-none">
         <div className="double-bezel-inner p-2.5 sm:p-4 space-y-2 sm:space-y-3">
           
           {/* Top Bar: Institution Header, Quick Subject Switcher, Sound & Timetable */}
@@ -99,7 +99,7 @@ export function Navbar({
                   <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[11px] font-extrabold shrink-0">
                     {activeSubject.code}
                   </span>
-                  <span className="truncate max-w-[110px] sm:max-w-[200px] md:max-w-[320px]">
+                  <span className="truncate max-w-[80px] xs:max-w-[120px] sm:max-w-[200px] md:max-w-[320px]">
                     {activeSubject.title}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
@@ -235,7 +235,7 @@ export function Navbar({
               {onOpenPassCard && (
                 <button
                   onClick={onOpenPassCard}
-                  className="btn-haptic flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-xl transition-all cursor-pointer"
+                  className="btn-haptic hidden sm:flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-xl transition-all cursor-pointer"
                   title="My Reviewer Pass & 4-Digit PIN"
                 >
                   <KeyRound className="w-3.5 h-3.5 text-blue-600 shrink-0" />
