@@ -122,22 +122,22 @@ export function ClassShoutbox() {
 
       {/* Floating Class Shoutbox Window */}
       {isFeedOpen && (
-        <div className="fixed bottom-20 sm:bottom-6 right-2 sm:right-6 z-50 w-[calc(100vw-1rem)] xs:w-[380px] sm:w-[410px] max-h-[82vh] sm:max-h-[580px] flex flex-col double-bezel-outer bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl animate-scaleIn overflow-hidden text-slate-900 dark:text-white">
+        <div className="fixed bottom-20 sm:bottom-6 right-2 sm:right-6 z-50 w-[calc(100vw-1rem)] xs:w-[380px] sm:w-[410px] max-h-[82vh] sm:max-h-[580px] flex flex-col bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl animate-scaleIn overflow-hidden text-slate-900 dark:text-white">
           
           {/* Header */}
-          <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
+          <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-950 text-white flex items-center justify-between border-b border-blue-500/20 dark:border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300">
-                <MessageSquare className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-white/20 dark:bg-blue-500/20 border border-white/25 dark:border-blue-400/30 flex items-center justify-center text-white dark:text-blue-300">
+                <MessageSquare className="w-4 h-4 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-extrabold text-xs sm:text-sm tracking-tight text-white">
+                  <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white !text-white">
                     4th Year Study Shoutbox
-                  </h3>
+                  </span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 </div>
-                <div className="text-[10px] text-blue-200/80 flex items-center gap-1">
+                <div className="text-[10px] text-blue-100 dark:text-blue-200/80 flex items-center gap-1 font-medium">
                   <span>DLSP BSCPE Arena</span>
                   <span>•</span>
                   <span>{isCloudConnected ? "Cloud Live" : "Local Sync"}</span>
@@ -148,20 +148,20 @@ export function ClassShoutbox() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => syncWithCloud()}
-                className="btn-haptic p-1.5 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
+                className="btn-haptic p-1.5 text-blue-100 dark:text-blue-200 hover:text-white hover:bg-white/15 rounded-lg transition-all cursor-pointer"
                 title="Refresh Feed from Cloud"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-3.5 h-3.5 text-white" />
               </button>
               <button
                 onClick={() => {
                   sound.playFlip();
                   setIsFeedOpen(false);
                 }}
-                className="btn-haptic p-1.5 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
+                className="btn-haptic p-1.5 text-blue-100 dark:text-blue-200 hover:text-white hover:bg-white/15 rounded-lg transition-all cursor-pointer"
                 title="Close Feed"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>

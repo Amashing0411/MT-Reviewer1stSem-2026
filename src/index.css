@@ -185,11 +185,11 @@ html:not(.dark) .double-bezel-inner {
   color: #0f172a;
 }
 
-/* Ensure headings and body text pop crisply in Light Mode */
-html:not(.dark) h1, 
-html:not(.dark) h2, 
-html:not(.dark) h3, 
-html:not(.dark) h4 {
+/* Ensure headings and body text pop crisply in Light Mode without clobbering explicit text color classes */
+html:not(.dark) h1:not([class*="text-"]):not([class*="name-fx"]), 
+html:not(.dark) h2:not([class*="text-"]):not([class*="name-fx"]), 
+html:not(.dark) h3:not([class*="text-"]):not([class*="name-fx"]), 
+html:not(.dark) h4:not([class*="text-"]):not([class*="name-fx"]) {
   color: #0f172a;
 }
 
@@ -222,10 +222,10 @@ html.dark .double-bezel-inner {
   color: #f8fafc;
 }
 
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark h4 {
+html.dark h1:not([class*="text-"]):not([class*="name-fx"]),
+html.dark h2:not([class*="text-"]):not([class*="name-fx"]),
+html.dark h3:not([class*="text-"]):not([class*="name-fx"]),
+html.dark h4:not([class*="text-"]):not([class*="name-fx"]) {
   color: #ffffff;
 }
 
