@@ -1,18 +1,42 @@
 // Gamification, Leveling & LocalStorage Engine for MT-Reviewer 2026
 
 export const AVATAR_PRESETS = [
-  { id: "bot", emoji: "🤖", label: "Cyber Bot" },
-  { id: "circuit", emoji: "⚡", label: "Volt Hacker" },
-  { id: "laptop", emoji: "💻", label: "Dev Lead" },
-  { id: "brain", emoji: "🧠", label: "Quantum Mind" },
-  { id: "tools", emoji: "🛠️", label: "Hardware Eng" },
-  { id: "rocket", emoji: "🚀", label: "Topnotcher" },
-  { id: "trophy", emoji: "🏆", label: "Dean's Lister" },
-  { id: "owl", emoji: "🦉", label: "Night Owl" },
-  { id: "coffee", emoji: "☕", label: "Caffeine Fueled" },
-  { id: "target", emoji: "🎯", label: "Precision Sniper" },
-  { id: "shield", emoji: "🛡️", label: "Cyber Defender" },
-  { id: "fire", emoji: "🔥", label: "Combo Striker" },
+  { 
+    id: "female-debugging", 
+    image: "/avatars/bean-female-debugging.jpg", 
+    label: "Debugging Lead", 
+    desc: "Firmware debugger & logic analyzer" 
+  },
+  { 
+    id: "female-robotics", 
+    image: "/avatars/bean-female-robotics.jpg", 
+    label: "Robotics Engineer", 
+    desc: "Autonomous robotics & actuator specialist" 
+  },
+  { 
+    id: "female-shortcircuit", 
+    image: "/avatars/bean-female-shortcircuit.jpg", 
+    label: "Circuit Hacker", 
+    desc: "Overclocked high-voltage circuit explorer" 
+  },
+  { 
+    id: "male-arduino", 
+    image: "/avatars/bean-male-arduino.jpg", 
+    label: "Arduino Architect", 
+    desc: "Microcontroller dev & IoT systems" 
+  },
+  { 
+    id: "male-fourier", 
+    image: "/avatars/bean-male-fourier.jpg", 
+    label: "DSP Fourier Master", 
+    desc: "Signal transforms, filters & FFT master" 
+  },
+  { 
+    id: "male-solder", 
+    image: "/avatars/bean-male-solder.jpg", 
+    label: "Hardware Solderer", 
+    desc: "SMD surface-mount & PCB prototyping" 
+  },
 ];
 
 export const AVATAR_FRAMES = [
@@ -429,7 +453,7 @@ export function createDefaultProfile() {
     name: `Student #${randomSuffix}`,
     section: "BSCPE 4D",
     isAnon: true,
-    avatar: "🤖",
+    avatar: "/avatars/bean-female-debugging.jpg",
     customPhoto: null,
     pin: "",
     frame: "default",

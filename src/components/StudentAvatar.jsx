@@ -2,7 +2,7 @@ import React from "react";
 import { getAvatarFrame } from "../utils/gamification";
 
 export function StudentAvatar({
-  avatar = "🤖",
+  avatar = "/avatars/bean-female-debugging.jpg",
   customPhoto = null,
   frameId = "default",
   size = "md", // "xs" | "sm" | "md" | "lg" | "xl"
@@ -36,6 +36,10 @@ export function StudentAvatar({
   // Optimal expansion scale factor so the frame's transparent center hole matches the avatar size
   const scale = frame?.scale || 1.65;
 
+  const isImageAvatar = Boolean(
+    avatar && (avatar.startsWith("/") || avatar.startsWith("http") || avatar.includes("."))
+  );
+
   return (
     <div
       onClick={onClick}
@@ -51,6 +55,13 @@ export function StudentAvatar({
           {customPhoto ? (
             <img
               src={customPhoto}
+              alt="Avatar"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : isImageAvatar ? (
+            <img
+              src={avatar}
               alt="Avatar"
               className="w-full h-full object-cover"
               loading="lazy"

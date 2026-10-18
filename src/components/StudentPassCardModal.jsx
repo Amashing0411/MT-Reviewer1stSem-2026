@@ -28,7 +28,7 @@ export function StudentPassCardModal({ isOpen, onClose }) {
   const section = profile.section || "BSCPE 4D";
 
   // Generate high-resolution ID card PNG and download
-  const handleDownloadImage = () => {
+  const handleDownloadImage = async () => {
     setIsGenerating(true);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -36,6 +36,28 @@ export function StudentPassCardModal({ isOpen, onClose }) {
     const height = 480;
     canvas.width = width;
     canvas.height = height;
+
+    // Load avatar image if it's customPhoto or an image path
+    const imageSrc = profile.customPhoto || (
+      profile.avatar && (profile.avatar.startsWith("/") || profile.avatar.startsWith("http") || profile.avatar.includes(".")) 
+        ? profile.avatar 
+        : null
+    );
+
+    let avatarImg = null;
+    if (imageSrc) {
+      try {
+        avatarImg = await new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = imageSrc;
+        });
+      } catch (e) {
+        avatarImg = null;
+      }
+    }
 
     // Background Gradient (Deep Navy/Slate to Cyber Indigo)
     const bgGradient = ctx.createLinearGradient(0, 0, width, height);
@@ -80,11 +102,20 @@ export function StudentPassCardModal({ isOpen, onClose }) {
     ctx.fillRect(40, 125, 120, 120);
     ctx.strokeRect(40, 125, 120, 120);
 
-    // Draw Emoji Avatar
-    ctx.font = "64px 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(profile.avatar || "🤖", 100, 210);
-    ctx.textAlign = "left";
+    // Draw Image Avatar or Fallback Emoji
+    if (avatarImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(42, 127, 116, 116);
+      ctx.clip();
+      ctx.drawImage(avatarImg, 42, 127, 116, 116);
+      ctx.restore();
+    } else {
+      ctx.font = "64px 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(profile.avatar || "🤖", 100, 210);
+      ctx.textAlign = "left";
+    }
 
     // Level Badge under avatar
     ctx.fillStyle = "rgba(59, 130, 246, 0.2)";

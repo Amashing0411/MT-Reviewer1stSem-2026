@@ -51,7 +51,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
   const [name, setName] = useState(profile.name || "");
   const [section, setSection] = useState(profile.section || "BSCPE 4D");
   const [pin, setPin] = useState(profile.pin || "");
-  const [selectedAvatar, setSelectedAvatar] = useState(profile.avatar || "⚡");
+  const [selectedAvatar, setSelectedAvatar] = useState(profile.avatar || "/avatars/bean-female-debugging.jpg");
   const [customPhoto, setCustomPhoto] = useState(profile.customPhoto || null);
   const [selectedFrame, setSelectedFrame] = useState(profile.frame || "default");
   const [selectedNameFx, setSelectedNameFx] = useState(profile.nameFx || "none");
@@ -77,7 +77,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
       setName(profile.name || "");
       setSection(profile.section || "BSCPE 4D");
       setPin(profile.pin || "");
-      setSelectedAvatar(profile.avatar || "⚡");
+      setSelectedAvatar(profile.avatar || "/avatars/bean-female-debugging.jpg");
       setCustomPhoto(profile.customPhoto || null);
       setSelectedFrame(profile.frame || "default");
       setSelectedNameFx(profile.nameFx || "none");
@@ -100,7 +100,7 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
     name.trim() !== (profile.name || "").trim() ||
     section !== (profile.section || "BSCPE 4D") ||
     pin.trim() !== (profile.pin || "").trim() ||
-    selectedAvatar !== (profile.avatar || "⚡") ||
+    selectedAvatar !== (profile.avatar || "/avatars/bean-female-debugging.jpg") ||
     Boolean(customPhoto) !== Boolean(profile.customPhoto) ||
     (customPhoto && profile.customPhoto && customPhoto !== profile.customPhoto) ||
     selectedFrame !== (profile.frame || "default") ||
@@ -399,32 +399,41 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
                 />
               </div>
 
-              {/* Fast Emoji Picker */}
+              {/* Character Avatar Image Picker */}
               <div className="w-full pt-1.5 border-t border-white/10">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1 text-left">
-                  Preset Codename Emojis:
+                  Preset Character Avatars:
                 </span>
                 <div className="grid grid-cols-6 gap-1.5">
                   {AVATAR_PRESETS.map((av) => {
-                    const isPicked = !customPhoto && selectedAvatar === av.emoji;
+                    const isPicked = !customPhoto && (selectedAvatar === av.image || selectedAvatar === av.id);
                     return (
                       <button
                         type="button"
                         key={av.id}
                         onClick={() => {
-                          setSelectedAvatar(av.emoji);
+                          setSelectedAvatar(av.image);
                           setCustomPhoto(null);
                           setPhotoError(null);
                           try { sound?.playFlip?.(); } catch (err) {}
                         }}
-                        className={`p-1.5 rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer ${
+                        className={`p-1 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer group ${
                           isPicked 
                             ? "bg-blue-600/40 border-2 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)] scale-105" 
                             : "bg-white/5 hover:bg-white/10 border border-white/10"
                         }`}
-                        title={av.label}
+                        title={`${av.label} — ${av.desc}`}
                       >
-                        <span>{av.emoji}</span>
+                        <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-900 border border-white/10 flex items-center justify-center">
+                          <img 
+                            src={av.image} 
+                            alt={av.label} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform" 
+                          />
+                        </div>
+                        <span className="text-[7.5px] font-bold text-slate-300 truncate w-full mt-1 text-center">
+                          {av.label.split(" ")[0]}
+                        </span>
                       </button>
                     );
                   })}
@@ -935,43 +944,53 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
               </div>
             </div>
 
-            {/* NETFLIX-STYLE AVATAR GRID (12 Presets + Custom Photo Card) */}
+            {/* CHARACTER AVATAR GRID (6 Illustrated Engineering Bean Avatars + Custom Photo) */}
             <div className="w-full p-2.5 rounded-2xl bg-white/5 border border-white/10">
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-48 overflow-y-auto pr-0.5 scrollbar-thin">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-52 overflow-y-auto pr-0.5 scrollbar-thin">
                 {/* 1. Dedicated Custom Photo Tile */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className={`p-2 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                  className={`p-2 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer min-h-[88px] ${
                     customPhoto
-                      ? "bg-blue-600/40 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.5)] scale-105"
+                      ? "bg-blue-600/40 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.5)] scale-102"
                       : "bg-white/5 hover:bg-white/15 border-white/10 text-blue-300"
                   }`}
                 >
-                  <Upload className="w-5 h-5 mb-1 text-blue-400" />
-                  <span className="text-[9px] font-bold truncate">My Photo</span>
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center mb-1 border border-blue-400/30">
+                    <Upload className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <span className="text-[9.5px] font-bold">My Photo</span>
+                  <span className="text-[7.5px] text-slate-400">Custom Upload</span>
                 </button>
 
-                {/* 12 Netflix Style Character Avatars */}
+                {/* 6 Illustrated Character Avatars */}
                 {AVATAR_PRESETS.map((av) => {
-                  const isPicked = !customPhoto && selectedAvatar === av.emoji;
+                  const isPicked = !customPhoto && (selectedAvatar === av.image || selectedAvatar === av.id);
                   return (
                     <button
                       type="button"
                       key={av.id}
                       onClick={() => {
-                        setSelectedAvatar(av.emoji);
+                        setSelectedAvatar(av.image);
                         setCustomPhoto(null);
                         try { sound?.playFlip?.(); } catch (err) {}
                       }}
-                      className={`p-2 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                      className={`p-1.5 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer min-h-[88px] relative overflow-hidden group ${
                         isPicked
-                          ? "bg-blue-600/40 border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)] scale-105"
+                          ? "bg-blue-600/40 border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)] scale-102"
                           : "bg-white/5 hover:bg-white/15 border-white/10"
                       }`}
                     >
-                      <span className="text-2xl mb-0.5">{av.emoji}</span>
-                      <span className="text-[8.5px] font-bold text-slate-300 truncate w-full">{av.label.split(" ")[0]}</span>
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg overflow-hidden bg-slate-900 border border-white/15 mb-1 shadow-inner">
+                        <img 
+                          src={av.image} 
+                          alt={av.label} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200" 
+                        />
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-200 truncate w-full text-center">{av.label}</span>
+                      <span className="text-[7.5px] text-slate-400 truncate w-full text-center">{av.desc?.split(" ")[0] || "Engineer"}</span>
                     </button>
                   );
                 })}
@@ -1017,10 +1036,11 @@ export function WelcomeModal({ isOpen, onClose, onSaved }) {
           Join <span className="font-semibold text-white">BSCPE 4th Year Engineers</span> reviewing for Midterms.
         </p>
         <div className="flex -space-x-2">
-          <div className="w-7 h-7 rounded-full border-2 border-[#0c0e12] bg-blue-900 flex items-center justify-center text-[11px] shadow-sm">⚡</div>
-          <div className="w-7 h-7 rounded-full border-2 border-[#0c0e12] bg-indigo-900 flex items-center justify-center text-[11px] shadow-sm">🤖</div>
-          <div className="w-7 h-7 rounded-full border-2 border-[#0c0e12] bg-purple-900 flex items-center justify-center text-[11px] shadow-sm">💻</div>
-          <div className="w-7 h-7 rounded-full border-2 border-[#0c0e12] bg-emerald-900 flex items-center justify-center text-[11px] shadow-sm">🛠️</div>
+          {AVATAR_PRESETS.slice(0, 4).map((av) => (
+            <div key={av.id} className="w-7 h-7 rounded-full border-2 border-[#0c0e12] overflow-hidden bg-slate-900 shadow-sm">
+              <img src={av.image} alt="" className="w-full h-full object-cover" />
+            </div>
+          ))}
         </div>
       </div>
 
