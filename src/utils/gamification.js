@@ -569,7 +569,7 @@ export function buildLeaderboard(currentUser, subjectFilter = "all") {
 
   // Filter out any duplicates matching current user name or id
   const otherClassmates = roster
-    .filter((c) => c.name !== currentUser.name && c.id !== "me")
+    .filter((c) => c.id !== currentUser.id && c.name?.trim().toLowerCase() !== currentUser.name?.trim().toLowerCase() && c.id !== "me")
     .map((c) => {
       const cSub = isAll ? {} : (c.subjectStats?.[subjectFilter] || {});
       return {

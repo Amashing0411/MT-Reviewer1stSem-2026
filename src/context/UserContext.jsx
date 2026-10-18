@@ -113,16 +113,15 @@ export function UserProvider({ children }) {
 
   // Background helper to upload profile to Vercel KV cloud
   const pushProfileToCloud = async (currentProfile) => {
-    // DO NOT upload unconfigured default profiles or ghost visits
+    // Only upload if profile is valid and student has completed setup
     if (!currentProfile || !currentProfile.id || !currentProfile.isConfigured) return;
-    if (currentProfile.name?.startsWith("Student #") && (!currentProfile.xp || currentProfile.xp === 0)) return;
 
     try {
       const payload = {
         id: currentProfile.id,
         name: currentProfile.name,
         section: currentProfile.section || "BSCPE 4D",
-        avatar: currentProfile.avatar || "🤖",
+        avatar: normalizeAvatar(currentProfile.avatar),
         frame: currentProfile.frame || "default",
         tagline: currentProfile.tagline || "",
         nameFx: currentProfile.nameFx || "none",
@@ -133,6 +132,7 @@ export function UserProvider({ children }) {
         highestPercent: currentProfile.highestScorePercent || 0,
         subjectStats: currentProfile.subjectStats || {},
         pin: currentProfile.pin || null,
+        isConfigured: Boolean(currentProfile.isConfigured),
       };
       const res = await fetch("/api/leaderboard", {
         method: "POST",
@@ -254,7 +254,7 @@ export function UserProvider({ children }) {
             localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(data.feed));
           } catch (e) {}
         }
-        if (profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
+        if (profile?.isConfigured) {
           await pushProfileToCloud(profile);
         }
         return true;
@@ -419,7 +419,7 @@ export function UserProvider({ children }) {
   // Sync to localStorage whenever profile changes
   useEffect(() => {
     saveProfile(profile);
-    if (isCloudConnected && profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
+    if (isCloudConnected && profile?.isConfigured) {
       pushProfileToCloud(profile);
     }
   }, [profile, isCloudConnected]);

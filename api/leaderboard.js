@@ -94,24 +94,69 @@ export default async function handler(req, res) {
       }
     }
 
-    if (Array.isArray(roster)) {
-      let needsRosterRepair = false;
-      roster.forEach((student) => {
-        if (
-          student.avatar &&
-          (student.avatar === "/avatars/b" ||
-            (student.avatar.startsWith("/avatars/") && !student.avatar.endsWith(".jpg") && !student.avatar.endsWith(".png")))
-        ) {
-          student.avatar = "/avatars/bean-female-debugging.jpg";
-          needsRosterRepair = true;
-        }
-      });
-      if (needsRosterRepair) {
-        upstashCommand(["SET", KEY, JSON.stringify(roster)]).catch(() => {});
-      }
+    if (!Array.isArray(roster)) {
+      roster = [];
     }
 
-    return Array.isArray(roster) ? roster : [];
+    let needsRosterRepair = false;
+
+    // 1. Repair truncated avatars
+    roster.forEach((student) => {
+      if (
+        student.avatar &&
+        (student.avatar === "/avatars/b" ||
+          (student.avatar.startsWith("/avatars/") && !student.avatar.endsWith(".jpg") && !student.avatar.endsWith(".png")))
+      ) {
+        student.avatar = "/avatars/bean-female-debugging.jpg";
+        needsRosterRepair = true;
+      }
+    });
+
+    // 2. Reconcile active students from campus shoutbox feed who are missing from roster
+    try {
+      const feed = await getFeed();
+      if (Array.isArray(feed)) {
+        feed.forEach((msg) => {
+          if (msg.studentId && msg.studentId !== "system" && msg.studentName) {
+            const cleanName = msg.studentName.trim();
+            const exists = roster.some(
+              (s) =>
+                (s.id && s.id === msg.studentId) ||
+                (s.name && s.name.trim().toLowerCase() === cleanName.toLowerCase())
+            );
+            if (!exists) {
+              roster.push({
+                id: msg.studentId,
+                name: cleanName,
+                section: msg.studentSection || "BSCPE 4D",
+                avatar: msg.avatar || "/avatars/bean-female-debugging.jpg",
+                frame: msg.frame || "default",
+                tagline: msg.tagline || "🎓 4th Year Candidate",
+                nameFx: msg.nameFx || "none",
+                customPhoto: msg.customPhoto || null,
+                xp: typeof msg.xp === "number" ? msg.xp : 0,
+                levelInfo: {
+                  level: typeof msg.level === "number" ? msg.level : 1,
+                  title: "Novice Trainee",
+                },
+                fastestBlitz: msg.fastestBlitz || null,
+                highestPercent: msg.highestPercent || 0,
+                subjectStats: {},
+                updatedAt: msg.createdAt || Date.now(),
+              });
+              needsRosterRepair = true;
+            }
+          }
+        });
+      }
+    } catch (e) {}
+
+    if (needsRosterRepair) {
+      roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+      upstashCommand(["SET", KEY, JSON.stringify(roster)]).catch(() => {});
+    }
+
+    return roster;
   }
 
   // Helper to fetch shoutbox feed
@@ -247,6 +292,40 @@ export default async function handler(req, res) {
         // Keep most recent 50 messages
         if (feed.length > 50) feed = feed.slice(-50);
         await upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]);
+
+        // Ensure this active student is in the roster as well
+        if (newMsg.studentId && newMsg.studentId !== "system" && newMsg.studentName) {
+          try {
+            let roster = await getRoster();
+            const existingIdx = roster.findIndex(
+              (item) => item.id === newMsg.studentId || (item.name && item.name.trim().toLowerCase() === newMsg.studentName.trim().toLowerCase())
+            );
+            if (existingIdx === -1) {
+              roster.push({
+                id: newMsg.studentId,
+                name: newMsg.studentName,
+                section: newMsg.studentSection,
+                avatar: newMsg.avatar,
+                frame: newMsg.frame,
+                tagline: newMsg.tagline || "🎓 4th Year Candidate",
+                nameFx: newMsg.nameFx,
+                customPhoto: newMsg.customPhoto,
+                xp: newMsg.xp,
+                levelInfo: {
+                  level: newMsg.level || 1,
+                  title: "Novice Trainee",
+                },
+                fastestBlitz: newMsg.fastestBlitz,
+                highestPercent: newMsg.highestPercent,
+                subjectStats: {},
+                updatedAt: Date.now(),
+              });
+              roster.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+              await upstashCommand(["SET", KEY, JSON.stringify(roster)]);
+            }
+          } catch (e) {}
+        }
+
         return res.status(200).json({ ok: true, feed });
       }
 
@@ -384,11 +463,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: "Missing student data" });
       }
 
-      // Guard: Reject unconfigured default ghost profiles (e.g. "Student #..." with 0 XP)
-      if (
-        String(student.name || "").startsWith("Student #") &&
-        (!student.xp || Number(student.xp) === 0)
-      ) {
+      // Guard: Reject unconfigured profiles if explicitly flagged
+      if (student.isConfigured === false) {
         const currentRoster = await getRoster();
         const safeRoster = currentRoster.map(({ pin, ...safe }) => safe);
         return res.status(200).json({ ok: true, isCloudConnected: true, roster: safeRoster });

@@ -48,8 +48,13 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
   const [selectedSubject, setSelectedSubject] = useState(defaultSubject || "all");
 
   useEffect(() => {
-    if (isOpen && defaultSubject) {
-      setSelectedSubject(defaultSubject);
+    if (isOpen) {
+      if (defaultSubject) {
+        setSelectedSubject(defaultSubject);
+      }
+      try {
+        syncWithCloud();
+      } catch (e) {}
     }
   }, [isOpen, defaultSubject]);
 
