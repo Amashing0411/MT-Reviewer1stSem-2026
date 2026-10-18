@@ -81,6 +81,7 @@ export function BattleArena({ onBackToReviewer }) {
   const clockIntervalRef = useRef(null);
   const botTurnTimeoutRef = useRef(null);
   const hasTriggeredCoinTossRef = useRef(false);
+  const paidMatchIdsRef = useRef(new Set());
 
   // Auto-reconnect across page refresh if player was in an active battle match
   useEffect(() => {
@@ -430,7 +431,7 @@ export function BattleArena({ onBackToReviewer }) {
     handleMatchEnd(winner?.id);
   };
 
-  // Match End Handler
+  // Match End Handler (With XP Reward Deduplication & Server Synchronization)
   const handleMatchEnd = (winnerId, latestRoom = null) => {
     try {
       sessionStorage.removeItem(SESSION_ROOM_KEY);
@@ -451,7 +452,16 @@ export function BattleArena({ onBackToReviewer }) {
 
     setScreen("game_over");
 
-    if (isPlayer) {
+    // Strictly award XP once per match room to prevent duplicate/rejoin exploits
+    const payoutKey = `bscpe_battle_paid_${room.id}`;
+    const alreadyClaimed = paidMatchIdsRef.current.has(room.id) || sessionStorage.getItem(payoutKey);
+
+    if (isPlayer && !alreadyClaimed) {
+      paidMatchIdsRef.current.add(room.id);
+      try {
+        sessionStorage.setItem(payoutKey, "claimed");
+      } catch (e) {}
+
       if (isWinner) {
         sound.playFanfare();
         confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
@@ -461,7 +471,56 @@ export function BattleArena({ onBackToReviewer }) {
         const penalty = Math.min(profile.xp, wager);
         addXp(-penalty, `1v1 Battle Exam Defeat (Lost Wager)`);
       }
+
+      // Inform server that match has authoritatively finished so it leaves the active lobby
+      if (!isBotMatch && room.id) {
+        fetch("/api/battle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "finish_match",
+            roomId: room.id,
+            winnerId,
+            finishReason: room.gameState?.finishReason || "completed",
+          }),
+        }).catch(() => {});
+      }
     }
+  };
+
+  // Clean Return to Arena Lobby (Purges finished room from Redis so it never lingers)
+  const handleReturnToLobby = async () => {
+    sound.playTap();
+    try {
+      sessionStorage.removeItem(SESSION_ROOM_KEY);
+    } catch (e) {}
+
+    const closingRoomId = activeRoom?.id;
+    setActiveRoom(null);
+    setScreen("lobby");
+
+    if (closingRoomId && !isBotMatch) {
+      try {
+        await fetch("/api/battle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "close_room",
+            roomId: closingRoomId,
+            studentId: profile.id,
+          }),
+        });
+      } catch (e) {}
+    }
+
+    // Refresh lobby rooms immediately
+    try {
+      const res = await fetch("/api/battle");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.rooms)) setRooms(data.rooms);
+      }
+    } catch (e) {}
   };
 
   // Forfeit / Surrender Match Handler
@@ -1203,92 +1262,94 @@ export function BattleArena({ onBackToReviewer }) {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {rooms.map((room) => {
-                    const isFull = !!room.guest;
-                    const isMyRoom = room.host?.id === profile.id;
-                    const isMyGuest = room.guest?.id === profile.id;
-                    const isParticipant = isMyRoom || isMyGuest;
-                    const isRoomInBattle = room.status === "in_battle" || room.status === "tossing_coin";
+                  {rooms
+                    .filter((room) => room.status !== "finished" && !room.gameState?.winnerId)
+                    .map((room) => {
+                      const isFull = !!room.guest;
+                      const isMyRoom = room.host?.id === profile.id;
+                      const isMyGuest = room.guest?.id === profile.id;
+                      const isParticipant = isMyRoom || isMyGuest;
+                      const isRoomInBattle = room.status === "in_battle" || room.status === "tossing_coin";
 
-                    return (
-                      <div
-                        key={room.id}
-                        className="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-blue-500/50 transition-all flex flex-col justify-between gap-4 shadow-sm"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400/80 shrink-0 bg-slate-100 dark:bg-slate-900">
-                              <StudentAvatar avatar={room.host?.avatar} className="w-full h-full object-cover" />
+                      return (
+                        <div
+                          key={room.id}
+                          className="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-blue-500/50 transition-all flex flex-col justify-between gap-4 shadow-sm"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400/80 shrink-0 bg-slate-100 dark:bg-slate-900">
+                                <StudentAvatar avatar={room.host?.avatar} className="w-full h-full object-cover" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="text-sm font-black text-slate-900 dark:text-white truncate">
+                                  {room.title}
+                                </h4>
+                                <p className="text-[11px] text-slate-500 font-medium">
+                                  Host: {room.host?.name} ({room.host?.section})
+                                </p>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <h4 className="text-sm font-black text-slate-900 dark:text-white truncate">
-                                {room.title}
-                              </h4>
-                              <p className="text-[11px] text-slate-500 font-medium">
-                                Host: {room.host?.name} ({room.host?.section})
-                              </p>
+
+                            <div className="text-right shrink-0">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-700 dark:text-amber-300 text-xs font-black">
+                                <Zap className="w-3 h-3 fill-amber-400 text-amber-500" />
+                                <span>{room.wager} XP</span>
+                              </span>
+                              <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                {room.subject === "all" ? "All 8 Subjects" : room.subject.toUpperCase()}
+                              </div>
                             </div>
                           </div>
 
-                          <div className="text-right shrink-0">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-700 dark:text-amber-300 text-xs font-black">
-                              <Zap className="w-3 h-3 fill-amber-400 text-amber-500" />
-                              <span>{room.wager} XP</span>
-                            </span>
-                            <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                              {room.subject === "all" ? "All 8 Subjects" : room.subject.toUpperCase()}
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                            <div className="flex items-center gap-2 text-slate-500 text-[11px]">
+                              <Users className="w-3.5 h-3.5 text-blue-500" />
+                              <span>{isRoomInBattle ? "🔴 In Battle" : isFull ? "2/2 (Readying)" : "1/2 (Challenger Needed)"}</span>
+                              <span className="text-slate-300">•</span>
+                              <Eye className="w-3.5 h-3.5 text-emerald-500" />
+                              <span>{room.spectatorCount || 0} watching</span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {isParticipant && (isRoomInBattle || room.status === "countdown") ? (
+                                <button
+                                  onClick={() => handleJoinRoom(room, isMyGuest)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 animate-pulse cursor-pointer"
+                                >
+                                  <Swords className="w-3.5 h-3.5" />
+                                  <span>Rejoin Battle ⚔️</span>
+                                </button>
+                              ) : isParticipant && room.status === "waiting" ? (
+                                <button
+                                  onClick={() => handleJoinRoom(room, isMyGuest)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+                                >
+                                  <Swords className="w-3.5 h-3.5" />
+                                  <span>{isMyRoom ? "Enter Arena" : "Rejoin Lobby"}</span>
+                                </button>
+                              ) : isRoomInBattle || (isFull && !isParticipant) ? (
+                                <button
+                                  onClick={() => handleJoinRoom(room, false)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>Spectate Live</span>
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleJoinRoom(room, true)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+                                >
+                                  <Swords className="w-3.5 h-3.5" />
+                                  <span>Accept Challenge</span>
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-                          <div className="flex items-center gap-2 text-slate-500 text-[11px]">
-                            <Users className="w-3.5 h-3.5 text-blue-500" />
-                            <span>{isRoomInBattle ? "🔴 In Battle" : isFull ? "2/2 (Readying)" : "1/2 (Challenger Needed)"}</span>
-                            <span className="text-slate-300">•</span>
-                            <Eye className="w-3.5 h-3.5 text-emerald-500" />
-                            <span>{room.spectatorCount || 0} watching</span>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {isParticipant && (isRoomInBattle || room.status === "countdown") ? (
-                              <button
-                                onClick={() => handleJoinRoom(room, isMyGuest)}
-                                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 animate-pulse"
-                              >
-                                <Swords className="w-3.5 h-3.5" />
-                                <span>Rejoin Battle ⚔️</span>
-                              </button>
-                            ) : isParticipant && !isRoomInBattle ? (
-                              <button
-                                onClick={() => handleJoinRoom(room, isMyGuest)}
-                                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
-                              >
-                                <Swords className="w-3.5 h-3.5" />
-                                <span>{isMyRoom ? "Enter Arena" : "Rejoin Lobby"}</span>
-                              </button>
-                            ) : isRoomInBattle || (isFull && !isParticipant) ? (
-                              <button
-                                onClick={() => handleJoinRoom(room, false)}
-                                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95"
-                              >
-                                <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                                <span>Spectate Live</span>
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleJoinRoom(room, true)}
-                                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-blue-500/20 active:scale-95"
-                              >
-                                <Swords className="w-3.5 h-3.5" />
-                                <span>Accept Challenge</span>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -1891,32 +1952,34 @@ export function BattleArena({ onBackToReviewer }) {
               {isPlayer && (
                 <button
                   onClick={() => {
+                    const newSubId = "r_" + Date.now();
                     setScreen("room_setup");
                     setActiveRoom((prev) => ({
                       ...prev,
+                      id: prev?.id ? prev.id : newSubId,
                       status: "waiting",
                       hostReady: false,
                       guestReady: false,
+                      countdownEnd: null,
                       gameState: {
                         ...prev.gameState,
                         hostClock: 60,
                         guestClock: 60,
                         winnerId: null,
+                        finishReason: null,
+                        haltUntil: 0,
                       },
                     }));
                   }}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all cursor-pointer"
                 >
-                  Rematch Showdown
+                  Rematch Showdown ⚔️
                 </button>
               )}
 
               <button
-                onClick={() => {
-                  setScreen("lobby");
-                  setActiveRoom(null);
-                }}
-                className="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold text-xs transition-colors"
+                onClick={handleReturnToLobby}
+                className="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold text-xs transition-colors cursor-pointer"
               >
                 Return to Arena Lobby
               </button>

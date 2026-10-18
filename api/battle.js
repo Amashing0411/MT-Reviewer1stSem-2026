@@ -108,9 +108,20 @@ export default async function handler(req, res) {
 
     if (!Array.isArray(rooms)) rooms = [];
 
-    // Filter out inactive rooms older than 2 hours
+    // Filter out finished rooms older than 30s or abandoned rooms older than 15 mins
     const now = Date.now();
-    return rooms.filter((r) => now - (r.updatedAt || r.createdAt || 0) < 1000 * 60 * 120);
+    const activeRooms = rooms.filter((r) => {
+      if (r.status === "finished") {
+        return now - (r.finishedAt || r.updatedAt || r.createdAt || 0) < 30000;
+      }
+      return now - (r.updatedAt || r.createdAt || 0) < 1000 * 60 * 15;
+    });
+
+    if (activeRooms.length !== rooms.length) {
+      saveRooms(activeRooms).catch(() => {});
+    }
+
+    return activeRooms;
   }
 
   // Save rooms back to Upstash
@@ -142,8 +153,8 @@ export default async function handler(req, res) {
         // Auto-advance countdown -> tossing_coin
         if (room.status === "countdown" && room.countdownEnd && now >= room.countdownEnd) {
           const isHost = Math.random() < 0.5;
-          const winnerId = isHost ? room.host.id : room.guest.id;
-          const winnerName = isHost ? room.host.name : room.guest.name;
+          const winnerId = isHost ? room.host.id : room.guest?.id;
+          const winnerName = isHost ? room.host.name : room.guest?.name;
 
           room.status = "tossing_coin";
           room.coinToss = {
@@ -188,6 +199,7 @@ export default async function handler(req, res) {
             const currentHost = Math.max(0, +(room.gameState.hostClock - elapsed).toFixed(1));
             if (currentHost <= 0) {
               room.status = "finished";
+              room.finishedAt = now;
               room.gameState.winnerId = room.guest?.id;
               room.gameState.finishReason = "timeout";
               room.gameState.hostClock = 0;
@@ -204,6 +216,7 @@ export default async function handler(req, res) {
             const currentGuest = Math.max(0, +(room.gameState.guestClock - elapsed).toFixed(1));
             if (currentGuest <= 0) {
               room.status = "finished";
+              room.finishedAt = now;
               room.gameState.winnerId = room.host.id;
               room.gameState.finishReason = "timeout";
               room.gameState.guestClock = 0;
@@ -226,8 +239,72 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, isCloudConnected: true, room, serverTime: now });
       }
 
-      // Only return open/active lobbies so finished matches disappear from lobby
-      const openRooms = rooms.filter((r) => r.status !== "finished");
+      // Sweep and evaluate active clocks across all rooms so stale/finished matches never linger in lobby
+      let hasSweepChanged = false;
+      for (const room of rooms) {
+        if (room.status === "countdown" && room.countdownEnd && now >= room.countdownEnd + 1000) {
+          const isHost = Math.random() < 0.5;
+          const winnerId = isHost ? room.host.id : room.guest?.id;
+          room.status = "tossing_coin";
+          room.coinToss = {
+            winnerId,
+            flippedAt: now,
+            sideLand: isHost ? "host" : "guest",
+            flipDuration: 4200,
+          };
+          room.gameState.activePlayerId = winnerId;
+          room.gameState.hostClock = 60;
+          room.gameState.guestClock = 60;
+          room.gameState.turnStartedAt = now + 4200;
+          room.updatedAt = now;
+          hasSweepChanged = true;
+        }
+
+        if (
+          room.status === "tossing_coin" &&
+          room.coinToss?.flippedAt &&
+          now >= room.coinToss.flippedAt + 4200
+        ) {
+          room.status = "in_battle";
+          room.gameState.turnStartedAt = now;
+          room.updatedAt = now;
+          hasSweepChanged = true;
+        }
+
+        if (room.status === "in_battle" && !room.gameState.winnerId) {
+          const elapsed = (now - (room.gameState.turnStartedAt || now)) / 1000;
+          if (room.gameState.activePlayerId === room.host.id) {
+            const currentHost = Math.max(0, +(room.gameState.hostClock - elapsed).toFixed(1));
+            if (currentHost <= 0) {
+              room.status = "finished";
+              room.finishedAt = now;
+              room.gameState.winnerId = room.guest?.id;
+              room.gameState.finishReason = "timeout";
+              room.gameState.hostClock = 0;
+              hasSweepChanged = true;
+            }
+          } else if (room.gameState.activePlayerId === room.guest?.id) {
+            const currentGuest = Math.max(0, +(room.gameState.guestClock - elapsed).toFixed(1));
+            if (currentGuest <= 0) {
+              room.status = "finished";
+              room.finishedAt = now;
+              room.gameState.winnerId = room.host.id;
+              room.gameState.finishReason = "timeout";
+              room.gameState.guestClock = 0;
+              hasSweepChanged = true;
+            }
+          }
+        }
+      }
+
+      if (hasSweepChanged) {
+        await saveRooms(rooms);
+      }
+
+      // STRICT LOBBY FILTER: Strictly omit finished rooms or rooms with a declared winner
+      const openRooms = rooms.filter(
+        (r) => r.status !== "finished" && !r.gameState?.winnerId
+      );
 
       return res.status(200).json({
         ok: true,
@@ -341,6 +418,13 @@ export default async function handler(req, res) {
 
         const room = rooms[roomIdx];
         room.updatedAt = now;
+
+        if (room.status === "finished" || room.gameState?.winnerId) {
+          return res.status(410).json({
+            ok: false,
+            error: "This battle showdown has already ended. Lobby is closed.",
+          });
+        }
 
         const playerInfo = {
           id: student.id,
@@ -660,6 +744,7 @@ export default async function handler(req, res) {
               const surrenderingPlayer = isHost ? room.host : room.guest;
               const winner = isHost ? room.guest : room.host;
               room.status = "finished";
+              room.finishedAt = now;
               room.gameState.winnerId = winner?.id;
               room.gameState.finishReason = "surrender";
               room.chat.push({
@@ -669,6 +754,13 @@ export default async function handler(req, res) {
                 senderName: "Arena Referee",
                 createdAt: now,
               });
+            }
+          } else if (room.status === "finished") {
+            // Player leaving a finished room -> delete room from Redis immediately so it never lingers
+            if (room.host.id === studentId || room.guest?.id === studentId) {
+              rooms.splice(roomIdx, 1);
+              await saveRooms(rooms);
+              return res.status(200).json({ ok: true, deleted: true });
             }
           } else if (room.status === "waiting" || room.status === "countdown") {
             if (room.host.id === studentId) {
@@ -735,6 +827,7 @@ export default async function handler(req, res) {
 
         if (winner) {
           room.status = "finished";
+          room.finishedAt = now;
           room.gameState.winnerId = winner.id;
           room.gameState.finishReason = "surrender";
           room.chat.push({
@@ -783,6 +876,34 @@ export default async function handler(req, res) {
         room.updatedAt = now;
         await saveRooms(rooms);
         return res.status(200).json({ ok: true, room });
+      }
+
+      // 12. AUTHORITATIVE MATCH FINISH (Called by client when game ends)
+      if (action === "finish_match") {
+        const { roomId, winnerId, finishReason } = body;
+        const room = rooms.find((r) => r.id === roomId);
+        if (room) {
+          room.status = "finished";
+          room.finishedAt = now;
+          room.gameState.winnerId = winnerId;
+          room.gameState.finishReason = finishReason || "completed";
+          room.updatedAt = now;
+          await saveRooms(rooms);
+          return res.status(200).json({ ok: true, room });
+        }
+        return res.status(404).json({ ok: false, error: "Room not found" });
+      }
+
+      // 13. CLOSE / PURGE ROOM (Called on return to lobby or rematch cleanup)
+      if (action === "close_room") {
+        const { roomId } = body;
+        const roomIdx = rooms.findIndex((r) => r.id === roomId);
+        if (roomIdx !== -1) {
+          rooms.splice(roomIdx, 1);
+          await saveRooms(rooms);
+          return res.status(200).json({ ok: true, deleted: true });
+        }
+        return res.status(200).json({ ok: true });
       }
 
       return res.status(400).json({ ok: false, error: "Invalid action" });
