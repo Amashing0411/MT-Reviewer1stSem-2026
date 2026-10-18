@@ -10,6 +10,8 @@ import { WelcomeModal } from "./components/WelcomeModal";
 import { LeaderboardModal } from "./components/LeaderboardModal";
 import { StudentPassCardModal } from "./components/StudentPassCardModal";
 import { InteractiveBackground } from "./components/InteractiveBackground";
+import { ClassShoutbox } from "./components/ClassShoutbox";
+import { StudentProfileModal } from "./components/StudentProfileModal";
 import { UserProvider, useUser } from "./context/UserContext";
 import { AVATAR_FRAMES, NAME_EFFECTS } from "./utils/gamification";
 import { 
@@ -51,7 +53,9 @@ function AppContent() {
     setIsLeaderboardOpen,
     isCloudConnected,
     isSyncing,
-    syncWithCloud
+    syncWithCloud,
+    inspectedStudent,
+    setInspectedStudent
   } = useUser();
 
   const [leaderboardSubject, setLeaderboardSubject] = useState("all");
@@ -369,11 +373,13 @@ function AppContent() {
                     return (
                       <div
                         key={item.id}
-                        className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                        onClick={() => setInspectedStudent(item)}
+                        className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer group hover:scale-[1.008] hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 ${
                           isMe
                             ? "bg-blue-50/90 dark:bg-blue-950/50 border-blue-400/90 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20"
                             : "bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200/80 dark:border-slate-700"
                         }`}
+                        title="Click to view classmate profile card & vanity"
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           {rankBadge}
@@ -505,6 +511,15 @@ function AppContent() {
         activeSubjectId={activeSubjectId}
         onSelectSubject={(id) => handleSelectSubject(id)}
       />
+
+      {/* Classmate Profile Showcase Card Modal */}
+      <StudentProfileModal
+        student={inspectedStudent}
+        onClose={() => setInspectedStudent(null)}
+      />
+
+      {/* Live Campus Study Shoutbox Feed Widget */}
+      <ClassShoutbox />
 
       {/* Institutional Footer */}
       <footer className="mt-auto border-t border-slate-200/70 dark:border-slate-800/80 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md py-6 pb-24 md:pb-6 text-xs text-slate-500 dark:text-slate-400">

@@ -41,7 +41,8 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
     importScorecard,
     isCloudConnected,
     isSyncing,
-    syncWithCloud
+    syncWithCloud,
+    setInspectedStudent
   } = useUser();
   const [selectedSubject, setSelectedSubject] = useState(defaultSubject || "all");
 
@@ -456,11 +457,13 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
               return (
                 <div
                   key={item.id}
-                  className={`p-2.5 sm:p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 ${
+                  onClick={() => setInspectedStudent(item)}
+                  className={`p-2.5 sm:p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer group hover:scale-[1.01] hover:shadow-xs hover:border-blue-400 dark:hover:border-blue-500 ${
                     isMe
                       ? "bg-blue-50/90 dark:bg-blue-950/50 border-blue-400 dark:border-blue-600 shadow-xs ring-1 ring-blue-500/20"
                       : "bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200/80 dark:border-slate-700"
                   }`}
+                  title="Click to view classmate profile card & vanity"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     {rankBadge}

@@ -17,7 +17,9 @@
 ## 📌 Table of Contents
 - [📅 Examination Timetable & Room Directory](#-examination-timetable--room-directory)
 - [✨ Key Platform Features](#-key-platform-features)
+- [💬 Live Study Shoutbox & Profile Showcase](#-live-study-shoutbox--profile-showcase)
 - [🏆 Gamification & Cloud Leaderboard](#-gamification--cloud-leaderboard)
+- [🎨 Gemini & Argon Prompt Guide (Avatar Frames & Badges)](#-gemini--argon-prompt-guide-avatar-frames--badges)
 - [📚 Course Modules Covered](#-course-modules-covered)
 - [⌨️ Keyboard Navigation Shortcuts](#️-keyboard-navigation-shortcuts)
 - [🛠️ Tech Stack & Architecture](#️-tech-stack--architecture)
@@ -70,8 +72,34 @@ The platform features an interactive section switchable schedule mapping specifi
 
 ### 5. 🌙 Cyber Dark Mode / ☀️ Light Mode & Hardware-Accelerated Interactive Background
 - **Interactive Parallax & Constellation Background:** A custom hardware-accelerated 2D canvas dynamically traces mouse movements, drawing energy halo fields, magnetic node connections, and subtle depth parallax.
-- **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean dark mode persistence even across hard reloads.
+- **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean light mode default on initial load with persistent dark mode when toggled.
 - **Dual Aesthetic Palette:** Crisp architectural drafting grid for Light Mode; deep `#070b14` void with luminescent cyan/indigo circuit traces for Dark Mode.
+
+---
+
+## 💬 Live Study Shoutbox & Profile Showcase
+
+To make student customizations truly visible across all sections, the platform includes a real-time study feed and interactive digital showcase:
+
+### 1. 📢 4th Year Campus Study Shoutbox (Bottom-Right Widget)
+- **Docked Floating Widget:** Positioned at `bottom-20 sm:bottom-6 right-3 sm:right-6` to guarantee zero overlap with the mobile bottom thumb navigation bar.
+- **Classmate Banter & Motivation:** Post quick review tips, study encouragement, and exam banter across sections (`BSCPE 4A`, `4B`, `4C`, `4D`).
+- **Full Customization in Every Message:** Each chat message displays the sender's avatar inside their moving animated game frame, animated name typography FX, section badge, and vanity tagline.
+- **One-Tap Quick Reactions:** Pre-built Filipino engineering expressions (`🔥 Laban 4th year!`, `☕ Kape muna bago DSP`, `💀 Design 2 pa more`, `⚡ Road to PRC Top 1!`).
+- **Cloud Real-Time Sync:** Backed by Upstash Redis / Vercel KV with instant optimistic local rendering.
+
+### 2. 🪪 Classmate Digital Profile Showcase Modal
+- **Inspect Anyone in 1-Click:** Clicking any classmate's name or avatar in the **Standings Leaderboard** or the **Live Shoutbox** immediately opens their high-resolution digital showcase modal.
+- **Displayed Statistics & Customization:**
+  - Large avatar with equipped moving animated frame.
+  - Animated typography name FX.
+  - Cohort section, assigned exam room, and faculty proctor.
+  - Active vanity tagline badge (e.g., `🎖️ Room 106 Dean's Lister`, `📡 DSP Fourier Master`).
+  - Prestige Level & Rank Title.
+  - Lifetime total experience (XP).
+  - Fastest 10-Question Blitz time record.
+  - Top Midterm simulation score percentage.
+  - **1-Tap Share Card Button:** Copies clean, formatted profile bragging rights to clipboard for Messenger or Discord.
 
 ---
 
@@ -110,7 +138,70 @@ The platform features an interactive section switchable schedule mapping specifi
   - Default guest visits (`Student #...` with 0 XP) are never pushed to the cloud database, preventing phantom user spam.
   - Prevents classmates from claiming someone else's registered name without the matching PIN.
 - **Global & Section Leaderboards:** Real-time standings filterable by Overall or per-subject (`CPE414`, `CPE411`, `CPE416`, `CPE415`, `CPE412`, `ELECT3`, `CPE413`, `ENGWORK`), sortable by XP, fastest blitz time, or highest score.
-- **Vercel KV Cloud Synchronization:** Synchronizes scores across mobile phones and desktop browsers in real time.
+---
+
+## 🎨 Gemini & Argon Prompt Guide (Avatar Frames & Badges)
+
+If you want to generate high-resolution game-grade asset overlays (borders, badges, or animated GIF/APNG frames) using Google Gemini Web (`gemini.google.com` with Imagen 3), Argon, Leonardo, or Midjourney, use the tested prompt formulas below.
+
+### 🖼️ Master Avatar Frame Prompt Formula
+> **Key requirement:** Ensure the center of the frame is transparent or clean solid black/white so it can be masked or set as a PNG/GIF overlay.
+
+#### 1. 🔥 Level 8 Inferno Hellfire Avatar Frame
+```text
+A high-end RPG video game avatar portrait frame border, squircle shape with rounded corners, centered composition on a pure solid black background. The frame consists of roaring, licking hellfire flames, glowing incandescent red, bright molten orange, and yellow fire embers rising upwards. Intricate metallic dark iron filigree border engulfed in heat distortion and dynamic burning plasma. Clean cutout center for a profile picture, 8k resolution, Unreal Engine 5 UI asset, game UI art, high detail, symmetrical design.
+```
+
+#### 2. ⚡ Level 7 High-Voltage Lightning Arc Frame
+```text
+A futuristic esport gamer avatar border frame, rounded square shape, centered composition on a pure solid black background. Violent electric lightning arcs crackling around the perimeter, electric blue, vibrant cyan, and ultraviolet spark bursts. High-voltage energy coils, glowing neon circuit conduits, intense glow emission. Transparent circular cutout area in the exact center, cinematic lighting, League of Legends prestige tier UI icon, symmetrical, photorealistic game asset.
+```
+
+#### 3. 🤖 Level 4 Cyberpunk Glitch & Hologram Frame
+```text
+Cyberpunk holographic avatar profile frame, rounded squircle shape, centered on a clean black background. Glitched digital neon border with chromatic aberration, cyan and magenta color splits, glowing binary code streams, and futuristic tech HUD brackets on corners. Clean center opening, vector UI style, Valorant aesthetic, high sharpness, game UI asset.
+```
+
+#### 4. 🌈 Level 10 Prismatic Valkyrie Bifrost Halo
+```text
+A legendary divine fantasy RPG avatar frame, rounded squircle border, centered on solid black background. Shifting rainbow aurora borealis energy, iridescent crystalline prism edges, floating light motes and ethereal stardust. Polished platinum trim with sacred geometry engraving, soft prismatic specular flares, Genshin Impact / Final Fantasy XIV prestige UI artifact.
+```
+
+#### 5. 👑 Level 12 Eternal Deity Solar Corona Frame
+```text
+An ultra-rare celestial god-tier avatar portrait border, centered on dark void background. Blinding golden solar corona with radiating divine god-rays, floating sacred golden solar runes, pulsating halo of pure solar light and molten gold. Symmetrical, monumental prestige achievement border, 8k, masterwork game UI asset.
+```
+
+---
+
+### 🏷️ Vanity Rank Badges & Crests Prompt Formula
+
+#### 1. 🎖️ Room 106 Dean's Lister Academic Crest
+```text
+An elite academic honor crest badge, vector game insignia, metallic navy blue and gold trim, featuring an engraved microchip intertwined with an open engineering blueprint book, subtle laurel wreath, DLSP shield emblem style, glossy finish, flat dark background, modern mobile game achievement badge.
+```
+
+#### 2. 📡 DSP Fourier Frequency Master Badge
+```text
+A sci-fi cybernetic medal badge, glowing frequency waveform sinusoidal ripples, glowing sapphire blue and neon emerald, radar grid overlay, high-tech engineering honor badge, isolated on black background, game UI icon.
+```
+
+---
+
+### 🛠️ How to Integrate Generated Assets into the Reviewer:
+1. **Generate Image:** Paste any prompt above into **Gemini** (`gemini.google.com` using "Create an image of...") or **Argon**.
+2. **Remove Background:** Use [remove.bg](https://www.remove.bg/) or Photoshop/Figma to make the center and outer background 100% transparent PNG.
+3. **Save to Repo:** Place the image in `/public/frames/` (e.g. `/public/frames/inferno-animated.gif` or `.png`).
+4. **Register in Gamification Engine:** Add the file path to `AVATAR_FRAMES` in [`src/utils/gamification.js`](./src/utils/gamification.js):
+   ```javascript
+   {
+     id: "inferno-custom",
+     name: "Inferno Overclock (Animated)",
+     minLevel: 8,
+     assetUrl: "/frames/inferno.gif",
+     cssClass: "avatar-frame-ruby",
+   }
+   ```
 
 ---
 

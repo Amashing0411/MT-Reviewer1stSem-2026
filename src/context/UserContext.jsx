@@ -34,13 +34,51 @@ export function UserProvider({ children }) {
   const [isCloudConnected, setIsCloudConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [levelUpReward, setLevelUpReward] = useState(null);
+  const [inspectedStudent, setInspectedStudent] = useState(null);
+  const [isFeedOpen, setIsFeedOpen] = useState(false);
+
+  // Campus Study Shoutbox Feed State with seed & localStorage cache
+  const [feedMessages, setFeedMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem("mt_reviewer_feed_cache_2026");
+      if (saved) return JSON.parse(saved);
+      return [
+        {
+          id: "seed-1",
+          text: "Review well for Midterms guys! Room 106 represents! ⚡",
+          studentName: "Room 106 Dean's Lister",
+          studentSection: "BSCPE 4D",
+          avatar: "🎖️",
+          frame: "ruby",
+          nameFx: "fire",
+          tagline: "🎖️ Room 106 Dean's Lister",
+          level: 8,
+          createdAt: Date.now() - 1000 * 60 * 25,
+        },
+        {
+          id: "seed-2",
+          text: "Don't forget the difference between DFT and FFT formulas sa DSP! 📡",
+          studentName: "Signal Architect",
+          studentSection: "BSCPE 4A",
+          avatar: "⚡",
+          frame: "lightning",
+          nameFx: "lightning",
+          tagline: "📡 DSP Fourier Master",
+          level: 6,
+          createdAt: Date.now() - 1000 * 60 * 10,
+        }
+      ];
+    } catch {
+      return [];
+    }
+  });
 
   // Theme Management (Light / Dark Mode with localStorage persistence)
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem("mt_reviewer_theme_2026");
       if (saved === "dark" || saved === "light") return saved;
-      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      return "light"; // Default clean institutional light mode
     } catch {
       return "light";
     }
@@ -163,8 +201,12 @@ export function UserProvider({ children }) {
       });
       if (res.ok) {
         saveClassRoster([]);
+        setFeedMessages([]);
+        try {
+          localStorage.removeItem("mt_reviewer_feed_cache_2026");
+        } catch (e) {}
         setRosterVersion((v) => v + 1);
-        setXpToast("✨ Clean start! Cloud leaderboard has been cleared.");
+        setXpToast("✨ Clean start! Cloud leaderboard and feed have been cleared.");
         setTimeout(() => setXpToast(null), 3500);
         return true;
       }
@@ -176,7 +218,7 @@ export function UserProvider({ children }) {
     }
   };
 
-  // Synchronize with Vercel KV cloud database
+  // Synchronize with Vercel KV cloud database (Leaderboard + Campus Feed)
   const syncWithCloud = async () => {
     setIsSyncing(true);
     try {
@@ -194,6 +236,12 @@ export function UserProvider({ children }) {
           saveClassRoster(merged);
           setRosterVersion((v) => v + 1);
         }
+        if (Array.isArray(data.feed) && data.feed.length > 0) {
+          setFeedMessages(data.feed);
+          try {
+            localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(data.feed));
+          } catch (e) {}
+        }
         if (profile?.isConfigured && (!profile.name?.startsWith("Student #") || profile.xp > 0)) {
           await pushProfileToCloud(profile);
         }
@@ -207,6 +255,58 @@ export function UserProvider({ children }) {
       return false;
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  // Send a message to the 4th Year Campus Shoutbox Feed
+  const sendFeedMessage = async (text) => {
+    if (!text || !text.trim()) return false;
+    const cleanText = text.trim().slice(0, 200);
+    const newMsg = {
+      id: "msg_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 5),
+      text: cleanText,
+      studentId: profile.id,
+      studentName: profile.name,
+      studentSection: profile.section || "BSCPE 4D",
+      avatar: profile.avatar || "🤖",
+      frame: profile.frame || "default",
+      nameFx: profile.nameFx || "none",
+      tagline: profile.tagline || "",
+      customPhoto: profile.customPhoto || null,
+      level: getLevelInfo(profile.xp).level || 1,
+      createdAt: Date.now(),
+    };
+
+    // Optimistic local update
+    setFeedMessages((prev) => {
+      const updated = [...prev, newMsg].slice(-50);
+      try {
+        localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "post_feed",
+          ...newMsg,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.feed)) {
+          setFeedMessages(data.feed);
+          try {
+            localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(data.feed));
+          } catch (e) {}
+        }
+      }
+      return true;
+    } catch {
+      return true;
     }
   };
 
@@ -427,6 +527,12 @@ export function UserProvider({ children }) {
         syncWithCloud,
         restoreProfileFromCloud,
         flushCloudDatabase,
+        feedMessages,
+        sendFeedMessage,
+        isFeedOpen,
+        setIsFeedOpen,
+        inspectedStudent,
+        setInspectedStudent,
       }}
     >
       {children}

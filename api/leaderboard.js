@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 
   // Fresh storage key for 4th year batch — wipes old test data
   const KEY = "bscpe4th_clean_leaderboard_2026";
+  const FEED_KEY = "bscpe4th_campus_shoutbox_2026";
 
   // If KV is not configured yet in Vercel Dashboard
   if (!kvUrl || !kvToken) {
@@ -89,10 +90,34 @@ export default async function handler(req, res) {
     return Array.isArray(roster) ? roster : [];
   }
 
+  // Helper to fetch shoutbox feed
+  async function getFeed() {
+    let data = await upstashCommand(["GET", FEED_KEY]);
+    if (!data || data.error) {
+      try {
+        const pathResp = await fetch(`${kvUrl}/get/${FEED_KEY}`, {
+          headers: { Authorization: `Bearer ${kvToken}` }
+        });
+        data = await pathResp.json();
+      } catch (e) {}
+    }
+
+    let feed = [];
+    if (data && data.result) {
+      try {
+        feed = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
+      } catch (e) {
+        feed = [];
+      }
+    }
+    return Array.isArray(feed) ? feed : [];
+  }
+
   try {
-    // 1. GET: Fetch the current class leaderboard (Strips PINs for privacy)
+    // 1. GET: Fetch current class leaderboard & shoutbox feed (Strips PINs for privacy)
     if (req.method === "GET") {
       const roster = await getRoster();
+      const feed = await getFeed();
 
       // Never expose student PINs to the public leaderboard
       const safeRoster = roster.map(({ pin, ...safe }) => safe);
@@ -100,11 +125,12 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         isCloudConnected: true,
-        roster: safeRoster
+        roster: safeRoster,
+        feed
       });
     }
 
-    // 2. POST: Submit / Update score, Restore profile, or Admin flush
+    // 2. POST: Submit / Update score, Restore profile, Post to shoutbox feed, or Admin flush
     if (req.method === "POST") {
       let body = req.body;
       if (typeof body === "string") {
@@ -115,15 +141,51 @@ export default async function handler(req, res) {
         }
       }
 
-      // Action A: Force flush/clear DB for fresh start
+      // Action A: Post to Campus Shoutbox / Study Feed
+      if (body?.action === "post_feed") {
+        const msgText = String(body.text || "").trim().slice(0, 200);
+        if (!msgText) {
+          return res.status(400).json({ ok: false, error: "Message cannot be empty." });
+        }
+        let feed = await getFeed();
+        const newMsg = {
+          id: "msg_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 5),
+          text: msgText,
+          studentId: String(body.studentId || "").slice(0, 50),
+          studentName: String(body.studentName || "Anonymous Student").slice(0, 40),
+          studentSection: String(body.studentSection || "BSCPE 4D").slice(0, 20),
+          avatar: String(body.avatar || "🤖").slice(0, 10),
+          frame: String(body.frame || "default").slice(0, 30),
+          nameFx: String(body.nameFx || "none").slice(0, 30),
+          tagline: String(body.tagline || "").slice(0, 80),
+          customPhoto: body.customPhoto && typeof body.customPhoto === "string" && body.customPhoto.startsWith("data:image") ? body.customPhoto : null,
+          level: Number(body.level) || 1,
+          createdAt: Date.now(),
+        };
+        feed.push(newMsg);
+        // Keep most recent 50 messages
+        if (feed.length > 50) feed = feed.slice(-50);
+        await upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]);
+        return res.status(200).json({ ok: true, feed });
+      }
+
+      // Action B: Fetch Shoutbox Feed only
+      if (body?.action === "get_feed") {
+        const feed = await getFeed();
+        return res.status(200).json({ ok: true, feed });
+      }
+
+      // Action C: Force flush/clear DB for fresh start
       if (body?.action === "flush_clean_all") {
         await upstashCommand(["DEL", "room106_leaderboard_2026"]);
         await upstashCommand(["DEL", "bscpe_leaderboard_2026"]);
+        await upstashCommand(["DEL", FEED_KEY]);
         await upstashCommand(["SET", KEY, JSON.stringify([])]);
         return res.status(200).json({
           ok: true,
           message: "Database successfully cleared. Fresh start active!",
-          roster: []
+          roster: [],
+          feed: []
         });
       }
 

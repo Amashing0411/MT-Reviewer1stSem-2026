@@ -10,8 +10,7 @@
       (function() {
         try {
           var saved = localStorage.getItem("mt_reviewer_theme_2026");
-          var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-          if (saved === "dark" || (!saved && prefersDark)) {
+          if (saved === "dark") {
             document.documentElement.classList.add("dark");
           } else {
             document.documentElement.classList.remove("dark");
