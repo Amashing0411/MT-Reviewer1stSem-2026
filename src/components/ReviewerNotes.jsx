@@ -105,27 +105,27 @@ export function ReviewerNotes({ subject, searchQuery }) {
       {/* Top Reading View Switcher & Action Controls */}
       <div className="no-print double-bezel-outer">
         <div className="double-bezel-inner p-2 sm:p-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800">
             <button
               onClick={() => setReadingView("zen")}
-              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 readingView === "zen"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-blue-600" />
+              <FileText className={`w-3.5 h-3.5 ${readingView === "zen" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}`} />
               <span>Zen Reader</span>
             </button>
             <button
               onClick={() => setReadingView("cards")}
-              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 readingView === "cards"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
-              <LayoutGrid className="w-3.5 h-3.5 text-indigo-600" />
+              <LayoutGrid className={`w-3.5 h-3.5 ${readingView === "cards" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`} />
               <span>Study Cards</span>
             </button>
           </div>
@@ -133,10 +133,10 @@ export function ReviewerNotes({ subject, searchQuery }) {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => window.print()}
-              className="btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all shrink-0"
+              className="btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-all shrink-0 cursor-pointer"
               title="Print to PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
               <span className="hidden sm:inline">Print to PDF</span>
             </button>
 
@@ -144,13 +144,13 @@ export function ReviewerNotes({ subject, searchQuery }) {
               <div className="hidden sm:flex items-center gap-1">
                 <button
                   onClick={expandAll}
-                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
+                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
                 >
                   Expand
                 </button>
                 <button
                   onClick={collapseAll}
-                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
+                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
                 >
                   Collapse
                 </button>
@@ -427,7 +427,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
                           <MathView math={card.formula} display={true} />
                           <button
                             onClick={() => copyFormula(card.formula, card.id)}
-                            className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white border border-slate-200 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                             title="Copy LaTeX"
                           >
                             {copiedId === card.id ? (
@@ -542,7 +542,7 @@ export function ReviewerNotes({ subject, searchQuery }) {
                                 <MathView math={card.formula} display={true} />
                                 <button
                                   onClick={() => copyFormula(card.formula, card.id)}
-                                  className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white border border-slate-200 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="btn-haptic absolute top-2 right-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                                   title="Copy LaTeX"
                                 >
                                   {copiedId === card.id ? (

@@ -55,12 +55,12 @@ export function ScheduleModal({ isOpen, onClose, onSelectSubject, activeSubjectI
                     className={`btn-haptic px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                       isSelected
                         ? "bg-blue-700 text-white shadow-md shadow-blue-700/25 scale-102"
-                        : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/70"
+                        : "bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/70 dark:border-slate-700"
                     }`}
                   >
                     <span>{sec.name}</span>
                     <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
-                      isSelected ? "bg-white/20 text-white" : "bg-white text-slate-600 border border-slate-200"
+                      isSelected ? "bg-white/20 text-white" : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                     }`}>
                       {sec.room}
                     </span>

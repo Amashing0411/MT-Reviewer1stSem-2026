@@ -279,6 +279,20 @@ html.dark .text-slate-600:not([class*="dark:text-"]) {
   color: #cbd5e1;
 }
 
+/* Contrast safety guard: ensure text inside explicitly light surfaces is never forced to white in dark mode */
+html.dark .bg-white:not([class*="dark:bg-"]) .text-slate-900:not([class*="dark:text-"]),
+html.dark .bg-white.text-slate-900:not([class*="dark:text-"]):not([class*="dark:bg-"]) {
+  color: #0f172a !important;
+}
+html.dark .bg-white:not([class*="dark:bg-"]) .text-slate-800:not([class*="dark:text-"]),
+html.dark .bg-white.text-slate-800:not([class*="dark:text-"]):not([class*="dark:bg-"]) {
+  color: #1e293b !important;
+}
+html.dark .bg-white:not([class*="dark:bg-"]) .text-slate-700:not([class*="dark:text-"]),
+html.dark .bg-white.text-slate-700:not([class*="dark:text-"]):not([class*="dark:bg-"]) {
+  color: #334155 !important;
+}
+
 /* Dark mode pill button & input backgrounds */
 html.dark .bg-slate-100:not([class*="dark:bg-"]) {
   background-color: rgba(39, 39, 42, 0.75);
