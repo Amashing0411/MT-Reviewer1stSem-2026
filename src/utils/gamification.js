@@ -43,86 +43,106 @@ export const AVATAR_FRAMES = [
     desc: "Liquid metallic chrome sweeping specular shine",
     tier: "Rare"
   },
-  { 
-    id: "cyber", 
-    name: "Cyber Glitch", 
-    minLevel: 4, 
-    cssClass: "avatar-frame-cyber", 
+  {
+    id: "cyberpunk-custom",
+    name: "Cyberpunk Glitch & Hologram",
+    minLevel: 4,
     assetUrl: "/frames/cyberpunk.gif",
-    label: "Glitch",
+    cssClass: "avatar-frame-neon",
+    label: "Cyberpunk",
     desc: "RGB chromatic aberration & twitching scanlines",
     tier: "Epic"
   },
-  { 
-    id: "emerald", 
-    name: "DSP Fourier Frequency", 
-    minLevel: 5, 
-    cssClass: "avatar-frame-emerald", 
-    assetUrl: "/frames/dsp-fourier.gif",
-    label: "DSP Fourier",
-    desc: "Streaming frequency harmonics & glowing emerald waveform",
-    tier: "Epic"
-  },
-  { 
-    id: "lightning", 
-    name: "High-Voltage Overload", 
-    minLevel: 7, 
-    cssClass: "avatar-frame-lightning", 
+  {
+    id: "lightning-custom",
+    name: "High-Voltage Lightning Arc",
+    minLevel: 7,
     assetUrl: "/frames/lightning.gif",
+    cssClass: "avatar-frame-sapphire",
     label: "Lightning Arc",
     desc: "Crackling electric arcs & blue spark bursts",
     tier: "Legendary"
   },
-  { 
-    id: "ruby", 
-    name: "Inferno Overclock 🔥", 
-    minLevel: 8, 
-    cssClass: "avatar-frame-ruby", 
+  {
+    id: "inferno-custom",
+    name: "Inferno Overclock",
+    minLevel: 8,
     assetUrl: "/frames/inferno.gif",
-    label: "Burning Fire",
+    cssClass: "avatar-frame-ruby",
+    label: "Inferno",
     desc: "Roaring animated hellfire flames & incandescent heat",
     tier: "Mythic"
   },
-  { 
-    id: "deans-lister", 
-    name: "Room 106 Dean's Lister 🎖️", 
-    minLevel: 9, 
-    cssClass: "avatar-frame-honor", 
+  {
+    id: "dsp-fourier-custom",
+    name: "DSP Fourier Frequency Master",
+    minLevel: 9,
+    assetUrl: "/frames/dsp-fourier.gif",
+    cssClass: "avatar-frame-emerald",
+    label: "DSP Fourier",
+    desc: "Streaming frequency harmonics & glowing emerald waveform",
+    tier: "Epic"
+  },
+  {
+    id: "valkyrie-custom",
+    name: "Prismatic Valkyrie Bifrost Halo",
+    minLevel: 10,
+    assetUrl: "/frames/valkyrie.gif",
+    cssClass: "avatar-frame-prismatic",
+    label: "Valkyrie",
+    desc: "Hyper-prismatic shifting aurora crystal halo",
+    tier: "Ascended"
+  },
+  {
+    id: "deans-lister-custom",
+    name: "Room 106 Dean's Lister Crest",
+    minLevel: 10,
     assetUrl: "/frames/deans-lister.gif",
+    cssClass: "avatar-frame-honor",
     label: "Dean's Crest",
     desc: "Official academic honor crest for Room 106 top students",
     tier: "Ascended"
   },
-  { 
-    id: "cosmic", 
-    name: "Quantum Singularity 🌌", 
-    minLevel: 9, 
-    cssClass: "avatar-frame-cosmic", 
-    label: "Void Singularity",
-    desc: "Gravitational event horizon vortex with stardust",
-    tier: "Ascended"
-  },
-  { 
-    id: "valkyrie", 
-    name: "Prismatic Valkyrie 🌈", 
-    minLevel: 10, 
-    cssClass: "avatar-frame-valkyrie", 
-    assetUrl: "/frames/valkyrie.gif",
-    label: "Rainbow Bifrost",
-    desc: "Hyper-prismatic shifting aurora crystal halo",
-    tier: "Ascended"
-  },
-  { 
-    id: "deity", 
-    name: "Eternal Deity Corona ⚡", 
-    minLevel: 12, 
-    cssClass: "avatar-frame-deity", 
+  {
+    id: "solar-corona-custom",
+    name: "Eternal Deity Solar Corona",
+    minLevel: 12,
     assetUrl: "/frames/solar-corona.gif",
-    label: "Godlike Solar",
+    cssClass: "avatar-frame-gold",
+    label: "Solar Corona",
     desc: "Blinding solar flare god-rays & pulsating divinity",
     tier: "Godlike"
   },
 ];
+
+// Helper to reliably resolve an avatar frame by ID, including backwards-compatible aliases
+export const getAvatarFrame = (frameId) => {
+  if (!frameId) return AVATAR_FRAMES[0];
+  const direct = AVATAR_FRAMES.find((f) => f.id === frameId);
+  if (direct) return direct;
+  const aliasMap = {
+    "cyber": "cyberpunk-custom",
+    "neon": "cyberpunk-custom",
+    "lightning": "lightning-custom",
+    "sapphire": "lightning-custom",
+    "ruby": "inferno-custom",
+    "fire": "inferno-custom",
+    "emerald": "dsp-fourier-custom",
+    "matrix": "dsp-fourier-custom",
+    "valkyrie": "valkyrie-custom",
+    "prismatic": "valkyrie-custom",
+    "deans-lister": "deans-lister-custom",
+    "honor": "deans-lister-custom",
+    "deity": "solar-corona-custom",
+    "gold": "solar-corona-custom",
+    "cosmic": "valkyrie-custom",
+  };
+  const targetId = aliasMap[frameId];
+  if (targetId) {
+    return AVATAR_FRAMES.find((f) => f.id === targetId) || AVATAR_FRAMES[0];
+  }
+  return AVATAR_FRAMES[0];
+};
 
 export const NAME_EFFECTS = [
   { id: "none", name: "Standard Clean", minLevel: 1, cssClass: "name-fx-none", label: "Clean" },
@@ -192,10 +212,10 @@ export const LEVELS = [
     minXp: 1600, 
     maxXp: 2700, 
     icon: "🔮", 
-    unlockedFrame: "cyber", 
+    unlockedFrame: "cyberpunk-custom", 
     unlockedTagline: "☕ Powered by 3 Hours of Sleep",
     unlockedNameFx: "glitch",
-    rewardTitle: "Cyber Glitch Frame & Glitch Name FX", 
+    rewardTitle: "Cyberpunk Glitch Frame & Glitch Name FX", 
     rewardDesc: "RGB chromatic glitch border + glitching name text!" 
   },
   { 
@@ -204,10 +224,10 @@ export const LEVELS = [
     minXp: 2700, 
     maxXp: 4200, 
     icon: "🛡️", 
-    unlockedFrame: "emerald", 
+    unlockedFrame: "dsp-fourier-custom", 
     unlockedTagline: "🛡️ Cyber Defense Commander",
     unlockedNameFx: "matrix",
-    rewardTitle: "Matrix Phosphor Frame & Terminal Name FX", 
+    rewardTitle: "DSP Fourier Frequency Frame & Terminal Name FX", 
     rewardDesc: "CRT green digital code stream + phosphor hacker name!" 
   },
   { 
@@ -228,7 +248,7 @@ export const LEVELS = [
     minXp: 6200, 
     maxXp: 8800, 
     icon: "⚔️", 
-    unlockedFrame: "lightning", 
+    unlockedFrame: "lightning-custom", 
     unlockedTagline: "⚖️ RA 9292 Legal Scholar",
     unlockedNameFx: "lightning",
     rewardTitle: "High-Voltage Lightning Arc Frame & Electric Name FX", 
@@ -240,10 +260,10 @@ export const LEVELS = [
     minXp: 8800, 
     maxXp: 12000, 
     icon: "🎖️", 
-    unlockedFrame: "ruby", 
+    unlockedFrame: "inferno-custom", 
     unlockedTagline: "🎖️ Room 106 Dean's Lister",
     unlockedNameFx: "fire",
-    rewardTitle: "Inferno Overclock / Burning Fire Frame & Flame Name FX", 
+    rewardTitle: "Inferno Overclock Frame & Flame Name FX", 
     rewardDesc: "Roaring animated hellfire flame border + burning name text!" 
   },
   { 
@@ -252,11 +272,11 @@ export const LEVELS = [
     minXp: 12000, 
     maxXp: 16000, 
     icon: "👑", 
-    unlockedFrame: "cosmic", 
+    unlockedFrame: "deans-lister-custom", 
     unlockedTagline: "🔨 Design 2 Thesis Survivor",
     unlockedNameFx: null,
-    rewardTitle: "Quantum Singularity Void Frame", 
-    rewardDesc: "Deep cosmic gravitational event-horizon vortex with stardust!" 
+    rewardTitle: "Room 106 Dean's Lister Crest Frame", 
+    rewardDesc: "Official academic honor crest for Room 106 top students!" 
   },
   { 
     level: 10, 
@@ -264,7 +284,7 @@ export const LEVELS = [
     minXp: 16000, 
     maxXp: 22000, 
     icon: "🌟", 
-    unlockedFrame: "valkyrie", 
+    unlockedFrame: "valkyrie-custom", 
     unlockedTagline: "🎯 PRC Board Top 1 Aspirant",
     unlockedNameFx: "prismatic",
     rewardTitle: "Prismatic Valkyrie Frame & Rainbow Flow Name FX", 
@@ -288,7 +308,7 @@ export const LEVELS = [
     minXp: 30000, 
     maxXp: Infinity, 
     icon: "👑", 
-    unlockedFrame: "deity", 
+    unlockedFrame: "solar-corona-custom", 
     unlockedTagline: "👑 Eternal DLSP Engineering Deity",
     unlockedNameFx: "godlike",
     rewardTitle: "Solar Deity Corona Frame & Godlike Radiance Name FX", 

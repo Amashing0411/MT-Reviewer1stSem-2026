@@ -301,8 +301,9 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   100% { box-shadow: 0 0 0 2px #64748b, 0 0 8px rgba(203, 213, 225, 0.4); }
 }
 
-/* Cyber Glitch: Jittery RGB chromatic split & twitching scanlines */
-.avatar-frame-cyber {
+/* Cyber Glitch / Neon Hologram */
+.avatar-frame-cyber,
+.avatar-frame-neon {
   position: relative;
   animation: cyberGlitchJitter 1.8s steps(1) infinite;
 }
@@ -316,7 +317,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   85% { box-shadow: 1px -1px 0 #06b6d4, -1px 1px 0 #ec4899, 0 0 15px rgba(236, 72, 153, 0.7); transform: translate(-0.5px, -0.5px); }
 }
 
-/* Matrix Phosphor: Glowing green terminal data stream */
+/* Matrix Phosphor / DSP Fourier Frequency */
 .avatar-frame-emerald {
   position: relative;
   box-shadow: 0 0 0 2.5px #10b981, 0 0 18px rgba(16, 185, 129, 0.85);
@@ -329,8 +330,9 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   80% { box-shadow: 0 0 0 3px #6ee7b7, 0 0 20px rgba(110, 231, 183, 0.9), inset 0 0 6px rgba(52, 211, 153, 0.6); }
 }
 
-/* High-Voltage Lightning Arc: Electric crackle with violet & cyan spark bursts */
-.avatar-frame-lightning {
+/* High-Voltage Lightning Arc / Sapphire */
+.avatar-frame-lightning,
+.avatar-frame-sapphire {
   position: relative;
   animation: lightningArcCrackle 1.2s ease infinite;
 }
@@ -343,7 +345,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   82% { box-shadow: 0 0 0 4px #e0e7ff, 0 0 32px rgba(99, 102, 241, 1), inset 0 0 8px rgba(255, 255, 255, 0.8); }
 }
 
-/* Inferno Overclock: Roaring fire flames rising with incandescent red/orange/yellow */
+/* Inferno Overclock / Ruby Fire */
 .avatar-frame-ruby {
   position: relative;
   animation: infernoRoar 1.3s ease-in-out infinite alternate;
@@ -374,6 +376,17 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   }
 }
 
+/* Room 106 Dean's Lister Crest */
+.avatar-frame-honor {
+  position: relative;
+  box-shadow: 0 0 0 2.5px #2563eb, 0 0 16px rgba(37, 99, 235, 0.8), 0 0 28px rgba(245, 158, 11, 0.65);
+  animation: honorCrestShine 2.2s ease-in-out infinite;
+}
+@keyframes honorCrestShine {
+  0%, 100% { box-shadow: 0 0 0 2.5px #2563eb, 0 0 14px rgba(37, 99, 235, 0.7); }
+  50% { box-shadow: 0 0 0 3.5px #fbbf24, 0 0 28px rgba(251, 191, 36, 1), inset 0 0 8px rgba(37, 99, 235, 0.6); }
+}
+
 /* Quantum Singularity: Gravitational vortex with swirling violet/indigo stardust */
 .avatar-frame-cosmic {
   position: relative;
@@ -387,7 +400,8 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 /* Prismatic Valkyrie: Shifting rainbow aurora bifrost */
-.avatar-frame-valkyrie {
+.avatar-frame-valkyrie,
+.avatar-frame-prismatic {
   position: relative;
   box-shadow: 0 0 0 3px #a855f7, 0 0 25px rgba(168, 85, 247, 0.95);
   animation: valkyriePrismShift 2.8s linear infinite;
@@ -400,8 +414,9 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   100% { box-shadow: 0 0 0 3px #ec4899, 0 0 24px rgba(236, 72, 153, 0.95), 0 0 38px rgba(168, 85, 247, 0.6); }
 }
 
-/* Eternal Deity Corona: Blinding solar flare god-rays & golden divinity */
-.avatar-frame-deity {
+/* Eternal Deity Corona / Gold: Blinding solar flare god-rays & golden divinity */
+.avatar-frame-deity,
+.avatar-frame-gold {
   position: relative;
   box-shadow: 
     0 0 0 3.5px #fbbf24, 
@@ -423,7 +438,6 @@ html.dark ::-webkit-scrollbar-thumb:hover {
       0 0 0 4.5px #ffffff, 
       0 0 42px rgba(255, 255, 255, 1), 
       0 0 70px rgba(251, 191, 36, 1),
-      inset 0 0 16px rgba(255, 255, 255, 0.95);
   }
 }
 

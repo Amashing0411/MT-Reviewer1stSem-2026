@@ -72,7 +72,7 @@ The platform features an interactive section switchable schedule mapping specifi
 
 ### 5. 🌌 Aceternity Aurora Background Engine & Dual Theme Contrast Architecture
 - **Aceternity UI Aurora Engine:** Powered by overlapping linear-gradient color sweeps (`blue-500`, `indigo-300`, `blue-300`, `violet-200`, `blue-400`) with smooth active CSS keyframe animation (`animate-aurora`) and radial ellipse masks.
-- **Hardware-Accelerated Fluid Motion:** Uses dedicated CSS keyframes with `background-attachment: scroll !important` on animated pseudo-elements to prevent browser rendering freeze, providing visible 18s-25s wave motion with `mix-blend-mode: difference`.
+- **Hardware-Accelerated Calm Fluid Motion:** Uses dedicated CSS keyframes with `background-attachment: scroll !important` on animated pseudo-elements to prevent browser rendering freeze, providing a gentle, non-distracting 75s–95s slow ambient wave drift with `mix-blend-mode: difference` and tuned 35%-40% opacity.
 - **shadcn/ui & TypeScript Structure:** Component placed under `@/components/ui/aurora-background.tsx` and `@/components/ui/demo.tsx`, powered by `@/lib/utils` with `cn()` helper and `framer-motion`.
 - **Dual-Theme High Contrast Typography:** Explicit cascading contrast guards (`html:not(.dark)` and `html.dark`) prevent washed-out text or invisible dark-on-dark glyphs, guaranteeing razor-sharp readability for all 8 subjects in both Day (Light) and Night (Dark) modes.
 - **Translucent Double-Bezel Glassmorphism:** Features `bg-zinc-50` for Day / Light Mode and deep `bg-zinc-900` (`rgba(24, 24, 27, 0.88)`) for Night / Dark Mode, allowing ambient light refraction without pitch-black `#000000` overrides.
@@ -113,16 +113,16 @@ To make student customizations truly visible across all sections, the platform i
   - `Lvl 1 Novice Trainee` $\rightarrow$ `Lvl 2 Junior Circuit Hacker` $\rightarrow$ `Lvl 3 System Architect` $\rightarrow$ `Lvl 4 Logic Gate Wizard` $\rightarrow$ `Lvl 5 Kernel Commander` $\rightarrow$ `Lvl 6 DSP Frequency Master` $\rightarrow$ `Lvl 7 Cloud Security Architect` $\rightarrow$ `Lvl 8 Room 106 Dean's Lister` $\rightarrow$ `Lvl 9 National Topnotcher Candidate` $\rightarrow$ `Lvl 10 Legendary PRC Board Top 1 🏆` $\rightarrow$ `Lvl 11 Midterm Valkyrie (Ascended) ✨` $\rightarrow$ `Lvl 12 Eternal DLSP Engineering Deity ⚡`
 - **🎉 Level-Up Victory Modal:**
   - Whenever a student earns enough XP to advance, a celebratory game victory modal triggers with fanfare audio, confetti blasts, and a showcase of newly unlocked frames, taglines, and name FX with an **"Equip All & Continue"** 1-tap action.
-- **🔥 Animated Avatar Frames (Real Game Effects):**
-  - **Bronze Circuit** (Lv. 2): Pulsating copper energy traces.
-  - **Silver Chrome** (Lv. 3): Liquid metallic chrome sweeping shine.
-  - **Cyber Glitch** (Lv. 4): RGB chromatic aberration with twitching scanlines.
-  - **Matrix Phosphor** (Lv. 5): CRT terminal green phosphor scan code stream.
-  - **High-Voltage Arc** (Lv. 7): Crackling electric lightning arcs and blue spark bursts.
-  - **Inferno Overclock 🔥** (Lv. 8): Roaring animated hellfire flame borders.
-  - **Quantum Singularity 🌌** (Lv. 9): Gravitational event horizon vortex with stardust.
-  - **Prismatic Valkyrie 🌈** (Lv. 10): Shifting aurora crystal bifrost halo.
-  - **Eternal Deity Corona ⚡** (Lv. 12): Blinding solar flare god-rays with pulsating gold corona.
+- **🔥 Animated Custom Avatar Frames (High-Precision GIF & CSS Effects):**
+  - **Bronze Circuit** (Lv. 2): Pulsating copper energy traces (`.avatar-frame-bronze`).
+  - **Silver Chrome** (Lv. 3): Liquid metallic chrome sweeping shine (`.avatar-frame-silver`).
+  - **Cyberpunk Glitch & Hologram** (Lv. 4): RGB chromatic aberration with twitching scanlines (`/frames/cyberpunk.gif`, `.avatar-frame-neon`).
+  - **High-Voltage Lightning Arc** (Lv. 7): Crackling electric lightning arcs and blue spark bursts (`/frames/lightning.gif`, `.avatar-frame-sapphire`).
+  - **Inferno Overclock 🔥** (Lv. 8): Roaring animated hellfire flame borders (`/frames/inferno.gif`, `.avatar-frame-ruby`).
+  - **DSP Fourier Frequency Master** (Lv. 9): Streaming frequency harmonics & glowing emerald waveform (`/frames/dsp-fourier.gif`, `.avatar-frame-emerald`).
+  - **Room 106 Dean's Lister Crest 🎖️** (Lv. 10): Official academic honor crest for Room 106 top students (`/frames/deans-lister.gif`, `.avatar-frame-honor`).
+  - **Prismatic Valkyrie Bifrost Halo 🌈** (Lv. 10): Shifting aurora crystal bifrost halo (`/frames/valkyrie.gif`, `.avatar-frame-prismatic`).
+  - **Eternal Deity Solar Corona ⚡** (Lv. 12): Blinding solar flare god-rays with pulsating gold corona (`/frames/solar-corona.gif`, `.avatar-frame-gold`).
 - **✨ Animated Name Typography Effects:**
   - Equip custom animated CSS typography to stand out in the class standings:
   - **Glitch RGB** (Lv. 4) • **Matrix Phosphor** (Lv. 5) • **Lightning Arc Zap** (Lv. 7) • **Inferno Flame** (Lv. 8) • **Rainbow Aurora** (Lv. 10) • **Golden Deity Radiance** (Lv. 12).
