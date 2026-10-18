@@ -1,0 +1,1019 @@
+--- PAGE 1 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Supplemental Module: Software and 
+Program Life Cycles in Engineering 
+Management 
+Overview 
+Engineering management operates at the critical intersection of technical execution and 
+strategic organizational leadership. Within modern engineering enterprises, the successful delivery 
+of complex technological solutions requires a nuanced, comprehensive  understanding of two 
+distinct but deeply interconnected frameworks: the Software Development Life Cycle (SDLC) and 
+the Program Management Life Cycle (PLC)1. While the SDLC governs the tactical, stage-by-stage 
+creation of software components, the PLC provides the strategic oversight required to align 
+multiple interrelated projects with the overarching business objectives of the enterprise3. 
+The distinction between projects and programs is foundational to the discipline of 
+engineering management. A project is a temporary endeavor undertaken to create a unique product, 
+service, or result, bound by constraints of time, cost, and scope4. In contrast, a program is a group 
+of related projects, subsidiary programs, and program activities managed in a coordinated manner 
+to obtain benefits and control that would not be available from managing them individually 4. 
+Consequently, the life cycle of a software project is governed by the delivery of a specific scope, 
+whereas the program life cycle is governed by the realization of strategic benefits and long -term 
+organizational value3. 
+To orchestrate these life cycles, the engineer manager must master the fundamental 
+management process consisting of planning, organizing, staffing, leading, and controlling 1. The 
+integration of these core functions with parametric cost estimation models, international 
+compliance standards, and rigorous governance gates forms the basis of effective technology 
+management. This module comprehensively examines the interplay of th ese domains, analyzing 
+how engineering managers navigate the complexities of modern software and systems engineering. 
+ 
+The Engineering Management Paradigm 
+Before examining specific life cycles, it is necessary to establish the operational context of 
+the engineer manager. Engineering management refers to the activity combining technical 
+knowledge with the ability to organize and coordinate worker power, mater ials, machinery, and 
+money1. Engineers are traditionally tasked with functions such as research, design and 
+development, testing, manufacturing, construction, and consulting 1. However, as engineers scale 
+the organizational hierarchy, their direct technical activities diminish, replaced by broader 
+management responsibilities encompassing decision -making, environmental analysis, and 
+strategic alignment1. 
+Decision-making forms the heart of all management functions1. Rational decision-making 
+in engineering management follows a structured process: diagnosing the problem, analyzing the 
+internal and external environment, developing viable alternatives, evaluating those alternatives 
+
+--- PAGE 2 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+(assessing value, out-of-pocket and opportunity costs, and risk characteristics), making a choice, 
+implementing the decision, and evaluating the results through feedback 1. To solve complex 
+problems during software and program life cycles, engineer managers deploy quantitative 
+evaluation models. These include inventory models (such as economic order quantity), queuing 
+theory for service optimization, network models (Program Evaluation Review Technique [PERT] 
+and Critical Path Method [CPM] for scheduling), regression analysis for forecasting, and Bayesian 
+statistical decision theory to update event probabilities with new information 1. These decision -
+making frameworks underpin the strategic planning required to manage the Program Management 
+Life Cycle. 
+ 
+The Program Management Life Cycle (PLC) 
+According to the Project Management Institute (PMI) Standard for Program 
+Management, the PLC consists of three primary phases: Program Definition, Program Delivery, 
+and Program Closure3. Unlike a software project, which is planned once and executed to deliver 
+a specific set of deliverables, a program often begins before dedicated funding exists, iteratively 
+adds and retires component projects as it matures, and is evaluated strictly on the realization and 
+sustainability of organizational benefits3. 
+ 
+Program Definition 
+The Program Definition phase establishes the strategic direction, business case, and 
+governance framework for the program5. This phase correlates with the strategic and intermediate 
+planning functions of top and middle management 1. Program Definition is subdivided into two 
+overlapping sub-phases: Program Formulation and Program Preparation (or Planning)3. 
+During formulation, the initial business case is developed, tying expected benefits to a 
+named strategic objective3. The program charter is drafted, an initial risk assessment is conducted, 
+and a sponsor is assigned3. A critical insight into program management is that a program can and 
+should be terminated during the formulation sub -phase if the governing body determines that it 
+lacks a strong business case, as this represents the most cost -effective point to halt an unviable 
+initiative3. 
+Once authorized, the program enters the planning sub -phase, wherein the program 
+management plan is created 3. This comprehensive document integrates thirteen subsidiary plans, 
+prominently including the benefits management plan and the governance plan3. The output of this 
+phase translates strategic objectives into a concrete roadmap, establishing timelines, resource 
+requirements, and the metrics by which benefit delivery will be measured5. 
+ 
+Program Benefits Delivery 
+The Program Delivery phase encompasses the execution of the program's component 
+projects3. The purpose of this phase is not merely to produce deliverables, but to integrate the 
+outcomes of various components to ensure that the targeted benefits are realized 3. Every 
+component within the program moves through three sub -phases: component authorization and 
+planning, component oversight and integration, and component transition and closure3. 
+
+--- PAGE 3 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+ 
+Engineering managers overseeing program delivery must focus heavily on component 
+interdependencies. By determining the optimal pacing and scheduling of the projects within the 
+program, the manager ensures that the outputs of one software development projec t seamlessly 
+integrate with the hardware or infrastructure components of another 4. This phase requires 
+continuous stakeholder engagement and integrated risk management, tracking identified program 
+risks, executing risk response plans, and evaluating their effectiveness throughout the life cycle4. 
+ 
+Program Closure 
+The final phase of the PLC is Program Closure, which involves transitioning the program's 
+benefits to the operational side of the organization 5. A distinguishing feature of program 
+management is that a program may close while some of its long -term benefits are still arriving 3. 
+Therefore, the closure phase requires identifying a named owner within the organization who will 
+be responsible for sustaining the benefits long after the formal program structure has been 
+dissolved3. This phase also involves formal handover procedures, final benefit assessments, 
+knowledge transfer, and the reallocation of program resources5. 
+ 
+Program Governance and Phase Gates 
+A defining characteristic of the PLC is its reliance on robust governance frameworks 3. 
+Governance is enforced through a series of decision gates that occur at the end of each phase or 
+sub-phase3. At each gate, a designated governing body evaluates the program's progress against its 
+business case and decides whether to approve, redirect, or terminate the program3. 
+Governance Gate Placement in Life 
+Cycle 
+Primary Question 
+Assessed 
+Deciding Authority 
+Authorization End of Formulation Is the program 
+worth chartering 
+and funding? Does 
+the business case tie 
+to a strategic 
+objective? 
+Sponsor & Portfolio 
+Body 
+Plan Approval End of Planning Is the program 
+management plan 
+complete, and can 
+delivery 
+commence? 
+Program Steering 
+Committee 
+
+--- PAGE 4 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Component 
+Authorization 
+Prior to Component 
+Execution 
+Does this specific 
+component support 
+program outcomes 
+and link to a 
+benefit? 
+Program 
+Governance Board 
+Phase/Segment 
+Review 
+Periodic during 
+Delivery 
+Should the program 
+continue, change, or 
+end based on 
+performance 
+reports? 
+Governance 
+Participants 
+Transition End of Delivery Are benefits 
+delivered, and is 
+there a receiving 
+owner for 
+handover? 
+Sponsor & Steering 
+Committee 
+Closure 
+Acceptance 
+End of Program Are all closure 
+activities complete 
+and documented? 
+Steering Committee 
+The strategic implementation of these gates ensures that programs remain aligned with 
+organizational strategy, even as external market conditions or internal priorities shift over time 3. 
+When an iterative or incremental program is executed, the formality of the outputs may decrease, 
+but the phase gates remain mandatory to ensure continued strategic alignment3. 
+ 
+
+--- PAGE 5 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Software Development Life Cycles (SDLC) 
+While the PLC governs the overarching strategic initiative, the Software Development Life 
+Cycle (SDLC) provides the tactical, operational framework required to plan, build, test, and deploy 
+specific software components10. The SDLC traditionally encompasses several sequential activities: 
+requirements analysis, system design, implementation (coding), testing, deployment, and 
+maintenance12. Engineering management practices support various SDLC models, each suited to 
+different degrees of system complexity, risk, and requirement volatility14. 
+ 
+Traditional Plan-Driven Models 
+The most fundamental SDLC methodology is the Waterfall model, a linear, sequential 
+approach where each phase must be completed before the next begins 10. The output of one phase 
+serves as the direct input for the subsequent phase 16. While the Waterfall model provides high 
+visibility and rigid structure, making it easy to manage and document, it is highly inflexible 17. If 
+requirements change late in the development cycle, revisiting earlier phases is prohibitively 
+expensive and time-consuming. 
+An evolution of the Waterfall model is the V-Model (Validation and Verification model). 
+The V-Model emphasizes that testing is not merely an afterthought occurring at the end of the 
+development cycle, but a continuous process tied to each design phase 18. The left side of the "V" 
+represents the decomposition of requirements and system design, while the right side represents 
+the corresponding integration and testing phases 18. For every design stage (e.g., system 
+architecture, high -level design, low -level design), there is a corresponding testing phase (e.g., 
+system testing, integration testing, unit testing) 18. The V -Model is particularly critical in 
+engineering environments that deal with embedded systems and functional safety, as it provides 
+the rigorous traceability required by safety standards18. 
+ 
+Iterative and Evolutionary Models 
+To address the inflexibility of linear models, iterative approaches such as the Spiral Model 
+and Rapid Prototyping were developed. The Spiral Model, primarily utilized for complex systems 
+with high uncertainty, combines the systematic aspects of the Waterf all model with the iterative 
+nature of prototyping10. The model represents development activities as a spiral, where each loop 
+corresponds to a phase in the process16. The most critical feature of the Spiral Model is its intense 
+focus on risk analysis and resolution; risks are assessed and resolved continually throughout the 
+spiral's loops16. 
+Rapid Prototyping involves creating a rudimentary, intentionally incomplete model of the 
+software product early in the definition phase 20. Because stakeholders often struggle to 
+conceptualize a system solely from written specifications, the rapid prototype allows users to 
+interact with a physical or digital model to assess functionality 20. Through iterations of 
+experimenting and modifying the prototype, the final requirements and design concepts are 
+solidified before heavy coding begins, preventing the costly error of building a system exactly to 
+specification that fails to meet actual user needs20. 
+ 
+
+--- PAGE 6 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Agile and Hybrid Frameworks 
+In contrast to Traditional Project Management (TPM) approaches like Waterfall, Agile 
+Project Management (APM) methodologies operate on the assumption that requirements will 
+evolve as the project progresses 20. Agile methodologies, such as Scrum, focus on delivering 
+software in small, functional increments rather than attempting to deliver the entire system at 
+once16. 
+In the Scrum framework, requirements are captured as user stories in a product backlog 
+managed by a Product Owner 20. Development occurs in short, time -boxed iterations known as 
+sprints, typically lasting a few weeks20. This iterative convergence allows the engineering team to 
+adapt to changing market conditions or technological discoveries. However, integrating Agile 
+SDLCs into large-scale TPM programs presents a significant engineering management challenge. 
+Modern pro ducts frequently combine hardware, which must be developed using rigid 
+TPM/Waterfall methodologies due to physical manufacturing constraints, with software, which 
+benefits from APM flexibility 20. Managing these Hybrid Project Management environments 
+requires meticulously coordinating APM iterations so that the software is ready to integrate with 
+the hardware at specific milestones within the overarching program2. 
+ 
+Aligning Organizational Structures with Life Cycles 
+The structural design of the engineering organization fundamentally dictates how 
+efficiently life cycle models can be executed. Organizing refers to the structuring of resources and 
+activities to accomplish objectives in an efficient and effective manner1. The engineering manager 
+must decide on the division of labor, the delegation of authority (line, staff, and functional 
+authority), departmentation, and the span of control1. 
+Organizations generally adapt one of three primary structural types: Functional, 
+Product/Market, or Matrix1. 
+ 
+Organizational 
+Structure 
+Characteristics SDLC 
+Compatibility 
+Advantages & 
+Disadvantages 
+Functional 
+Organization 
+Groups employees 
+by specialized 
+activity (e.g., all 
+software engineers 
+in one unit, all 
+hardware engineers 
+in another). 
+Traditional 
+Waterfall 
+Advantage: 
+Economies of scale, 
+in-depth skill 
+specialization. 
+ 
+Disadvantage: 
+Poor coordination 
+across departments; 
+decisions pile up at 
+top management1. 
+
+--- PAGE 7 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Product/Market 
+Organization 
+Brings together all 
+personnel involved 
+with a certain type 
+of product or 
+customer into 
+dedicated divisions. 
+Agile / Scrum Advantage: Highly 
+flexible, excellent 
+cross-functional 
+coordination, aligns 
+with product 
+backlogs. 
+ 
+Disadvantage: 
+Duplication of 
+resources across 
+divisions; less 
+technical depth1. 
+Matrix 
+Organization 
+Employees report to 
+both a functional 
+manager (for 
+technical standards) 
+and a 
+project/program 
+manager. 
+Hybrid / Spiral / 
+Large Programs 
+Advantage: 
+Efficient resource 
+use, 
+interdisciplinary 
+cooperation, 
+flexibility. 
+ 
+Disadvantage: 
+Frustration from 
+dual chain of 
+command; high 
+conflict between 
+divisional and 
+functional interests1. 
+ 
+For complex programs combining hardware and software, the Matrix Organization is 
+standard. A software developer reports functionally to a Software Engineering Manager (ensuring 
+technical standards are upheld) while simultaneously reporting to a Program Manager responsible 
+for the specific PLC integration1. To supplement formal structures, engineer managers frequently 
+utilize committees—both ad hoc (for short -term troubleshooting) and standing (for ongoing 
+governance, such as the Program Steering Committee) —to facilitate cross -functional decision-
+making1. 
+ 
+International Standards Governing Engineering Life Cycles 
+To ensure interoperability, quality, and safety, engineering managers must align their life 
+cycle processes and organizational structures with established international standards. The two 
+most prominent standards governing software and systems engineering are ISO/IEC/IEEE 12207 
+
+--- PAGE 8 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+and ISO 26262. 
+ 
+ISO/IEC/IEEE 12207: Software Life Cycle Processes 
+ISO/IEC/IEEE 12207:2026 establishes a comprehensive, internationally recognized 
+framework for software life cycle processes 21. Originally introduced in 1995 and continuously 
+updated to reflect modern practices (including Agile methods and model -based systems 
+engineering), the standard defines all the processes required for developing and maintaining 
+software systems22. The standard deliberately distinguishes between a "stage" (a period of time  
+ending with a decision gate) and a "process" (a set of interacting activities that transform inputs 
+into outputs), acknowledging that processes often recur iteratively across different stages23. 
+ISO 12207 categorizes life cycle processes into four primary groups: 
+ 
+Process Group Core Functions & 
+Activities 
+Relevance to Engineering 
+Management 
+Agreement Processes Acquisition and Supply. 
+Establishing customer-
+supplier agreements and 
+managing contracts21. 
+Ensures external 
+dependencies in the PLC are 
+legally and procedurally 
+secure24. 
+Organizational Project-
+Enabling Processes 
+Portfolio management, 
+human resource 
+management, quality 
+management23. 
+Aligns with the Staffing and 
+Organizing functions; 
+ensures the business 
+environment supports the 
+SDLC23. 
+Technical Management 
+Processes 
+Project planning, risk 
+management, configuration 
+management, decision 
+management21. 
+Aligns with the Planning 
+and Controlling functions; 
+dictates how changes to 
+software configurations are 
+controlled21. 
+Technical Processes Stakeholder needs analysis, 
+architectural design, coding, 
+integration, verification, 
+validation, maintenance, 
+disposal23. 
+The core execution of the 
+SDLC; guarantees 
+traceability between 
+lifecycle artifacts and 
+deliverables21. 
+ 
+ISO 12207 harmonizes seamlessly with ISO/IEC/IEEE 15288, which governs broader 
+systems engineering life cycle processes24. Together, these standards enable engineering managers 
+
+--- PAGE 9 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+to apply a unified vocabulary and governance framework across both software and physical 
+systems, ensuring that process quality, traceability, maintainability, and reliability are embedded 
+throughout the life cycle21. 
+ 
+ISO 26262: Functional Safety in Embedded Systems 
+For engineering managers operating in the automotive sector, or any domain involving 
+safety-critical embedded systems, ISO 26262 is the paramount standard 26. Adapted from the 
+generic IEC 61508 standard, ISO 26262 mandates a functional development process designed to 
+minimize the risks associated with electrical and electronic (E/E) system malfunctions28. 
+A core tenet of ISO 26262 is the integration of safety concepts throughout the entire 
+product lifecycle18. The standard strictly enforces the V-Model, requiring rigorous verification and 
+validation (V&V) activities corresponding to every stage of design 18. The process begins with a 
+Hazard Analysis and Risk Assessment (HARA), a systematic strategy to identify potential hazards 
+and evaluate their associated risks based on severity, exposure, and controllability18. Based on the 
+HARA, the system is assigned an Automotive Safety Integrity Level (ASIL), ranging from ASIL 
+A (lowest criticality) to ASIL D (highest criticality, representing life-threatening risks)18. 
+The assigned ASIL dictates the degree of diligence, redundancy, and testing required 
+during the software development lifecycle 18. For instance, a software component rated ASIL D 
+requires intensive static analysis, structural coverage testing, fault injection testing, and strict 
+configuration management to ensure freedom from interference —levels of rigor rarely seen in 
+standard commercial SDLCs18. ISO 26262 also introduces the concept of the Safety Element out 
+of Context (SEooC ), which allows suppliers to develop safety -critical software modules 
+independently by rigorously documenting the assumptions regarding their eventual integration into 
+a vehicle system29. 
+A deeper analysis of the interplay between ISO 12207 and ISO 26262 reveals a hierarchy 
+of engineering constraints. While ISO 12207 provides the architectural framework for how 
+software should be managed organizationally, ISO 26262 dictates what specific engineering rigor 
+must be applied to that software to ensure human survival. In environments governed by both 
+standards, engineering managers cannot rely on pure Agile (APM) methodologies; the necessity 
+for upfront safety requirements, documented traceability, and independent verification inherently 
+forces a hybrid or V-Model approach to satisfy compliance audits18. 
+ 
+Parametric Cost Estimation in Engineering Management 
+A fundamental function of engineering management is the planning and controlling of 
+financial and human resources 1. During the concept exploration and formulation phases of the 
+PLC, engineering managers must generate accurate estimates of the effort, schedule, and cost 
+required to execute the underlying SDLCs31. Because up to 75% of a system's life cycle costs are 
+committed during these early architectural phases, utilizing robust parametric cost estimation 
+models is critical 31. Relying on analogies or simple regression analysis is often insufficient for 
+modern complexity 32. Consequently, the Constructive Cost Model (COCOMO II) for software 
+engineering and the Constructive Systems Engineering Cost Model (COSYSMO) for overall 
+
+--- PAGE 10 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+systems engineering are widely deployed33. 
+ 
+COCOMO II for Software Effort Estimation 
+Developed by Barry Boehm, COCOMO II utilizes regression formulas based on historical 
+project data to estimate the Person -Months (PM) required to develop a software project 35. The 
+fundamental calculation in COCOMO II is the Effort Equation, which correlates the size of the 
+software—measured in thousands of Source Lines of Code (KSLOC) or Function Points —with 
+the required human effort34. 
+ 
+Source Lines of Code (SLOC) 
+ 
+The COCOMO calculations are based on your estimates of a project's size in Source Lines 
+of Code (SLOC). SLOC is defined such that: 
+• Only Source lines that are DELIVERED as part of the product are included -- test drivers 
+and other support software are excluded 
+• SOURCE lines are created by the project staff -- code created by application generators is 
+excluded 
+• One SLOC is one logical line of code 
+• Declarations are counted as SLOC 
+• Comments are not counted as SLOC 
+The original COCOMO 81 model was defined in terms of Delivered Source Instructions, 
+which are very similar to SLOC. The major difference between DSI and SLOC is that a single 
+Source Line of Code may be several physical lines. For example, an "if-then-else" statement would 
+be counted as one SLOC, but might be counted as several DSIs. 
+ 
+Converting Function Points to Lines of Code 
+To determine the nominal person-months for the Early Design model, the unadjusted 
+function points have to be converted to source lines of code in the implementation language 
+(assembly, higher-order language, fourth-generation language, etc.) in order to assess the relative 
+conciseness of implementation per function point. COCOMO II does this for both the Early Design 
+and Post-Architecture models by using tables such as those found in [Jones 1991] to translate 
+Unadjusted Function Points into equivalent SLOC. 
+ 
+
+--- PAGE 11 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+ 
+Function Points: A standardized way to measure the size/complexity of software functionality, 
+independent of technology 
+ 
+The foundational COCOMO II effort equation is expressed as: 
+ 
+Where: 
+● A is a constant calibrated to the organization (2.94 in the standard COCOMO II.2000 
+model)37. 
+● E is the scale exponent, derived from five Scale Drivers36. 
+● EAF is the Effort Adjustment Factor, a multiplier derived from a set of Cost Drivers34. 
+ 
+The five Scale Drivers account for the exponential effects of project scale and include 
+Precedentedness, Development Flexibility, Architecture/Risk Resolution, Team Cohesion, and 
+Process Maturity36.  
+ 
+ 
+ 
+
+
+--- PAGE 12 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+The 5 Scale Drivers are: 
+• Precedentedness (PREC): how novel the project is for the organization 
+• Development Flexibility (FLEX): development flexibility (e.g. rigidity of compliance to 
+requirements) 
+• Architecture / Risk Resolution (RESL): thoroughness of design and risk resolution 
+• Team Cohesion (TEAM) 
+• Process Maturity (PMAT): maturity with respect to the CMMI questionnaire 
+ 
+Note that the Scale Drivers have replaced the Development Mode of COCOMO 81. The first 
+two Scale Drivers, Precedentedness and Development Flexibility , actually describe much the 
+same influences that the original Development mode did. 
+ 
+ 
+ 
+Constant Values of Different Scale Factors according to SLOC 
+ 
+ 
+The Cost Drivers (which number up to 17 in the detailed Post-Architecture model) modify 
+the base effort based on product attributes (e.g., required software reliability), hardware constraints 
+(e.g., memory constraints), personnel attributes (e.g., analyst capability, programmer experience), 
+and project attributes (e.g., use of software tools, required development schedule)35. 
+ 
+ 
+
+
+--- PAGE 13 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+ 
+ 
+Constant Values of Different Cost Drivers according to SLOC 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+--- PAGE 14 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+For simpler estimations, the Intermediate COCOMO model categorizes software projects 
+into three distinct modes, each reflecting different environmental constraints and utilizing 
+specific constants ( )34: 
+ 
+Project Mode Characteristics Effort Formula 
+(PM) 
+Duration Formula 
+(Tdev) 
+Organic Mode Familiar, flexible 
+environment with 
+relaxed constraints 
+(e.g., simple payroll 
+system). 
+  
+Semidetached 
+Mode 
+Moderate 
+complexity and 
+mixed constraints; 
+interfacing with 
+existing systems. 
+  
+Embedded Mode Highly complex; 
+stringent hardware, 
+software, and 
+operational 
+constraints (e.g., 
+avionics). 
+  
+
+
+--- PAGE 15 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+ 
+MODE 𝒂 𝒃 𝒄 𝒅 
+ORGANIC 2.4 1.05 2.5 0.38 
+SEMI-DETACHED 3.0 1.12 2.5 0.35 
+EMBEDDED 3.6 1.20 2.5 0.32 
+Constants Values  
+Basic COCOMO Model Equations 
+𝐸𝑓𝑓𝑜𝑟𝑡 = 𝑎 × (𝐾𝐿𝑂𝐶)𝑏; unit: person-months (PM) 
+𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡 𝑇𝑖𝑚𝑒 = 𝑐 × (𝐸𝑓𝑓𝑜𝑟𝑡)𝑑; unit: months (M) 
+𝑆𝑡𝑎𝑓𝑓 𝑆𝑖𝑧𝑒𝑎𝑣𝑒 = 𝐸𝑓𝑓𝑜𝑟𝑡𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡 𝑇𝑖𝑚𝑒 ; 𝑢𝑛𝑖𝑡: 𝒑𝒆𝒓𝒔𝒐𝒏𝒔 (𝑷) 
+𝑃𝑟𝑜𝑑𝑢𝑐𝑡𝑖𝑣𝑖𝑡𝑦 = 𝐾𝐿𝑂𝐶𝐸𝑓𝑓𝑜𝑟𝑡 ; 𝑢𝑛𝑖𝑡: 𝑲𝑳𝑶𝑪/𝑷𝒆𝒓𝒔𝒐𝒏 − 𝑴𝒐𝒏𝒕𝒉 (𝑲𝑳𝑶𝑪𝑷𝑴 ) 
+ 
+Once the effort is calculated, the development schedule (Duration in months) is 
+estimated36. Finally, the average staffing required to execute the SDLC can be determined by 
+dividing the estimated Effort (Person-Months) by the Duration (Months)34. 
+ 
+
+
+--- PAGE 16 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+COSYSMO for Systems Engineering Effort 
+ 
+While COCOMO estimates the labor required for software coding, it does not account for 
+the broader systems engineering effort required to define architectures, manage requirements, and 
+oversee hardware/software integration 40. To fill this gap, the Constructive Systems Engineering 
+Cost Model (COSYSMO) was developed42. 
+ 
+COSYSMO estimates systems engineering effort based on four primary size drivers: 
+1. Number of System Requirements 
+2. Number of Major Interfaces 
+3. Number of Operational Scenarios 
+4. Number of Critical Algorithms40 
+ 
+These drivers are weighted based on their complexity (easy, nominal, difficult)44. A critical 
+advancement in COSYSMO is its ability to quantify the impact of systems engineering reuse 32. 
+When an engineering firm reuses existing architectures, components, or Commercial Off -The-
+Shelf (COTS) products, the systems engineering effort does not drop to zero; effort is still required 
+for design modification, integration, and testing44. 
+ 
+COSYSMO calculates an "Equivalent New" size for reused components using parameters 
+that account for the percentage of design modified ( , ), the percentage of code modified 
+( , ), and the effort required for integration and testing ( , )44. The formula for 
+Equivalent New requirements ( ) relative to the nominal total ( ) is: 
+ 
+This equation prevents the chronic underestimation of integration costs that frequently 
+plagues complex system developments 31. An underlying trend highlighted by the application of 
+COSYSMO and COCOMO II in tandem is that as software abstractions increase (e.g., relying on 
+middleware or COTS), the proportion of the budget dedicated to raw coding decreases, while the 
+proportion required for systems engineering, integration, and testing expands significantly31. 
+To further mitigate estimation risks, engineering managers employ simulation -based 
+costing techniques, such as Monte Carlo simulations 31. By assigning probability distributions to 
+the duration and cost of individual work packages within a Work Breakdown Structure (WBS), 
+managers can simulate thousands of project iterations to determine the statistical probability of 
+meeting schedule and bu dget targets 31. This probabilistic approach is vital for establishing 
+management reserves and answering directly to the scrutiny of the Program Governance Board 
+during Phase Gates. 
+ 
+ 
+
+
+--- PAGE 17 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Staffing and Leading the Engineering Organization 
+The outputs of cost estimation models directly inform the Staffing function of engineering 
+management1. Staffing involves determining human resource needs, recruiting, selecting, training, 
+and appraising personnel 1. Forecasting manpower needs relies on time series methods, 
+econometric models, and leading indicators to match the mathematical outputs of COCOMO II to 
+actual hiring practices1. 
+When selecting engineers, managers utilize application blanks, references, and rigorous 
+testing1. These tests include psychological and aptitude tests (measuring capacity to learn), 
+performance tests (measuring current knowledge), and personality tests (measuring traits like 
+sociability and dominance) 1. Once selected, engineers require continuous training to maintain 
+technical proficiency. Non -managerial training methods include on -the-job training, vestibule 
+schools (simulated work environments), and apprenticeship programs, while managerial training 
+focuses on decision -making through in -basket exercises, management games, case studies, and 
+interpersonal development through role-playing and sensitivity training1. 
+However, placing highly trained personnel into structured SDLCs is insufficient without 
+effective Leadership. Leading involves influencing others to engage in the work behaviors 
+necessary to reach organizational goals1. Leaders exert influence through various bases of power, 
+including legitimate power (positional authority), reward power (material or psychic benefits), 
+coercive power (punishment), referent power (charisma and identification), and expert power 
+(technological supremacy)1. 
+Effective engineering leaders exhibit specific traits: a high level of personal drive, the 
+desire to lead, personal integrity, self-confidence, analytical ability, knowledge of the technology, 
+charisma, creativity, and flexibility 1. Furthermore, they must possess technical skills (to 
+understand the engineering work), human skills (to motivate and communicate), and conceptual 
+skills (to perceive how the parts fit into the strategic whole)1. 
+ 
+Contingency Leadership Models in the SDLC 
+Because software development environments vary drastically —from rigid Waterfall 
+projects to highly fluid Agile teams —engineering managers must adapt their leadership styles 
+according to contingency models1. 
+Fred Fiedler’s Contingency Model  suggests that leadership effectiveness depends on 
+matching the leader's style to the situation, determined by leader-member relations, task structure, 
+and position power 1. If the situation does not fit the leader, the organization must change the 
+leader's behavior, move the leader, or change the situation itself1. 
+The Hersey and Blanchard Situational Leadership Model  provides a highly tactical 
+framework for managing software engineers based on the subordinates' maturity level 
+(competence and commitment)1. 
+● Directing (High task, low relationship):  Used for enthusiastic but inexperienced junior 
+developers beginning a project. The manager provides strict oversight and structure1. 
+● Coaching (High task, high relationship):  Used when developers have some competence 
+but lack commitment due to early project struggles. The manager provides direction 
+
+--- PAGE 18 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+alongside emotional support1. 
+● Supporting (Low task, high relationship): Used for highly competent engineers who lack 
+confidence to take the lead. The manager facilitates and praises rather than directing 
+technical work1. 
+● Delegating (Low task, low relationship): The optimal style for a mature Agile Scrum team. 
+Highly competent and committed engineers require minimal supervision, allowing the 
+manager to step back and act as a facilitator1. 
+Similarly, the Path-Goal Model asserts that leaders can enhance motivation by clarifying 
+work goals, linking meaningful rewards with goal attainment, and removing obstacles1. Depending 
+on the SDLC phase, the manager can utilize directive, supportive, participative, or achievement -
+oriented leadership styles1. 
+Finally, the Vroom Decision -Making Model  prescribes the appropriate degree of 
+subordinate participation based on the problem at hand1. When a critical defect is identified late in 
+the V -Model integration testing phase of an ISO 26262 -compliant automotive system, time 
+constraints and safety implications may require an Autocratic (A -1 or A -2) decision from the 
+engineering manager1. During the rapid prototyping phase of a new software feature, however, a 
+Group-Directed (G-2) style fosters the creativity and consensus necessary to resolve ambiguous 
+user requirements1. 
+ 
+Motivating the Engineering Workforce 
+Motivation is the process of activating, sustaining, and directing behavior toward a goal 1. 
+Engineering managers utilize theories such as Maslow's Need Hierarchy (physiological, security, 
+social, esteem, self -actualization) and Herzberg's Two -Factor Theory (distinguishing between 
+hygiene factors that prevent dissatisfaction and motivation factors that drive performance) 1. 
+Expectancy Theory posits that engineers will exert effort if they believe it will lead to successful 
+performance and, subsequently, a valued reward (valence)1. 
+To operationalize motivation, managers employ job design techniques. Fitting people to 
+jobs involves realistic job previews and job rotation, while fitting jobs to people utilizes job 
+enlargement (combining specialized tasks) and job enrichment (making tas ks more challenging 
+and rewarding) 1. Furthermore, establishing Quality Control Circles (QCCs) and Self -Managed 
+Teams allows engineers to participate directly in problem -solving and decision-making, which is 
+particularly synergistic with Agile and Lean SDLC methodologies1. 
+ 
+Controlling Mechanisms in Life Cycles 
+Controlling is the process of ascertaining whether organizational objectives have been 
+achieved, identifying deviations, and determining corrective actions for the future1. In the context 
+of the PLC, control is institutionalized through the Governance Phase Gates, which act as 
+overarching control mechanisms to validate whether the component SDLCs continue to serve the 
+program's strategic business case3. 
+At the operational level, engineering managers employ three distinct types of control within 
+the SDLC: 
+
+--- PAGE 19 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+1. Feedforward Control:  Anticipating problems and preventing their occurrence before 
+operations begin 1. In the SDLC, this manifests as rigorous Requirements Analysis, risk 
+assessment, and the application of parametric estimation (COCOMO/COSYSMO) to ensure 
+adequate budget, schedule, and human resources are allocated before coding commences1. 
+2. Concurrent Control: Monitoring ongoing operations to detect variances as they occur1. In 
+traditional SDLCs, this involves tracking Gantt charts and project milestones. In Agile 
+SDLCs, daily Scrum meetings and continuous integration (CI) pipelines serve as concurrent 
+controls, immediately identifying code conflicts, schedule slippages, or resource bottlenecks 
+during a sprint1. 
+3. Feedback Control: Gathering information on completed activities to evaluate performance 
+and improve future processes1. Post-installation system reviews, beta testing, and the formal 
+Closure Acceptance gate in the PLC serve as feedback controls, validating the accuracy of 
+original estimates, capturing lessons learned, and assessing whether long-term benefits were 
+realized1. 
+A critical underlying trend emerges when analyzing the intersection of controlling 
+mechanisms and life cycle models. The traditional Waterfall SDLC relies heavily on feedforward 
+control—attempting to predict and plan for all variables prior to execution 1. However, in highly 
+volatile technological environments, feedforward control frequently fails because the external 
+environment changes faster than the software can be developed. Iterative, Evolutionary, and Agile 
+models inherently shift the engineering ma nager's reliance from feedforward control toward 
+concurrent and feedback control1. By reducing the iteration cycle time, Agile methodologies utilize 
+rapid, continuous feedback to iteratively correct the project's trajectory, effectively neutralizing 
+the risk of long-term strategic misalignment16. 
+ 
+Strategic Control and Financial Ratios 
+To guarantee the ultimate viability of the engineering organization, managers must monitor 
+strategic control systems, which rely heavily on financial analysis 1. Evaluating the long -range 
+financial plan and the operating budget involves utilizing specific financial ratios to diagnose 
+organizational health1. 
+ 
+Financial Ratio 
+Category 
+Specific Ratio Formula Relevance to 
+Engineering 
+Management 
+Liquidity Current Ratio 𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝐴𝑠𝑠𝑒𝑡𝑠
+𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝐿𝑖𝑎𝑏𝑖𝑙𝑖𝑡𝑖𝑒𝑠 Assesses ability to cover short-term 
+obligations (e.g., 
+payroll for software 
+developers)1. 
+
+--- PAGE 20 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+Liquidity Acid-Test Ratio 
+𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝐴𝑠𝑠𝑒𝑡𝑠 − 𝐼𝑛𝑣𝑒𝑛𝑡𝑜𝑟𝑦 
+𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝐿𝑖𝑎𝑏𝑖𝑙𝑖𝑡𝑖𝑒𝑠  Measures immediate solvency 
+without relying on 
+inventory sales1. 
+Efficiency Inventory Turnover 𝐶𝑜𝑠𝑡 𝑜𝑓 𝐺𝑜𝑜𝑑𝑠 𝑆𝑜𝑙𝑑
+𝐼𝑛𝑣𝑒𝑛𝑡𝑜𝑟𝑦  Evaluates how effectively physical 
+assets (hardware 
+components) are 
+utilized1. 
+Leverage Debt to Total Assets 𝑇𝑜𝑡𝑎𝑙 𝐷𝑒𝑏𝑡𝑠
+𝑇𝑜𝑡𝑎𝑙 𝐴𝑠𝑠𝑒𝑡𝑠 Assesses the balance of financing 
+obtained through 
+debt versus equity1. 
+Profitability Profit Margin 𝑁𝑒𝑡 𝑃𝑟𝑜𝑓𝑖𝑡
+𝑁𝑒𝑡 𝑆𝑎𝑙𝑒𝑠  Determines the ultimate financial 
+viability of the 
+delivered product or 
+program1. 
+ 
+When symptoms of inadequate control arise —such as unexplained declines in revenue, 
+degradation of service, excessive costs, or disorganized operations —the engineer manager must 
+execute an Executive Reality Check or a Comprehensive Internal Audit 1. The Executive Reality 
+Check forces the manager to step out of the abstract planning level and experience frontline 
+operational realities, ensuring that the control requirements imposed on software engineers are 
+actually feasible1. 
+ 
+The successful execution of engineering management requires a mastery of both the micro-
+level tactical execution embodied in the Software Development Life Cycle and the macro -level 
+strategic orchestration defined by the Program Management Life Cycle. As technological systems 
+grow increasingly complex —blending physical hardware, advanced software, and highly 
+regulated functional safety requirements—engineering managers can no longer rely on singular 
+methodologies or intuitive decision-making. 
+The integration of these life cycles demands a rigorous, hybrid approach. The PMI 
+framework provides the overarching governance, phase gates, and benefits -realization focus 
+necessary to ensure that technical endeavors yield actual business value. Within th at program 
+umbrella, various SDLC models —from the rigid, safety -focused V -Model mandated by ISO 
+26262, to the highly adaptive Agile Scrum frameworks governed by ISO 12207 —must be 
+
+--- PAGE 21 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+deployed dynamically based on the specific risk profile of the component. Furthermore, the ability 
+to accurately forecast the required human and financial capital using parametric models like 
+COCOMO II and COSYSMO remains a cornerstone of effective plannin g. By systematically 
+applying the core management functions of planning, organizing, staffing, leading, and controlling 
+to these overlapping life cycles, engineering managers can mitigate inherent technological risks, 
+optimize resource utilization, and ensure the delivery of resilient, high-value engineering solutions. 
+ 
+ 
+ 
+
+--- PAGE 22 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+References 
+1. Engineering Management [Main Reference].pdf 
+2. OVPAA-Approved-CO-RevEd-2026-1s.docx 
+3. Program Management Life Cycle: Three Phases, Six Gates, 
+https://augmentconsultancy.com/feed/program-management-life-cycle 
+4. PMI Standard for Program Management | PDF | Procurement - Scribd, 
+https://www.scribd.com/document/875837811/The-new-PMI-standard-for-program-
+management 
+5. Program Management Overview - PM Expert, https://www.pmexpertinc.com/l/program-
+management-overview/ 
+6. The new PMI standard for program management, 
+https://www.pmi.org/learning/library/new-project-management-institute-standard-
+development-8014 
+7. Program Lifecycle Management: Key Phases, Benefits & Guide, 
+https://www.knowledgehut.com/blog/project-management/program-lifecycle-management 
+8. Program Management Plan: Structure and Decision Rights, 
+https://augmentconsultancy.com/feed/program-management-plan 
+9. Program Management Essentials Course, https://projectmanagementacademy.net/program-
+management-essentials-course 
+10. Understanding the Software Development Life Cycle in 2026 - Hyqoo, 
+https://hyqoo.com/developer-journey/software-development-life-cycle 
+11. Software Development Models - SDLC Models - GeeksforGeeks, 
+https://www.geeksforgeeks.org/software-engineering/sdlc-models-types-phases-use/ 
+12. Software design patterns - Wikibooks, open books for an open world, 
+https://en.wikibooks.org/wiki/Introduction_to_Software_Engineering/Print_version 
+13. Program Development Cycle - PPT - SlideServe, https://www.slideserve.com/constance-
+kim/program-development-cycle-powerpoint-ppt-presentation 
+14. What Is SDLC? 7 Phases, Models & Best Practices (2026), 
+https://triazinesoft.com/blog/what-is-sdlc-7-phases-models-best-practices-2026 
+15. SDLC Guide: Phases, Models & QA - Minitap, 
+https://www.minitap.ai/magazine/software-development-life-cycle-phases 
+16. System Development Life Cycle Overview | PDF | Computer Program, 
+https://www.scribd.com/document/191662208/Ch-2-Sdlc-Isca 
+17. Software Requirements Definition and Development Process, 
+https://arc.aiaa.org/doi/pdfplus/10.2514/6.2009-2032 
+18. ISO 26262 Functional Safety in Automotive Software - eInfochips, 
+https://www.einfochips.com/blog/road-vehicles-functional-safety-a-software-developers-
+perspective/ 
+19. Lessons Learned From ISO26262 for Embedded Software - Reply, 
+https://www.reply.com/concept-reply/en/whitepaper-functional-safety 
+20. Project management for engineering, business and technology -- John M_ Nicholas & 
+Herman Steyn -- Sixth edition, Abingdon, Oxon, 2021 -- Routledge, -- isbn13 
+9780367277307 -- d60b18e7d26748c92490c32307e1e7b8.pdf 
+21. ISO/IEC/IEEE 12207 - Software Life Cycle Processes, 
+https://quality.arc42.org/standards/iso12207 
+22. ISO/IEC/IEEE 12207:2026—Software Life Cycle Processes, https://blog.ansi.org/ansi/iso-
+
+--- PAGE 23 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+iec-ieee-12207-2026-software-life-cycle/ 
+23. ISO/IEC 12207 - Wikipedia, https://en.wikipedia.org/wiki/ISO/IEC_12207 
+24. ISO 12207 Software Life Cycle Processes: Full Guide & Certification, 
+https://blog.pacificcert.com/iso-12207-software-life-cycle-processes/ 
+25. 24748-1-2024 - ISO/IEC/IEEE International Standard - Systems and, 
+https://ieeexplore.ieee.org/document/10476385 
+26. ISO 26262 Functional Safety | Training, Consulting, Compliance, https://c-s-
+inc.us/services-expertises/iso-26262/ 
+27. Embedded Software Development for Automotive: Best Practices, 
+https://wezom.com/blog/embedded-software-development-for-automotive 
+28. What is ISO 26262 Functional Safety Standard? - Synopsys, 
+https://www.synopsys.com/glossary/what-is-iso-26262.html 
+29. Functional safety (ISO 26262) & ASPICE explained - SAMD Solutions, https://samd-
+solutions.de/wissen/funktionale-sicherheit-aspice/en.html 
+30. Contemporary Project Management, https://homeworksmontana.com/wp-
+content/uploads/2022/08/20200519192749contemporary_project_management.pdf 
+31. Systems Life Cycle Costing_ Economic Analysis, Estimation, -- author, John Vail Farr -- 
+Engineering Management Series, 1, 2011 -- CRC Press LLC -- isbn13 9780429093968 -- 
+e55f1fe4faf32a3a0488dc12662b9ac8 --.pdf 
+32. Systems Engineering Cost Estimation Curriculum Development, 
+https://www.slideserve.com/Gabriel/systems-engineering-cost-estimation-curriculum-
+development-workshop-debrief 
+33. Publications and Presentations – Dr. Young Hoon Kwak - GW Blogs, 
+https://blogs.gwu.edu/kwak/publications/ 
+34. COCOMO Model - GeeksforGeeks, https://www.geeksforgeeks.org/software-
+engineering/software-engineering-cocomo-model/ 
+35. COCOMO - Wikipedia, https://en.wikipedia.org/wiki/COCOMO 
+36. Overview of COCOMO, 
+https://ranger.uta.edu/~khalili/Overview%20of%20COCOMO.htm 
+37. (PDF) COCOMO II Based Project Cost Estimation and Control, 
+https://www.researchgate.net/publication/314639754_COCOMO_II_Based_Project_Cost_
+Estimation_and_Control 
+38. COCOMO II Model Definition Manual - Rose-Hulman, https://www.rose-
+hulman.edu/class/cs/csse372/201310/Homework/CII_modelman2000.pdf 
+39. COCOMO Models, 
+https://staff.emu.edu.tr/nazifedimililer/Documents/courses/itec316/itec316%20fall2017201
+8%20estimation.pdf 
+40. (PDF) Reuse In Systems Engineering - Academia.edu, 
+https://www.academia.edu/330910/Reuse_In_Systems_Engineering 
+41. (PDF) Estimating Systems Engineering Reuse - ResearchGate, 
+https://www.researchgate.net/publication/228370660_Estimating_Systems_Engineering_R
+euse 
+42. Cost Analysis and Parametrics, https://www.iceaaonline.com/wp-
+content/uploads/2022/04/JCAPv10i2.pdf 
+43. Systems Life Cycle Costing - Taylor & Francis eBooks, 
+https://api.taylorfrancis.com/content/books/mono/download?identifierName=doi&identifie
+
+--- PAGE 24 ---
+ 
+ 
+Bachelor of Science in Computer Engineering 
+CPE415:  Engineering Management 
+ 
+rValue=10.1201/b10963&type=googlepdf 
+44. Extensions of COSYSMO to Represent Reuse - SciSpace, 
+https://scispace.com/pdf/extensions-of-cosysmo-to-represent-reuse-wgpk0vd346.pdf 
+45. Jared Fortune's research works | University of Southern California, 
+https://www.researchgate.net/scientific-contributions/Jared-Fortune-81350664 

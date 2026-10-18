@@ -1,0 +1,351 @@
+--- PAGE 1 ---
+C P E 1 7   ·   M O D U L E  1
+Computer Architecture
+& Organization
+History, Overview of Computer Architecture, and Relevant Tools, Standards, and Engineering Constraints
+Dalubhasaan ng Lungsod ng San Pablo·  First 
+Semester, 2024–2025
+Engr.  Joel C. Ananias
+1
+
+--- PAGE 2 ---
+Module Overview
+Self-paced learning module details
+C O U RSE
+CPE17
+SE M E STE R / AY
+First Semester, 
+2024–2025
+M O DUL E  NO .
+1
+WE E K DURATIO N
+Week 2–3
+DATE
+August 26 –
+September 7, 
+2024
+L E S S O N  T I T L E
+History, Overview of Computer Architecture and Relevant Tools, Standards and/or Engineering 
+Constraints
+D E S C R I P T I O N  O F  T H E  L E S S O N
+In this lesson, students will learn concepts about Computer Architecture and Organization — including the parts and components of a computer 
+system, a brief history of computers, and the relevant tools and constraints in engineering design.
+CPE17 — Module 1 2
+
+--- PAGE 3 ---
+Learning Outcomes
+What students should walk away with
+I N T E N D E D  L E A R N I N G  O U T C O M E S
+● Learn about the concepts of Computer Architecture 
+and Organization
+● Learn the parts and components of a computer system, 
+and a brief history of computers
+● Learn the relevant tools and constraints in engineering 
+design
+TAR G E TS  / O B J E C TI V E S
+● Familiarize themselves with the concepts of Computer 
+Architecture and Organization
+● Know the parts and components of a computer system, 
+and a brief history of computers
+● Identify the relevant tools and constraints in 
+engineering design
+CPE17 — Module 1 3
+
+--- PAGE 4 ---
+Two Sides of the Same Machine
+Architecture is the “what” — Organization is the “how”
+C O MPU TE R  AR C H I TE C TU R E
+The conceptual design and fundamental operational structure 
+of a computer system. It deals with the high-level design of a 
+computer’s hardware components and their interactions.
+Includes: instruction set, data types, addressing modes, and visible 
+registers.
+C O MPU TE R  O R G AN I Z AT I O N
+The operational structure and implementation of computer 
+systems. It focuses on how the hardware components are 
+connected and interact with each other to execute instructions.
+Includes: how circuits, signals, and physical hardware are actually wired
+together.
+CPE17 — Module 1 4
+
+--- PAGE 5 ---
+Architecture VS Organization
+C O MPU TE R  AR C H I TE C TU R E
+The conceptual desin and fundamental operational structure of 
+a computer system. It deals with the high-level design of a 
+computer’s hardware components and their interactions.
+Includes: instruction set, data types, addressing modes, and visible 
+registers.
+C O MPU TE R  O R G AN I Z AT I O N
+The operational structure and implementation of computer 
+systems. It focuses on how the hardware components are 
+connected and interact with each other to execute instructions.
+Includes: how circuits, signals, and physical hardware are actually wired
+together.
+CPE17 — Module 1 4
+
+
+--- PAGE 6 ---
+Key Aspects
+Three concepts that tie architecture and organization together
+ISA
+Instruction Set Architecture
+Defines the set of instructions the CPU 
+can execute and how they are encoded.
+μ-ARCH
+Microarchitecture
+The implementation of the ISA —
+including CPU design, pipelining, and 
+parallel processing.
+MEM
+Memory Hierarchy
+The organization of different memory 
+types (registers, cache, main, secondary) 
+to optimize access time and 
+performance.
+CPE17 — Module 1 5
+
+--- PAGE 7 ---
+Computer Design: Basic Components
+Planning how the different parts of a computer work together
+1 CPU Central Processing Unit — executes instructions and performs calculations
+2 Memory Includes RAM (Random Access Memory) — holds running programs and data
+3 Storage Retains data permanently, even when the system is powered off
+4 I/O Systems Input/Output — connects the system to the outside world
+5 Bus Systems Pathways that carry address, data, and control signals between components
+CPE17 — Module 1 6
+
+--- PAGE 8 ---
+Brief Computer Architecture History
+Six generations of computing
+0
+Mechanical 
+Computers
+1642–1945
+1
+Vacuum Tubes
+1945–1955
+2
+Transistors
+1955–1965
+3
+Integrated 
+Circuits
+1965–1980
+4
+Microprocessors
+1980–?
+5
+Artificial 
+Intelligence
+present
+CPE17 — Module 1 7
+
+--- PAGE 9 ---
+History Highlights
+Milestones that shaped modern computing
+1642 Pascal’s Calculator
+One of the first mechanical calculators, by Blaise Pascal.
+1837 Babbage’s Analytical Engine
+Never completed, but laid the groundwork for modern computing.
+1945 ENIAC
+First general-purpose electronic digital computer, using vacuum tubes.
+1945 Stored-Program Concept
+John von Neumann’s idea: instructions stored in memory alongside 
+data.
+1964 IBM System/360
+A family of compatible computers using integrated circuits.
+1971 Intel 4004
+First commercially available microprocessor, enabling personal 
+computers.
+1980s+ Personal Computers
+Widespread PC adoption brought GUIs, the internet, and modern 
+software.
+Today AI & Quantum Computing
+Self-learning systems and quantum/neuromorphic computing push the 
+frontier.
+CPE17 — Module 1 8
+
+--- PAGE 10 ---
+Computer Systems Organization
+A network of processors, memory, and I/O devices working together
+CPU
+Memory Unit
+Control Unit
+Arithmetic &
+Logic Unit
+Input Output
+CPU
+Fetches program and data from memory, 
+performs arithmetic/logical operations, stores 
+results back.
+ALU
+Performs all arithmetic and logic operations 
+required by an instruction.
+CU
+Controls sequential instruction execution and 
+guides data flow through the system.
+Input / Output
+Input devices convert data to digital form; 
+output devices convert digital data to human-
+readable form.
+CPE17 — Module 1 9
+
+--- PAGE 11 ---
+Inside the CPU: Processors
+The “brain” of the computer — fetches, examines, and executes
+CPU Organization The datapath consists of registers, the ALU, and buses connecting the pieces; registers feed two ALU input registers.
+Instruction Execution Each instruction runs through the fetch–decode–execute cycle — central to how every computer operates.
+RISC vs. CISC RISC (Reduced Instruction Set Computer) is contrasted with CISC (Complex Instruction Set Computer).
+Instruction-Level Parallelism The parallel or simultaneous execution of a sequence of instructions in a program.
+Processor-Level Parallelism In a multiprocessor system, each processor executes a different thread on the same or different data.
+CPE17 — Module 1 10
+
+--- PAGE 12 ---
+Primary Memory
+Where programs and data are stored during execution
+Bits
+The basic unit of memory — a binary digit 
+that holds a 0 or a 1.
+Memory Address
+Each memory cell has a unique number, its 
+address, by which programs refer to it.
+Byte Ordering
+Bytes in a word can be numbered left-to-
+right or right-to-left — a choice with major 
+implications.
+Error-Correcting Codes
+Guards against occasional errors using 
+error-detecting or error-correcting codes.
+Cache Memory
+Temporarily stores frequently used 
+instructions and data for faster CPU access.
+CPE17 — Module 1 11
+
+--- PAGE 13 ---
+The Memory Hierarchy
+Organizing memory to minimize access time (locality of reference)
+Level 0 — CPU Registers
+Fastest · smallest · highest cost per bit
+Level 1 — Cache Memory (SRAM)
+Very fast · small · close to the CPU
+Level 2 — Main Memory (DRAM)
+Fast · medium size · volatile
+Level 3 — Magnetic Disk
+Slower · large · non-volatile
+Level 4 — Optical Disk / Magnetic Tape
+Slowest · largest · lowest cost per bit
+↑ SPEED & COST
+↓ CAPACITY
+CPE17 — Module 1 12
+
+--- PAGE 14 ---
+Secondary Memory & Storage Types
+Main memory is always too small — secondary storage fills the gap
+1
+Magnetic Storage
+Magnetic disk · Floppy disk · 
+IDE · SCSI · RAID
+2
+Optical Storage
+CD-ROM · DVD · Blu-Ray
+3
+Flash Storage
+USB flash drive · HDD · SSD
+4
+Cloud Storage
+Dropbox · iCloud · Google 
+Drive · OneDrive · Mega · Box
+CPE17 — Module 1 13
+
+--- PAGE 15 ---
+Input / Output & Buses
+A bus carries address, data, and control signals between components
+CPU Memory
+Address
+Data
+Control
+I/O Bus — interfaces translate signals between the CPU/memory bus and each device.
+Monitor Keyboard Hard-disk
+Terminals: Keyboard + monitor for entering and 
+transcribing data
+Mouse:
+Hand-controlled device for GUI interaction
+Printers: Produces paper copies of documents or 
+data
+Digital Camera: Captures photographs and stores them as 
+data
+Headset:
+Connects to talk/listen hands-free
+Character Code: Unique numbers assigned to characters 
+(e.g. ASCII)
+CPE17 — Module 1 14
+
+--- PAGE 16 ---
+Relevant Tools & Standards
+Four components required to implement a computerized input-process-output model
+Computer Hardware
+The physical mechanisms to input, output, manipulate, and process 
+data — the tangible part of the system.
+Computer Software
+Programs that tell the computer what to do: system software (e.g.
+the OS) and application software (e.g. Word, Firefox).
+Data
+The information being manipulated — numeric, alphanumeric, 
+graphic, or another form the computer can represent.
+Communication Component
+Hardware and software that transport programs and data between 
+interconnected computer systems.
+CPE17 — Module 1 15
+
+--- PAGE 17 ---
+Architecture Is Engineering Design Under Constraints
+Eight factors that shape every design decision
+1
+Functionality
+Does the design work and meet user 
+needs? (usability, satisfaction, 
+efficiency, effectiveness)
+2
+Cost
+Resources needed to conceive, 
+design, produce, and maintain the 
+product
+3
+Performance
+Coordination of conditions that 
+produce desired results: input, 
+output, efficiency, quality, outcome
+4
+Size
+Physical space taken up by the 
+system solution
+5
+Power & Energy
+Energy required to perform its 
+function — often traded off against 
+cost
+6
+Time to Market
+Time from concept to release — or 
+until the first unit is sold
+7
+Maintainability
+Probability a failed component can 
+be restored within a specified time
+8
+Safety
+Embedding health & safety 
+considerations from the earliest 
+design stages
+CPE17 — Module 1 16
+
+--- PAGE 18 ---
+Key Takeaways
+1 Architecture defines what a computer can do; organization defines how it does it.
+2 A computer system is built from the CPU, memory, storage, I/O, and a shared bus.
+3 Computing has evolved through six generations — from mechanical devices to AI.
+4 The CPU cycles through fetch–decode–execute for every single instruction.
+5 Memory is organized in a hierarchy that trades speed for capacity.
+6 Good architecture is engineering design under real-world constraints: functionality, cost, performance, size, power, time-to-market, maintainability, and safety.
+CPE17 — Module 1 17

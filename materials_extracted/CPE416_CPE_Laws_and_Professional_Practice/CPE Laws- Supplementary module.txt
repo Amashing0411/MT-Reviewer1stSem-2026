@@ -1,0 +1,216 @@
+--- PAGE 1 ---
+CPE416 
+CPE Laws &
+Professional
+Practice 
+Engr. Joel C. Ananias
+
+--- PAGE 2 ---
+R.A NO. 9292
+Republic Act No. 9292, also known as the Electronics Engineering Law of 2004, provides a comprehensive
+framework for the regulation, registration, and licensing of Professional Electronics Engineers, Electronics
+Engineers, and Electronics Technicians in the Philippines12. Here are some key points:
+Penalties and Enforcement:
+Specifies penalties for violations of the law, including practicing without a license or engaging in unethical
+practices.
+Section 35. Penal Provision. - The following shall be punished by a fine of not less than One hundred thousand
+pesos (P100,000.00) nor more than One million pesos (P1,000,000.00), or by imprisonment of not less than six
+(6) months nor more than six (6) years, or both, in the discretion of the court:
+(a) Any person who shall give any false or fraudulent statement to the Board to obtain a Certificate of
+Registration and/or Professional Identification Card as Professional Electronics Engineer, Electronics Engineer
+or Electronics Technician;
+(b) Any person who shall present or use as his/her own a Certificate of Registration, Professional Identification
+Card, membership identification card in the Accredited Professional Organization and/or seal issued to
+another and any person who allows the use of his/her Certificate of Registration, Professional Identification
+Card, membership card in the Accredited Professional Organization and/or seal;
+(c) Any person who shall present or use a revoked or suspended Certificate of Registration as Professional
+Electronics Engineer, Electronics Engineer or Electronics Technician;
+(d) Any person who shall assume, use, advertise or otherwise practice as Professional Electronics Engineer,
+Electronics Engineer or Electronics Technician, or append to his/her name, any letter/s or words tending to
+convey the impression that he/she is a registered Professional Electronics Engineer, Electronics Engineer or
+Electronics Technician, when in fact he/she is not duly registered with the Board as such;
+(e) Any Professional Electronics Engineer, or any person on his/her behalf, who shall stamp or seal any
+document with his/her seal as such after his/her Certificate of Registration, Professional Identification Card
+and membership card in the Accredited Professional Organization has been revoked or suspended or after
+he/she has been suspended from practice or removed from the roster of Professional Electronics Engineer,
+Electronics Engineers or Electronics Technicians;
+(f) Any Professional Electronics Engineer who shall sign his/her name, affix his/her seal, or use any other
+method of signature on plans, technical descriptions or other documents prepared by or under the
+supervision of another Professional Electronics Engineer, unless the same is prepared in such manner as to
+clearly indicate the part of such work actually performed by the former;
+(g) Any person, except the Professional Electronics Engineer or Electronics Engineer in-charge, who shall sign
+for any electronics engineering work, or any function of electronics engineering practice, not actually
+performed by him/her;
+Electronics Engineering Law
+of 2004
+
+--- PAGE 3 ---
+R.A NO. 10173
+SEC. 25. Unauthorized Processing of Personal Information and Sensitive Personal Information.
+(a) The unauthorized processing of personal information shall be penalized by imprisonment ranging from one (1)
+year to three (3) years and a fine of not less than Five hundred thousand pesos (Php500,000.00) but not more than
+Two million pesos (Php2,000,000.00) shall be imposed on persons who process personal information without the
+consent of the data subject, or without being authorized under this Act or any existing law.
+(b) The unauthorized processing of personal sensitive information shall be penalized by imprisonment ranging
+from three (3) years to six (6) years and a fine of not less than Five hundred thousand pesos (Php500,000.00) but
+not more than Four million pesos (Php4,000,000.00) shall be imposed on persons who process personal
+information without the consent of the data subject, or without being authorized under this Act or any existing
+law.
+SEC. 26. Accessing Personal Information and Sensitive Personal Information Due to Negligence.
+ (a) Accessing personal information due to negligence shall be penalized by imprisonment ranging from one (1)
+year to three (3) years and a fine of not less than Five hundred thousand pesos (Php500,000.00) but not more than
+Two million pesos (Php2,000,000.00) shall be imposed on persons who, due to negligence, provided access to
+personal information without being authorized under this Act or any existing law.
+(b) Accessing sensitive personal information due to negligence shall be penalized by imprisonment ranging from
+three (3) years to six (6) years and a fine of not less than Five hundred thousand pesos (Php500,000.00) but not
+more than Four million pesos (Php4,000,000.00) shall be imposed on persons who, due to negligence, provided
+access to personal information without being authorized under this Act or any existing law.
+SEC. 27. Improper Disposal of Personal Information and Sensitive Personal Information.
+ (a) The improper disposal of personal information shall be penalized by imprisonment ranging from six (6)
+months to two (2) years and a fine of not less than One hundred thousand pesos (Php100,000.00) but not more
+than Five hundred thousand pesos (Php500,000.00) shall be imposed on persons who knowingly or negligently
+dispose, discard or abandon the personal information of an individual in an area accessible to the public or has
+otherwise placed the personal information of an individual in its container for trash collection.
+(b) The improper disposal of sensitive personal information shall be penalized by imprisonment ranging from one
+(1) year to three (3) years and a fine of not less than One hundred thousand pesos (Php100,000.00) but not more
+than One million pesos (Php1,000,000.00) shall be imposed on persons who knowingly or negligently dispose,
+discard or abandon the personal information of an individual in an area accessible to the public or has otherwise
+placed the personal information of an individual in its container for trash collection.
+SEC. 28. Processing of Personal Information and Sensitive Personal Information for Unauthorized Purposes. The
+processing of personal information for unauthorized purposes shall be penalized by imprisonment ranging from
+one (1) year and six (6) months to five (5) years and a fine of not less than Five hundred thousand pesos
+(Php500,000.00) but not more than One million pesos (Php1,000,000.00) shall be imposed on persons processing
+personal information for purposes not authorized by the data subject, or otherwise authorized under this Act or
+under existing laws.
+SEC. 29. Unauthorized Access or Intentional Breach. The penalty of imprisonment ranging from one (1) year to
+three (3) years and a fine of not less than Five hundred thousand pesos (Php500,000.00) but not more than Two
+million pesos (Php2,000,000.00) shall be imposed on persons who knowingly and unlawfully, or violating data
+confidentiality and security data systems, breaks in any way into any system where personal and sensitive
+personal information is stored.
+ Data Privacy Act of 2012
+Chapter VIII. Penalties.
+
+--- PAGE 4 ---
+RA NO. 10175
+Any person found guilty of any of the punishable acts enumerated in Sections 4(a) and 4(b) of this Act shall
+be punished with imprisonment of prison mayor or a fine of at least Two hundred thousand pesos
+(PhP200,000.00) up to a maximum amount commensurate to the damage incurred or both.
+•Any person found guilty of the punishable act under Section 4(a)(5) shall be punished with imprisonment of
+prision mayor or a fine of not more than Five hundred thousand pesos (PhP500,000.00) or both.
+•If punishable acts in Section 4(a) are committed against critical infrastructure, the penalty of reclusion
+temporal or a fine of at least Five hundred thousand pesos (PhP500,000.00) up to maximum amount
+commensurate to the damage incurred or both, shall be imposed.
+•Any person found guilty of any of the punishable acts enumerated in Section 4(c)(1) of this Act shall be
+punished with imprisonment of prision mayor or a fine of at least Two hundred thousand pesos
+(PhP200,000.00) but not exceeding One million pesos (PhP1,000,000.00) or both.
+•Any person found guilty of any of the punishable acts enumerated in Section 4(c)(2) of this Act shall be
+punished with the penalties as enumerated in Republic Act No. 9775 or the "Anti-Child Pornography Act of
+2009": Provided, That the penalty to be imposed shall be one (1) degree higher than that provided for in
+Republic Act No. 9775, if committed through a computer system.
+•Any person found guilty of any of the punishable acts enumerated in Section 4(c)(3) shall be punished with
+imprisonment of arresto mayor or a fine of at least Fifty thousand pesos (PhP50,000.00) but not exceeding
+Two hundred fifty thousand pesos (PhP250,000.00) or both.
+•Any person found guilty of any of the punishable acts enumerated in Section 5 shall be punished with
+imprisonment one (1) degree lower than that of the prescribed penalty for the offense or a fine of at least
+One hundred thousand pesos (PhP100,000.00) but not exceeding Five hundred thousand pesos
+(PhP500,000.00) or both.
+ CyberCrime Prevention Act
+of 2012 Penalties.
+
+--- PAGE 5 ---
+•Any person infringing any right secured by provisions of Part IV of this Act or aiding or shetting such
+mfringement shall be guilty of a crime punishable by
+•Imprisonsent of one (1) year to three (3) years plus a fine ranging from Fifty thousand pesos
+(P50,000) to One hundred fifty thousand pesos (P150,000) for the first offense.
+•Imprisonment of three (1) years and one (1) day to six (6) years plus a fine ranging from One hundred
+fifty thousand pesos (P150,000) to Five hundred thousand pesos (P500,000) for the second offense.
+•Imprisonment of six (6) years and one (1) day to nine (9) years plus a fine ranging from five hundred
+thousand pesos (P500,000) to One million five hundred thousand pesos (P1,500,000) for the third
+and subsequent offenses.
+•In all cases, subsidiary imprisonment in cases of insolvency.
+R.A NO. 8298
+ І ntelectual Property Code of
+the Philippines Section 217.
+Criminal Penalties.
+R.A NO.  8439
+Magna Carta for Scientists,
+Engineers, Researchers, and other
+S&T Personnel in the Government
+Any person who discriminates against scientists, engineers, researchers, and other S&T personnel in
+terms of hiring, promotion, or benefits shall be punished with a fine of not less than Fifty thousand
+pesos ( ₱ 50,000.00) and imprisonment of six (6) months to one (1) year.
+• Any violation of the employment rights and benefits guaranteed under this Act shall incur a
+penalty of a fine of not less than One hundred thousand pesos ( ₱ 100,000.00) and imprisonment of
+six (6) months to three (3) years.
+• Any government official or employee found guilty of misusing funds allocated for scientific and
+technological activities shall be punished with a fine of not less than Two hundred thousand pesos
+( ₱ 200,000.00) and imprisonment of one (1) year to five (5) years.
+•Individuals or entities found guilty of repeated offenses shall face enhanced penalties, including
+increased fines and longer terms of imprisonment.
+
+--- PAGE 6 ---
+R.A NO. 8798
+Section 33. Penalties.
+The following Acts shall be penalized by fine and/or imprisonment, as follows:
+• Hacking or cracking which refers to unauthorized access into or interference in a computer
+system/server or information and communication system; or any access in order to corrupt,
+alter, steal, or destroy using a computer or other similar information and communication
+devices, without the knowledge and consent of the owner of the computer or information
+and communication system, including the introduction of computer viruses and the like,
+resulting in the corruption, destruction, alteration, theft or loss of electronic data messages
+or electronic documents shall be punished by a minimum fine of One hundred thousand
+pesos (P100,000.00) and a maximum commensurate to the damage incurred and a
+mandatory imprisonment of six (6) months to three (3) years;
+• Piracy or the unauthorized copying, reproduction, dissemination, distribution, importation,
+use, removal, alteration, substitution, modification, storage, uploading, downloading,
+communication, making available to the public, or broadcasting of protected material,
+electronic signature or copyrighted works including legally protected sound recordings or
+phonograms or information material on protected works, through the use of
+telecommunication networks, such as, but not limited to, the internet, in a manner that
+infringes intellectual property rights shall be punished by a minimum fine of One hundred
+thousand pesos (P100,000.00) and a maximum commensurate to the damage incurred and
+a mandatory imprisonment of six (6) months to three (3) years;
+• Violations of the Consumer Act or Republic Act No. 7394 and other relevant or pertinent
+laws through transactions covered by or using electronic data messages or electronic
+documents, shall be penalized with the same penalties as provided in those laws;
+• Other violations of the provisions of this Act, shall be penalized with a maximum penalty of
+One million pesos (P1,000,000.00) or six (6) years imprisonment.
+ E-Commerce Law
+(Electronic Commerce Act)
+
+--- PAGE 7 ---
+RA 10844: Department of Information and Communications Technology Act of 2015
+Section 16. Penalties.
+• Any person who accesses a computer or information system without authority shall be punished with a fine of
+not less than One hundred thousand pesos ( ₱ 100,000.00) and imprisonment of six (6) months to three (3) years.
+• Any person or entity that violates the provisions on data protection resulting in unauthorized access or breach
+of data shall be subject to a fine of not less than Two hundred thousand pesos ( ₱ 200,000.00) and
+imprisonment of one (1) year to five (5) years.
+• The distribution of malicious software or code designed to harm or exploit computer systems shall incur a
+penalty of a fine ranging from One hundred thousand pesos ( ₱ 100,000.00) to One million pesos ( ₱ 1,000,000.00)
+and imprisonment of one (1) year to six (6) years.
+• Failure to comply with licensing requirements set forth in the Act shall result in a fine ranging from Fifty
+thousand pesos ( ₱ 50,000.00) to Five hundred thousand pesos ( ₱ 500,000.00) and imprisonment of six (6)
+months to one (1) year.
+• Individuals or entities found guilty of repeated offenses shall face enhanced penalties, including increased
+fines and longer terms of imprisonment.
+R.A NO. 9239
+Optical Media Act of 2003
+Section 18. Penalties.
+Any person who accesses a computer or information system without authority shall be punished with a fine of
+not less than  ( ₱ 100,000.00) and imprisonment of (6) months to three (3) years.. Any person or entity that
+violates the provisions on data protection resulting in unauthorized access or breach of data shall be subject
+to a fine of not less than  ( ₱ 200,000.00) and imprisonment of one (1) year to five (5) years.
+• The distribution of malicious software or code designed to harm or exploit computer systems shall incur a
+penalty of a fine ranging from One hundred thousand pesos ( ₱ 100,000.00) to One million pesos ( and
+imprisonment of one (1) year to six (6) years.
+• Failure to comply with licensing requirements set forth in the Act shall result in a fine ranging
+from( ₱ 50,000.00) to Five hundred thousand pesos ( ₱ 500,000.00) and imprisonment of six (6) months to one
+(1) year.. Individuals or entities found guilty of repeated offenses shall face enhanced penalties, including
+increased fines and longer terms of imprisonment.
+R.A NO.
+10844 
+Department of Information and
+Communications Technology Act of
+2015
+Section 16. Penalties.

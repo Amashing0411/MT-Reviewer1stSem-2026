@@ -1,0 +1,134 @@
+--- PAGE 1 ---
+ 
+ 
+1. Project Technical Feasibility 
+ Definition: Assesses whether the project can be executed with the available technology, 
+tools, and technical expertise. 
+ Example: In designing a smart irrigation system, checking if the sensors and 
+microcontrollers (like Arduino or Raspberry Pi) can handle soil moisture detection and 
+automated water flow. 
+ Use in Research: Ensures the proposed design is technically achievable and not beyond 
+current capabilities. 
+ 
+
+
+--- PAGE 2 ---
+ 
+ 
+
+
+--- PAGE 3 ---
+ 
+
+
+--- PAGE 4 ---
+ 
+ 
+
+
+--- PAGE 5 ---
+ 
+ 
+
+
+--- PAGE 6 ---
+ 
+2. Project Operational Feasibility 
+ Definition: Examines if the proposed system will work smoothly in real-world operations 
+and if users can easily adopt it. 
+ Example: Testing if farmers can easily operate the mobile app for the irrigation system 
+without advanced technical knowledge. 
+ Use in Research: Confirms that the system is user-friendly and sustainable in daily use. 
+
+
+--- PAGE 7 ---
+ 
+
+
+--- PAGE 8 ---
+ 
+ 
+ 
+3. Testing, Evaluation Results, and Analysis 
+ Definition: Process of verifying and validating the design against requirements, then 
+analyzing the outcomes. 
+ Example: Running performance tests on the irrigation system to measure water 
+efficiency, then analyzing data to compare with traditional irrigation methods. 
+ Use in Research: Provides evidence that the project meets its objectives and identifies 
+strengths/weaknesses. 
+
+
+--- PAGE 9 ---
+ 
+ 
+
+
+--- PAGE 10 ---
+ 
+
+
+--- PAGE 11 ---
+ 
+ 
+
+
+--- PAGE 12 ---
+ 
+ 
+
+
+--- PAGE 13 ---
+ 
+
+
+--- PAGE 14 ---
+ 
+ 
+ 
+Reliability, Security, Maintainability, Portability,  
+
+
+--- PAGE 15 ---
+ 
+4. Project Benefits 
+ Definition: The advantages or value the project will bring to stakeholders (economic, 
+social, environmental, or technical). 
+ Example: The irrigation system reduces water consumption by 30%, saves costs, and 
+improves crop yield. 
+ Use in Research: Demonstrates the project’s contribution and justifies why it should be 
+implemented. 
+ 
+
+
+--- PAGE 16 ---
+ 
+5. Project Economic Feasibility 
+ Definition: Assesses whether the project is financially viable by comparing costs versus 
+benefits. 
+ Example: Calculating if the cost of sensors, controllers, and installation can be recovered 
+by the savings in water bills and increased harvest revenue within 2 years. 
+ Use in Research: Ensures stakeholders that the project is cost-effective. 
+
+
+--- PAGE 17 ---
+ 
+
+
+--- PAGE 18 ---
+ 
+ 
+ 
+ 
+ 
+
+
+--- PAGE 19 ---
+6. Project Schedule Feasibility 
+ Definition: Determines if the project can be completed within the planned timeline. 
+ Example: Checking if the irrigation system prototype can be built, tested, and deployed 
+within 6 months. 
+ Use in Research: Aligns project goals with realistic timeframes to avoid delays and 
+resource waste. 
+ 
+ 
+

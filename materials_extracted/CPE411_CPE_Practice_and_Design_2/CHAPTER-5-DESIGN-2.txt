@@ -1,0 +1,38 @@
+--- PAGE 1 ---
+ 
+ 
+Summary of Findings, Conclusions, and Recommendations 
+7. Summary of Findings 
+ Definition: A concise recap of results obtained from tests, feasibility studies, and 
+analyses. 
+ Example: “The irrigation system achieved a 30% water savings, was technically stable, 
+and had high user acceptance among farmers.”  
+ Use in Research: Summarizes evidence to support conclusions.  
+
+
+--- PAGE 2 ---
+ 
+8. Conclusions 
+ Definition: Final interpretation of research results, showing whether objectives were 
+achieved. 
+ Example: “The smart irrigation system is technically and economically feasible, and it 
+can significantly improve farming efficiency.”  
+ Use in Research: Demonstrates the project’s overall success and relevance.  
+ 
+
+
+--- PAGE 3 ---
+ 
+9. Recommendations 
+ Definition: Suggestions for improvement, future research, or wider application of the 
+project. 
+ Example: “Future work should integrate solar panels for energy independence and 
+expand the system for large-scale farming.” 
+ Use in Research: Guides stakeholders, researchers, or future developers on how to bui ld 
+upon the project. 
+ 
+
+
+--- PAGE 4 ---
+ 
+

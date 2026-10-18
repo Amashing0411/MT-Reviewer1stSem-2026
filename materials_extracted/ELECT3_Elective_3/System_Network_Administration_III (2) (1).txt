@@ -1,0 +1,255 @@
+--- PAGE 1 ---
+SYSTEM AND 
+NETWORK 
+ADMINISTRATION III
+Elective 3
+
+--- PAGE 2 ---
+LEARNING OBJECTIVES
+Understand core system administration concepts.
+Develop network administration skills.
+Apply security and cloud computing best practices.
+
+--- PAGE 3 ---
+The term ‘computer’ can mean a range of different 
+devices, including laptops, tablets and smartphones.
+COMPUTER 
+NETWORKS
+A computer network is two or more computers connected 
+together, whereas a computer that is not connected to a 
+network is stand-alone.
+
+
+--- PAGE 4 ---
+ADVANTAGES OF NETWORKING
+One internet connection 
+can be used for multiple 
+different devices using a 
+router.
+User accounts and 
+software can be deployed 
+across network 
+computers.
+Files are stored centrally 
+on a server so can be 
+accessed on computers 
+across the network.
+Devices (e.g. printers, 
+scanners) are accessible 
+on any network 
+connected computer.
+
+
+--- PAGE 5 ---
+DISADVANTAGES OF NETWORKING
+Availability Performance Management
+If connection is lost, 
+files and devices are 
+unavailable.
+Larger networks are 
+slower and less 
+reliable.
+Specialist knowledge 
+and skills are 
+required.
+
+--- PAGE 6 ---
+PAN LAN WAN
+Personal Area 
+Network
+Local Area 
+Network
+Wide Area 
+Network
+TYPES OF NETWORKS
+
+--- PAGE 7 ---
+PERSONAL 
+AREA 
+NETWORK
+PAN (Personal Area Network) is used within a very small 
+area. This is usually on a person or in a vehicle.
+Examples of PANs:
+• smartwatches
+• wireless headphones
+• wireless keyboards/mice
+• car entertainment 
+systems
+Bluetooth is usually used to connect these devices, which 
+has a typical range of about 10 metres.
+
+--- PAGE 8 ---
+LOCAL 
+AREA 
+NETWORK
+LAN (Local Area Network) is used within a small 
+geographical area, which is usually limited to one building.
+Examples of LANs:
+• home networks
+• small businesses
+• schools and colleges
+These networks can be connected wirelessly but for 
+reliability, wired hardware (Ethernet) is often used.
+
+--- PAGE 9 ---
+WAN (Wide Area Network) is 
+spread across a large 
+geographical area, often an 
+entire country or further.
+Examples of WANs:
+• the internet
+• mobile networks
+• banking networks
+WIDE AREA 
+NETWORK
+The internet is a large scale 
+WAN, which uses undersea 
+cables to connect computers 
+across the world.
+
+--- PAGE 10 ---
+Drag and drop the 
+network examples into 
+the correct category.
+Smartwatch
+Home network
+School network
+Headphones
+Mobile network
+Bank network
+In-car systems
+Office network
+The internet
+PAN
+LAN
+WAN
+
+--- PAGE 11 ---
+Drag and drop the 
+network examples into 
+the correct category.
+Smartwatch
+Home network School network
+Headphones
+Mobile network Bank network
+In-car systems
+Office network
+The internet
+PAN
+LAN
+WAN
+
+--- PAGE 12 ---
+Operating System (OS) – Software that 
+manages hardware and software 
+resources on a computer. Examples: 
+Windows, Linux, macOS.
+Kernel – The core component of an 
+operating system that interacts directly 
+with hardware.
+Process Management – The handling of 
+active processes in a system, including 
+scheduling and execution.
+File System – The structure used by an 
+operating system to store and manage 
+files. Examples: NTFS, FAT32, ext4.
+SYSTEM 
+ADMINISTRATION
+
+--- PAGE 13 ---
+User Account – A profile with permissions to access a computer or network.
+Root (Superuser) – The highest privilege level in Unix/Linux systems that allows full control over 
+the system.
+Virtualization – The creation of virtual versions of hardware, such as servers or operating 
+systems, using software like VMware or Hyper-V.
+Patch Management – The process of updating software and operating systems to fix security 
+vulnerabilities.
+Backup & Recovery – The process of creating and restoring copies of data in case of system 
+failures.
+
+--- PAGE 14 ---
+IP Address (Internet Protocol Address) –
+A unique identifier assigned to each
+device on a network. Example: IPv4
+(192.168.1.1), IPv6 (::1).
+Subnetting – Dividing a network into
+smaller segments to improve
+performance and security.
+DNS (Domain Name System) – A system
+that translates domain names (e.g.,
+google.com) into IP addresses.
+DHCP (Dynamic Host Configuration
+Protocol) – A protocol that automatically
+assigns IP addresses to devices on a
+network.
+NETWORK 
+ADMINISTRATION
+
+
+--- PAGE 15 ---
+MAC Address (Media Access Control Address) – A unique identifier assigned to a network
+interface card (NIC).
+Firewall – A security system that monitors and controls incoming and outgoing network traffic.
+VPN (Virtual Private Network) – A secure connection that encrypts internet traffic to protect
+privacy.
+Proxy Server – An intermediary between users and the internet that enhances security and
+anonymity.
+Bandwidth – The amount of data that can be transmitted over a network in a given time.
+Latency – The delay between sending and receiving data across a network.
+Ping – A command used to check network connectivity between devices.
+Traceroute – A tool used to map the path that data takes to reach its destination.
+QoS (Quality of Service) – A networking feature that prioritizes certain types of traffic for better
+performance.
+
+--- PAGE 16 ---
+Security & Authentication 
+Authentication – The process of verifying a user’s identity (e.g., password,
+biometrics, two-factor authentication).
+Authorization – The process of granting a user specific permissions to access
+resources.
+LDAP (Lightweight Directory Access Protocol) – A protocol used for managing
+user authentication in networks.
+Active Directory (AD) – A Microsoft service that manages users, computers, and
+permissions in a network.
+Multi-Factor Authentication (MFA) – A security process requiring two or more
+forms of verification.
+Encryption – The process of converting data into a secure format that cannot be
+easily read by unauthorized users.
+SSL/TLS (Secure Sockets Layer / Transport Layer Security) – Protocols that
+encrypt data transmission over the internet.
+
+--- PAGE 17 ---
+COMPLIANCE 
+& IT 
+STANDARDS
+• ISO 27001 – A global standard for information 
+security management systems (ISMS).
+• ITIL (Information Technology Infrastructure Library) 
+– A set of best practices for IT service management 
+(ITSM).
+• GDPR (General Data Protection Regulation) – A 
+European Union regulation on data protection and 
+privacy.
+• SOC 2 (Service Organization Control 2) – A 
+framework for assessing an organization’s data 
+security practices.
+• NIST (National Institute of Standards and 
+Technology) – A U.S. agency that sets security 
+standards for IT systems.
+
+--- PAGE 18 ---
+AUTOMATION 
+& SCRIPTING
+• Scripting – Writing small programs to automate repetitive 
+tasks. Examples: Bash, PowerShell, Python.
+• Cron Job – A scheduled task in Unix/Linux systems that runs 
+automatically at specified intervals.
+• PowerShell – A task automation framework used in Windows 
+environments.
+• Ansible – An IT automation tool used for configuration 
+management and deployment.
+• CI/CD (Continuous Integration/Continuous Deployment) –
+Automation in software development to streamline testing 
+and deployment.
+• DevOps – A methodology that integrates software 
+development and IT operations to improve efficiency.

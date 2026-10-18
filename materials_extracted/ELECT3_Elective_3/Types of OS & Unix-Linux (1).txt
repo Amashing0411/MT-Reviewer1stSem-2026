@@ -1,0 +1,46 @@
+--- PAGE 1 ---
+Types of Operating 
+System & Unix/Linux
+
+--- PAGE 2 ---
+Single-user OS - supports only one user at a time. No multiple 
+accounts, no concurrent users.
+Multi-user OS - allows multiple users to use the computer 
+simultaneously or remotely. Uses time-sharing, permissions, and 
+user isolation.
+Multitasking OS - can run multiple tasks/programs simultaneously. 
+Uses scheduling and CPU time-slicing.
+Distributed OS - manages a group of independent computers and 
+makes them appear as one single system. Resources are shared 
+across multiple machines in a network.
+Real-time OS - an OS designed to process data and respond within 
+a strict time constraint.Predictability is more important than raw 
+speed.
+Types of OS
+
+
+--- PAGE 3 ---
+ 
+Comparison of Unix 
+and Linux
+
+
+--- PAGE 4 ---
+Unix
+• Developed in 1969 at AT&T’s Bell Labs by Ken Thompson & Dennis Ritchie.
+• Proprietary (owned by companies like IBM, HP, Oracle).
+Linux
+• Created in 1991 by Linus Torvalds as a free alternative to Unix.
+• Open-source and community-driven.
+
+--- PAGE 5 ---
+Usage
+Unix: Mostly used in big enterprises, research, banking, and 
+telecom systems.
+Linux: Used everywhere — from servers, desktops, Android 
+phones, supercomputers, IoT devices.
+Hardware Support
+Unix: Designed for specific hardware (IBM, HP machines).
+Linux: Runs on almost any hardware (PCs, laptops, Raspberry Pi, 
+supercomputers).
+
