@@ -226,6 +226,11 @@ export default async function handler(req, res) {
         const messageId = String(body.messageId || "");
         const emoji = String(body.emoji || "");
         const studentId = String(body.studentId || "");
+        const studentName = String(body.studentName || "Student").slice(0, 40);
+        const studentAvatar = String(body.studentAvatar || "/avatars/bean-female-debugging.jpg").slice(0, 60);
+        const studentCustomPhoto = body.studentCustomPhoto && typeof body.studentCustomPhoto === "string" && body.studentCustomPhoto.startsWith("data:image") ? body.studentCustomPhoto : null;
+        const studentSection = String(body.studentSection || "BSCPE 4D").slice(0, 20);
+
         if (!messageId || !studentId || !emoji) {
           return res.status(400).json({ ok: false, error: "Missing messageId, studentId, or emoji." });
         }
@@ -237,12 +242,25 @@ export default async function handler(req, res) {
           if (!msg.userReactions || typeof msg.userReactions !== "object") {
             msg.userReactions = {};
           }
+          if (!msg.userReactionDetails || typeof msg.userReactionDetails !== "object") {
+            msg.userReactionDetails = {};
+          }
+
           if (msg.userReactions[studentId] === emoji) {
             // Toggle off if clicking the same reaction again
             delete msg.userReactions[studentId];
+            delete msg.userReactionDetails[studentId];
           } else {
             // Switch / set reaction
             msg.userReactions[studentId] = emoji;
+            msg.userReactionDetails[studentId] = {
+              studentId,
+              name: studentName,
+              avatar: studentAvatar,
+              customPhoto: studentCustomPhoto,
+              section: studentSection,
+              emoji,
+            };
           }
           feed[idx] = msg;
           await upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]);

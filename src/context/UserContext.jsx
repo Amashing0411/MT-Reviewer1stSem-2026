@@ -353,18 +353,36 @@ export function UserProvider({ children }) {
   const reactToMessage = async (messageId, emoji) => {
     if (!messageId || !emoji) return;
     const myId = profile.id;
+    const myName = profile.name || "Student";
+    const myAvatar = profile.avatar || "/avatars/bean-female-debugging.jpg";
+    const myPhoto = profile.customPhoto || null;
+    const mySection = profile.section || "BSCPE 4D";
 
     // Optimistic local update
     setFeedMessages((prev) => {
       const updated = prev.map((msg) => {
         if (msg.id !== messageId) return msg;
         const currentReactions = { ...(msg.userReactions || {}) };
+        const currentDetails = { ...(msg.userReactionDetails || {}) };
         if (currentReactions[myId] === emoji) {
           delete currentReactions[myId]; // Toggle off
+          delete currentDetails[myId];
         } else {
           currentReactions[myId] = emoji; // Add or change reaction
+          currentDetails[myId] = {
+            studentId: myId,
+            name: myName,
+            avatar: myAvatar,
+            customPhoto: myPhoto,
+            section: mySection,
+            emoji,
+          };
         }
-        return { ...msg, userReactions: currentReactions };
+        return { 
+          ...msg, 
+          userReactions: currentReactions,
+          userReactionDetails: currentDetails
+        };
       });
       try {
         localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(updated));
@@ -381,6 +399,10 @@ export function UserProvider({ children }) {
           messageId,
           emoji,
           studentId: myId,
+          studentName: myName,
+          studentAvatar: myAvatar,
+          studentCustomPhoto: myPhoto,
+          studentSection: mySection,
         }),
       });
       if (res.ok) {

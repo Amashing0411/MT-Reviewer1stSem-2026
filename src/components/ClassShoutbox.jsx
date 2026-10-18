@@ -48,8 +48,93 @@ export function ClassShoutbox() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const [activeReactionMsgId, setActiveReactionMsgId] = useState(null);
+  const [viewingReactionsMsg, setViewingReactionsMsg] = useState(null);
+  const [reactionFilterTab, setReactionFilterTab] = useState("all");
   const messagesEndRef = useRef(null);
   const lastMsgCountRef = useRef(feedMessages.length);
+
+  // Helper to resolve student reactor info
+  const getReactorInfo = (studentId, emoji, targetMsg) => {
+    const detail = targetMsg?.userReactionDetails?.[studentId];
+    if (detail && detail.name) {
+      const live = Array.isArray(leaderboard)
+        ? leaderboard.find((l) => l.id === studentId || (l.name && l.name.trim().toLowerCase() === String(detail.name).trim().toLowerCase()))
+        : null;
+      return {
+        studentId,
+        name: detail.name,
+        avatar: live?.avatar || detail.avatar || "/avatars/bean-female-debugging.jpg",
+        customPhoto: live?.customPhoto || detail.customPhoto || null,
+        section: live?.section || detail.section || "BSCPE 4D",
+        frame: live?.frame || detail.frame || "default",
+        nameFx: live?.nameFx || detail.nameFx || "none",
+        tagline: live?.tagline || detail.tagline || "",
+        xp: live?.xp ?? 0,
+        emoji: detail.emoji || emoji,
+        isMe: Boolean(profile?.id && studentId === profile.id),
+      };
+    }
+    if (profile?.id && studentId === profile.id) {
+      return {
+        studentId: profile.id,
+        name: profile.name || "You",
+        avatar: profile.avatar || "/avatars/bean-female-debugging.jpg",
+        customPhoto: profile.customPhoto || null,
+        section: profile.section || "BSCPE 4D",
+        frame: profile.frame || "default",
+        nameFx: profile.nameFx || "none",
+        tagline: profile.tagline || "",
+        xp: profile.xp || 0,
+        emoji,
+        isMe: true,
+      };
+    }
+    const inLeaderboard = Array.isArray(leaderboard)
+      ? leaderboard.find((l) => l.id === studentId || (l.name && l.name.trim().toLowerCase() === String(studentId).trim().toLowerCase()))
+      : null;
+    if (inLeaderboard) {
+      return {
+        studentId,
+        name: inLeaderboard.name,
+        avatar: inLeaderboard.avatar,
+        customPhoto: inLeaderboard.customPhoto,
+        section: inLeaderboard.section,
+        frame: inLeaderboard.frame,
+        nameFx: inLeaderboard.nameFx,
+        tagline: inLeaderboard.tagline,
+        xp: inLeaderboard.xp,
+        emoji,
+        isMe: false,
+      };
+    }
+    const inFeed = Array.isArray(feedMessages)
+      ? feedMessages.find((m) => m.studentId === studentId)
+      : null;
+    if (inFeed) {
+      return {
+        studentId,
+        name: inFeed.studentName,
+        avatar: inFeed.avatar,
+        customPhoto: inFeed.customPhoto,
+        section: inFeed.studentSection,
+        frame: inFeed.frame,
+        nameFx: inFeed.nameFx,
+        tagline: inFeed.tagline,
+        xp: inFeed.xp,
+        emoji,
+        isMe: false,
+      };
+    }
+    return {
+      studentId,
+      name: "Classmate",
+      avatar: "/avatars/bean-female-debugging.jpg",
+      customPhoto: null,
+      section: "BSCPE",
+      emoji,
+      isMe: false,
+    };
+  };
 
   // Dynamic Realtime Polling:
   // When chat window is open -> Poll every 3 seconds for instant realtime chat!
@@ -426,6 +511,16 @@ export function ClassShoutbox() {
                         <div className={`flex items-center gap-1 flex-wrap mt-0.5 ${isMe ? "justify-end" : "justify-start"}`}>
                           {reactionEntries.map(([emo, count]) => {
                             const isMyReaction = myReaction === emo;
+                            const reactorsForEmoji = Object.entries(msg.userReactions || {})
+                              .filter(([_, reactionEmoji]) => reactionEmoji === emo)
+                              .map(([studentId, reactionEmoji]) => getReactorInfo(studentId, reactionEmoji, msg));
+
+                            const namesString = reactorsForEmoji.length === 1
+                              ? (reactorsForEmoji[0].isMe ? "You" : reactorsForEmoji[0].name)
+                              : reactorsForEmoji.length === 2
+                              ? `${reactorsForEmoji[0].isMe ? "You" : reactorsForEmoji[0].name} and ${reactorsForEmoji[1].isMe ? "You" : reactorsForEmoji[1].name}`
+                              : `${reactorsForEmoji.slice(0, 2).map((r) => r.isMe ? "You" : r.name).join(", ")} and ${reactorsForEmoji.length - 2} other${reactorsForEmoji.length - 2 > 1 ? "s" : ""}`;
+
                             return (
                               <button
                                 key={emo}
@@ -439,13 +534,28 @@ export function ClassShoutbox() {
                                     ? "bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-400 dark:border-blue-600 shadow-2xs ring-1 ring-blue-500/20"
                                     : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
                                 }`}
-                                title={isMyReaction ? `You reacted ${emo} (Click to remove)` : `Click to react ${emo}`}
+                                title={`${namesString} reacted with ${emo} • Tap 'Who reacted' to view all`}
                               >
                                 <span>{emo}</span>
                                 {count > 1 && <span className="font-mono text-[9px]">{count}</span>}
                               </button>
                             );
                           })}
+
+                          {/* "Who reacted" view button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setViewingReactionsMsg(msg);
+                              setReactionFilterTab("all");
+                              try { sound?.playFlip?.(); } catch (err) {}
+                            }}
+                            className="btn-haptic inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 transition-all cursor-pointer"
+                            title="See who reacted to this message"
+                          >
+                            <Users className="w-2.5 h-2.5" />
+                            <span className="text-[9.5px]">Who reacted</span>
+                          </button>
                         </div>
                       )}
 
@@ -495,6 +605,159 @@ export function ClassShoutbox() {
               <Send className="w-4 h-4" />
             </button>
           </form>
+
+          {/* WHO REACTED MODAL OVERLAY */}
+          {viewingReactionsMsg && (
+            <div 
+              className="absolute inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex flex-col justify-end sm:justify-center p-2 sm:p-3 animate-fadeIn"
+              onClick={() => setViewingReactionsMsg(null)}
+            >
+              <div 
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-3.5 flex flex-col max-h-[90%] w-full animate-scaleIn text-slate-900 dark:text-white"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🙌</span>
+                    <h4 className="text-xs sm:text-sm font-extrabold tracking-tight">
+                      Message Reactions
+                    </h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40 font-mono">
+                      {Object.keys(viewingReactionsMsg.userReactions || {}).length}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setViewingReactionsMsg(null)}
+                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    title="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Filter Tabs by Reaction Emoji */}
+                {(() => {
+                  const allReactors = Object.entries(viewingReactionsMsg.userReactions || {}).map(([sId, emo]) =>
+                    getReactorInfo(sId, emo, viewingReactionsMsg)
+                  );
+                  
+                  const emojiCounts = {};
+                  allReactors.forEach((r) => {
+                    emojiCounts[r.emoji] = (emojiCounts[r.emoji] || 0) + 1;
+                  });
+
+                  const filteredReactors = reactionFilterTab === "all"
+                    ? allReactors
+                    : allReactors.filter((r) => r.emoji === reactionFilterTab);
+
+                  return (
+                    <>
+                      <div className="flex items-center gap-1.5 py-2 overflow-x-auto scrollbar-none border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setReactionFilterTab("all")}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                            reactionFilterTab === "all"
+                              ? "bg-blue-600 text-white shadow-xs"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-750"
+                          }`}
+                        >
+                          <span>All</span>
+                          <span className="text-[9px] opacity-80 font-mono">({allReactors.length})</span>
+                        </button>
+                        {Object.entries(emojiCounts).map(([emo, cnt]) => (
+                          <button
+                            key={emo}
+                            type="button"
+                            onClick={() => setReactionFilterTab(emo)}
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                              reactionFilterTab === emo
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-750"
+                            }`}
+                          >
+                            <span>{emo}</span>
+                            <span className="text-[9px] opacity-80 font-mono">{cnt}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Reactors List */}
+                      <div className="flex-1 overflow-y-auto py-2 space-y-2 min-h-[140px] max-h-[260px]">
+                        {filteredReactors.length === 0 ? (
+                          <div className="py-6 text-center text-xs text-slate-400">
+                            No reactions in this category.
+                          </div>
+                        ) : (
+                          filteredReactors.map((reactor, idx) => {
+                            const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === reactor.nameFx)?.cssClass || "";
+                            return (
+                              <div
+                                key={reactor.studentId || idx}
+                                onClick={() => {
+                                  if (!reactor.isMe) {
+                                    handleInspectMessage({
+                                      studentId: reactor.studentId,
+                                      studentName: reactor.name,
+                                      studentSection: reactor.section,
+                                      avatar: reactor.avatar,
+                                      frame: reactor.frame,
+                                      nameFx: reactor.nameFx,
+                                      tagline: reactor.tagline,
+                                      customPhoto: reactor.customPhoto,
+                                      xp: reactor.xp,
+                                    });
+                                  }
+                                }}
+                                className={`flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 transition-all ${
+                                  reactor.isMe ? "cursor-default" : "cursor-pointer group"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <StudentAvatar
+                                    avatar={reactor.avatar}
+                                    customPhoto={reactor.customPhoto}
+                                    frameId={reactor.frame}
+                                    size="sm"
+                                  />
+                                  <div className="text-left min-w-0">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className={`text-xs font-black truncate ${nameFxClass || "text-slate-900 dark:text-white"}`}>
+                                        {reactor.name} {reactor.isMe ? "(You)" : ""}
+                                      </span>
+                                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                                        {reactor.section}
+                                      </span>
+                                    </div>
+                                    {reactor.tagline && (
+                                      <span className="text-[9px] text-amber-600 dark:text-amber-400 truncate block">
+                                        {reactor.tagline}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                                  <span className="text-lg leading-none">{reactor.emoji}</span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+
+                {/* Footer hint */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 text-center font-medium shrink-0">
+                  Tap any classmate to inspect their Cadet Profile 🎓
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       )}
