@@ -70,9 +70,12 @@ The platform features an interactive section switchable schedule mapping specifi
 ### 4. ⚡ 10-Minute Hallway Cram Sheets
 - Ultra-concise, high-yield bulleted cheat sheets designed for quick review right before stepping into the examination room.
 
-### 5. 🌌 Aceternity Aurora Background & Dual Theme Engine
-- **Aceternity UI Aurora Background Engine:** Powered by repeating linear-gradient color sweeps (`blue-500`, `indigo-300`, `blue-300`, `violet-200`, `blue-400`) with smooth 60s CSS keyframe animation (`animate-aurora`) and radial ellipse masks.
-- **Harmonious Palette:** Uses clean `bg-zinc-50` for Day / Light Mode and deep `bg-zinc-900` for Night / Dark Mode, completely eliminating harsh pitch-black backgrounds and preserving translucent glassmorphic cards.
+### 5. 🌌 Aceternity Aurora Background Engine & Dual Theme Contrast Architecture
+- **Aceternity UI Aurora Engine:** Powered by overlapping linear-gradient color sweeps (`blue-500`, `indigo-300`, `blue-300`, `violet-200`, `blue-400`) with smooth active CSS keyframe animation (`animate-aurora`) and radial ellipse masks.
+- **Hardware-Accelerated Fluid Motion:** Uses dedicated CSS keyframes with `background-attachment: scroll !important` on animated pseudo-elements to prevent browser rendering freeze, providing visible 18s-25s wave motion with `mix-blend-mode: difference`.
+- **shadcn/ui & TypeScript Structure:** Component placed under `@/components/ui/aurora-background.tsx` and `@/components/ui/demo.tsx`, powered by `@/lib/utils` with `cn()` helper and `framer-motion`.
+- **Dual-Theme High Contrast Typography:** Explicit cascading contrast guards (`html:not(.dark)` and `html.dark`) prevent washed-out text or invisible dark-on-dark glyphs, guaranteeing razor-sharp readability for all 8 subjects in both Day (Light) and Night (Dark) modes.
+- **Translucent Double-Bezel Glassmorphism:** Features `bg-zinc-50` for Day / Light Mode and deep `bg-zinc-900` (`rgba(24, 24, 27, 0.88)`) for Night / Dark Mode, allowing ambient light refraction without pitch-black `#000000` overrides.
 - **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean light mode default on initial load with persistent dark mode when toggled.
 
 ---

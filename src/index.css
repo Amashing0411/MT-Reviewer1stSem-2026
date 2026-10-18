@@ -30,6 +30,7 @@
 .double-bezel-inner {
   border-radius: calc(2rem - 0.375rem);
   background: #ffffff;
+  color: #0f172a;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
@@ -141,19 +142,66 @@
 }
 
 @keyframes aurora {
-  from {
+  0% {
     background-position: 50% 50%, 50% 50%;
   }
-  to {
+  50% {
+    background-position: 200% 50%, 200% 50%;
+  }
+  100% {
     background-position: 350% 50%, 350% 50%;
   }
 }
 
-.animate-aurora {
-  animation: aurora 60s linear infinite;
+.aurora-animate,
+.animate-aurora,
+[class*="animate-aurora"] {
+  animation: aurora 25s linear infinite !important;
+  will-change: background-position;
+}
+
+.aurora-animate::after,
+[class*="after:animate-aurora"]::after {
+  background-attachment: scroll !important;
+  animation: aurora 18s linear infinite reverse !important;
+  will-change: background-position;
+}
+
+/* ========================================================
+   LIGHT & DARK MODE HIGH-CONTRAST TYPOGRAPHY SYSTEM
+   ======================================================== */
+
+/* Light Mode Defaults: Ensure clean institutional legibility */
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html:not(.dark) body {
+  color: #0f172a;
+}
+
+html:not(.dark) .double-bezel-inner {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Ensure headings and body text pop crisply in Light Mode */
+html:not(.dark) h1, 
+html:not(.dark) h2, 
+html:not(.dark) h3, 
+html:not(.dark) h4 {
+  color: #0f172a;
 }
 
 /* Dark Mode Global Styles - Preserves Tailwind colors & glassmorphism */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  color: #f8fafc;
+}
+
 html.dark .double-bezel-outer {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.08);
@@ -167,11 +215,47 @@ html.dark .double-bezel-outer:hover {
 }
 
 html.dark .double-bezel-inner {
-  background: rgba(24, 24, 27, 0.85); /* Zinc-900 glass letting aurora lights shine through */
+  background: rgba(24, 24, 27, 0.88); /* Zinc-900 glass letting aurora lights shine through */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f8fafc;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4 {
+  color: #ffffff;
+}
+
+/* Dark mode font contrast guards for unadorned slate utility classes */
+html.dark .text-slate-900:not([class*="dark:text-"]) {
+  color: #f8fafc;
+}
+html.dark .text-slate-800:not([class*="dark:text-"]) {
+  color: #f1f5f9;
+}
+html.dark .text-slate-700:not([class*="dark:text-"]) {
+  color: #e2e8f0;
+}
+html.dark .text-slate-600:not([class*="dark:text-"]) {
+  color: #cbd5e1;
+}
+
+/* Dark mode pill button & input backgrounds */
+html.dark .bg-slate-100:not([class*="dark:bg-"]) {
+  background-color: rgba(39, 39, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+html.dark .bg-slate-50:not([class*="dark:bg-"]) {
+  background-color: rgba(39, 39, 42, 0.55);
+}
+html.dark .border-slate-100:not([class*="dark:border-"]) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+html.dark .border-slate-200:not([class*="dark:border-"]) {
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 html.dark .katex {
@@ -354,8 +438,12 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 .name-fx-glitch {
   position: relative;
   font-weight: 800;
+  color: #0f172a;
   text-shadow: -1px 0 #06b6d4, 1px 0 #ec4899;
   animation: nameGlitchFlicker 2s steps(2, start) infinite;
+}
+html.dark .name-fx-glitch {
+  color: #f8fafc;
 }
 @keyframes nameGlitchFlicker {
   0%, 100% { text-shadow: -1px 0 #06b6d4, 1px 0 #ec4899; transform: none; }
@@ -367,11 +455,15 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 /* Matrix Terminal Green Name Effect */
 .name-fx-matrix {
-  color: #10b981 !important;
+  color: #059669 !important;
   font-family: monospace, sans-serif;
   font-weight: 800;
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 16px rgba(52, 211, 153, 0.6);
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
   animation: nameMatrixScan 2s ease-in-out infinite alternate;
+}
+html.dark .name-fx-matrix {
+  color: #10b981 !important;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 16px rgba(52, 211, 153, 0.6);
 }
 @keyframes nameMatrixScan {
   0% { opacity: 0.9; text-shadow: 0 0 6px rgba(16, 185, 129, 0.7); }
@@ -380,10 +472,14 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 /* Electric Lightning Spark Name Effect */
 .name-fx-lightning {
-  color: #38bdf8 !important;
+  color: #0369a1 !important;
   font-weight: 800;
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.9), 0 0 16px rgba(139, 92, 246, 0.7);
+  text-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
   animation: nameLightningFlash 1.6s ease infinite;
+}
+html.dark .name-fx-lightning {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.9), 0 0 16px rgba(139, 92, 246, 0.7);
 }
 @keyframes nameLightningFlash {
   0%, 100% { text-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }
@@ -393,12 +489,16 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 /* Burning Flame Name Effect */
 .name-fx-fire {
-  background: linear-gradient(0deg, #ef4444 0%, #f97316 45%, #fbbf24 100%);
+  background: linear-gradient(0deg, #dc2626 0%, #ea580c 45%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
-  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.85)) drop-shadow(0 -3px 8px rgba(239, 68, 68, 0.7));
+  filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.6));
   animation: nameFireHeat 1.4s ease-in-out infinite alternate;
+}
+html.dark .name-fx-fire {
+  background: linear-gradient(0deg, #ef4444 0%, #f97316 45%, #fbbf24 100%);
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.85)) drop-shadow(0 -3px 8px rgba(239, 68, 68, 0.7));
 }
 @keyframes nameFireHeat {
   0% { filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.7)) drop-shadow(0 -2px 6px rgba(239, 68, 68, 0.6)); }
@@ -407,12 +507,15 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 /* Rainbow Prismatic Aurora Name Effect */
 .name-fx-prismatic {
-  background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b, #ec4899);
+  background: linear-gradient(90deg, #db2777, #7c3aed, #0891b2, #059669, #d97706, #db2777);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
   animation: namePrismFlow 3s linear infinite;
+}
+html.dark .name-fx-prismatic {
+  background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b, #ec4899);
 }
 @keyframes namePrismFlow {
   0% { background-position: 0% 50%; }
@@ -421,12 +524,16 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 /* Godlike Divine Gold Radiance Name Effect */
 .name-fx-godlike {
-  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #92400e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.6));
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
   animation: nameGodlikePulse 2s ease-in-out infinite;
+}
+html.dark .name-fx-godlike {
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.6));
 }
 @keyframes nameGodlikePulse {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8)); }
