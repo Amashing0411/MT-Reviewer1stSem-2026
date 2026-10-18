@@ -26,11 +26,15 @@ const QUICK_REACTIONS = [
   "📚 Review mode: ON"
 ];
 
+const REACTION_EMOJIS = ["👍", "❤️", "🔥", "😂", "😮", "💀", "🎉"];
+
 export function ClassShoutbox() {
   const { 
     profile, 
     feedMessages = [], 
     sendFeedMessage, 
+    fetchFeedOnly,
+    reactToMessage,
     isFeedOpen, 
     setIsFeedOpen, 
     setInspectedStudent,
@@ -42,8 +46,37 @@ export function ClassShoutbox() {
   const [inputVal, setInputVal] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const [activeReactionMsgId, setActiveReactionMsgId] = useState(null);
   const messagesEndRef = useRef(null);
   const lastMsgCountRef = useRef(feedMessages.length);
+
+  // Dynamic Realtime Polling:
+  // When chat window is open -> Poll every 3 seconds for instant realtime chat!
+  // When chat window is closed -> Poll every 12 seconds to keep unread count live!
+  useEffect(() => {
+    if (isFeedOpen && fetchFeedOnly) {
+      fetchFeedOnly();
+    }
+
+    const pollInterval = isFeedOpen ? 3000 : 12000;
+    const interval = setInterval(() => {
+      fetchFeedOnly?.();
+    }, pollInterval);
+
+    return () => clearInterval(interval);
+  }, [isFeedOpen, fetchFeedOnly]);
+
+  // Close reaction toolbar when clicking elsewhere
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (activeReactionMsgId && !e.target.closest(".reaction-container")) {
+        setActiveReactionMsgId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [activeReactionMsgId]);
 
   // Auto-scroll to latest message when open
   useEffect(() => {
@@ -202,21 +235,28 @@ export function ClassShoutbox() {
                   </span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 </div>
-                <div className="text-[10px] text-blue-100 dark:text-blue-200/80 flex items-center gap-1 font-medium">
+                <div className="text-[10px] text-blue-100 dark:text-blue-200/80 flex items-center gap-1.5 font-medium">
                   <span>DLSP BSCPE Arena</span>
                   <span>•</span>
-                  <span>{isCloudConnected ? "Cloud Live" : "Local Sync"}</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>{isCloudConnected ? "Live (Auto 3s)" : "Local Mode"}</span>
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-1">
               <button
-                onClick={() => syncWithCloud()}
+                onClick={async () => {
+                  setIsManualRefreshing(true);
+                  if (fetchFeedOnly) await fetchFeedOnly();
+                  setIsManualRefreshing(false);
+                }}
                 className="btn-haptic p-1.5 text-blue-100 dark:text-blue-200 hover:text-white hover:bg-white/15 rounded-lg transition-all cursor-pointer"
-                title="Refresh Feed from Cloud"
+                title="Refresh Feed Now"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-white" />
+                <RefreshCw className={`w-3.5 h-3.5 text-white ${isManualRefreshing ? "animate-spin" : ""}`} />
               </button>
               <button
                 onClick={() => {
@@ -261,6 +301,18 @@ export function ClassShoutbox() {
                 const displaySection = isMe ? profile.section : (liveClassmate?.section || msg.studentSection || "4D");
                 const displayLevel = isMe ? getLevelInfo(profile.xp || 0).level : (liveClassmate?.levelInfo?.level || msg.level || 1);
                 const nameFxClass = NAME_EFFECTS.find((fx) => fx.id === displayNameFx)?.cssClass || "";
+
+                const reactionsMap = {};
+                let myReaction = null;
+                if (msg.userReactions && typeof msg.userReactions === "object") {
+                  Object.entries(msg.userReactions).forEach(([studentId, emo]) => {
+                    reactionsMap[emo] = (reactionsMap[emo] || 0) + 1;
+                    if (studentId === profile.id) {
+                      myReaction = emo;
+                    }
+                  });
+                }
+                const reactionEntries = Object.entries(reactionsMap);
 
                 return (
                   <div
@@ -312,16 +364,88 @@ export function ClassShoutbox() {
                         </div>
                       )}
 
-                      {/* Bubble Text */}
-                      <div
-                        className={`w-fit max-w-full px-3.5 py-2 rounded-2xl break-words leading-relaxed text-left ${
-                          isMe
-                            ? "bg-blue-600 text-white rounded-tr-xs shadow-xs"
-                            : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/70 dark:border-slate-700/70"
-                        }`}
-                      >
-                        <p className="text-[11.5px] font-medium whitespace-pre-wrap">{msg.text}</p>
+                      {/* Bubble Text & Messenger Reaction Trigger */}
+                      <div className="relative group/msg reaction-container">
+                        <div
+                          className={`w-fit max-w-full px-3.5 py-2 rounded-2xl break-words leading-relaxed text-left relative ${
+                            isMe
+                              ? "bg-blue-600 text-white rounded-tr-xs shadow-xs"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/70 dark:border-slate-700/70"
+                          }`}
+                        >
+                          <p className="text-[11.5px] font-medium whitespace-pre-wrap">{msg.text}</p>
+                        </div>
+
+                        {/* Floating Quick React Trigger Button on Hover / Focus */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveReactionMsgId(activeReactionMsgId === msg.id ? null : msg.id)}
+                          className={`absolute top-1/2 -translate-y-1/2 p-1 rounded-full bg-white dark:bg-slate-800 shadow-xs border border-slate-200 dark:border-slate-700 hover:scale-115 transition-all cursor-pointer text-slate-400 hover:text-amber-500 z-10 ${
+                            isMe ? "-left-7" : "-right-7"
+                          } opacity-0 group-hover/msg:opacity-100 focus:opacity-100`}
+                          title="React to message"
+                        >
+                          <Smile className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Messenger Floating Reaction Emoji Bar */}
+                        {activeReactionMsgId === msg.id && (
+                          <div 
+                            className={`absolute z-30 -top-10 ${
+                              isMe ? "right-0" : "left-0"
+                            } flex items-center gap-1 p-1 bg-white dark:bg-slate-800 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 animate-scaleIn`}
+                          >
+                            {REACTION_EMOJIS.map((emo) => {
+                              const hasReacted = myReaction === emo;
+                              return (
+                                <button
+                                  key={emo}
+                                  type="button"
+                                  onClick={() => {
+                                    reactToMessage?.(msg.id, emo);
+                                    setActiveReactionMsgId(null);
+                                    try { sound?.playCorrect?.(); } catch (err) {}
+                                  }}
+                                  className={`p-1.5 text-base leading-none hover:scale-130 transition-transform cursor-pointer rounded-full ${
+                                    hasReacted ? "bg-blue-100 dark:bg-blue-900/60 scale-110" : "hover:bg-slate-100 dark:hover:bg-slate-700"
+                                  }`}
+                                  title={`React with ${emo}`}
+                                >
+                                  {emo}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
+
+                      {/* Reaction Count Badges / Pills under the Bubble */}
+                      {reactionEntries.length > 0 && (
+                        <div className={`flex items-center gap-1 flex-wrap mt-0.5 ${isMe ? "justify-end" : "justify-start"}`}>
+                          {reactionEntries.map(([emo, count]) => {
+                            const isMyReaction = myReaction === emo;
+                            return (
+                              <button
+                                key={emo}
+                                type="button"
+                                onClick={() => {
+                                  reactToMessage?.(msg.id, emo);
+                                  try { sound?.playCorrect?.(); } catch (err) {}
+                                }}
+                                className={`btn-haptic inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10.5px] font-bold border transition-all cursor-pointer ${
+                                  isMyReaction
+                                    ? "bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-400 dark:border-blue-600 shadow-2xs ring-1 ring-blue-500/20"
+                                    : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
+                                }`}
+                                title={isMyReaction ? `You reacted ${emo} (Click to remove)` : `Click to react ${emo}`}
+                              >
+                                <span>{emo}</span>
+                                {count > 1 && <span className="font-mono text-[9px]">{count}</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
 
                       {/* Timestamp */}
                       <div className={`text-[9px] text-slate-400 font-medium px-1 flex items-center gap-1 ${isMe ? "justify-end" : "justify-start"}`}>

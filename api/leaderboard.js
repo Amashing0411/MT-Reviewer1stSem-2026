@@ -116,6 +116,23 @@ export default async function handler(req, res) {
   try {
     // 1. GET: Fetch current class leaderboard & shoutbox feed (Strips PINs for privacy)
     if (req.method === "GET") {
+      let isFeedOnly = false;
+      try {
+        const parsedUrl = new URL(req.url || "", "http://localhost");
+        isFeedOnly = req.query?.feedOnly === "1" || parsedUrl.searchParams.get("feedOnly") === "1";
+      } catch (e) {
+        isFeedOnly = req.query?.feedOnly === "1";
+      }
+
+      if (isFeedOnly) {
+        const feed = await getFeed();
+        return res.status(200).json({
+          ok: true,
+          isCloudConnected: true,
+          feed
+        });
+      }
+
       const roster = await getRoster();
       const feed = await getFeed();
 
@@ -175,6 +192,35 @@ export default async function handler(req, res) {
       // Action B: Fetch Shoutbox Feed only
       if (body?.action === "get_feed") {
         const feed = await getFeed();
+        return res.status(200).json({ ok: true, feed });
+      }
+
+      // Action: React to a Shoutbox Message (Messenger-style emoji reactions)
+      if (body?.action === "react_message") {
+        const messageId = String(body.messageId || "");
+        const emoji = String(body.emoji || "");
+        const studentId = String(body.studentId || "");
+        if (!messageId || !studentId || !emoji) {
+          return res.status(400).json({ ok: false, error: "Missing messageId, studentId, or emoji." });
+        }
+
+        let feed = await getFeed();
+        const idx = feed.findIndex((m) => m.id === messageId);
+        if (idx !== -1) {
+          const msg = feed[idx];
+          if (!msg.userReactions || typeof msg.userReactions !== "object") {
+            msg.userReactions = {};
+          }
+          if (msg.userReactions[studentId] === emoji) {
+            // Toggle off if clicking the same reaction again
+            delete msg.userReactions[studentId];
+          } else {
+            // Switch / set reaction
+            msg.userReactions[studentId] = emoji;
+          }
+          feed[idx] = msg;
+          await upstashCommand(["SET", FEED_KEY, JSON.stringify(feed)]);
+        }
         return res.status(200).json({ ok: true, feed });
       }
 

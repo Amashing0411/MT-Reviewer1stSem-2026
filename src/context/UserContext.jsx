@@ -313,6 +313,75 @@ export function UserProvider({ children }) {
     }
   };
 
+  // Lightweight rapid feed poll (only fetches latest messages)
+  const fetchFeedOnly = async () => {
+    try {
+      const res = await fetch("/api/leaderboard?feedOnly=1");
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (data.isCloudConnected && Array.isArray(data.feed)) {
+        setFeedMessages((prev) => {
+          const prevStr = JSON.stringify(prev);
+          const nextStr = JSON.stringify(data.feed);
+          if (prevStr !== nextStr) {
+            try {
+              localStorage.setItem("mt_reviewer_feed_cache_2026", nextStr);
+            } catch (e) {}
+            return data.feed;
+          }
+          return prev;
+        });
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  // Messenger-style emoji reactions
+  const reactToMessage = async (messageId, emoji) => {
+    if (!messageId || !emoji) return;
+    const myId = profile.id;
+
+    // Optimistic local update
+    setFeedMessages((prev) => {
+      const updated = prev.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        const currentReactions = { ...(msg.userReactions || {}) };
+        if (currentReactions[myId] === emoji) {
+          delete currentReactions[myId]; // Toggle off
+        } else {
+          currentReactions[myId] = emoji; // Add or change reaction
+        }
+        return { ...msg, userReactions: currentReactions };
+      });
+      try {
+        localStorage.setItem("mt_reviewer_feed_cache_2026", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "react_message",
+          messageId,
+          emoji,
+          studentId: myId,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.feed)) {
+          setFeedMessages(data.feed);
+        }
+      }
+    } catch (e) {}
+  };
+
   // Sync to localStorage whenever profile changes
   useEffect(() => {
     saveProfile(profile);
@@ -642,6 +711,8 @@ export function UserProvider({ children }) {
         flushCloudDatabase,
         feedMessages,
         sendFeedMessage,
+        fetchFeedOnly,
+        reactToMessage,
         isFeedOpen,
         setIsFeedOpen,
         inspectedStudent,
