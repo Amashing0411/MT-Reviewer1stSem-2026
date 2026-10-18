@@ -481,6 +481,101 @@ export function UserProvider({ children }) {
     }));
   };
 
+  // Toggle flashcard mastery status and award XP strictly ONCE per card and deck
+  const toggleFlashcardMastered = (cardKey, subjectId, subjectCode, totalDeckCards) => {
+    let xpAdded = 0;
+    let isNowMastered = false;
+
+    setProfile((prev) => {
+      const mastered = { ...(prev.masteredFlashcards || {}) };
+      const claimedCards = { ...(prev.claimedFlashcards || {}) };
+      const completedDecks = { ...(prev.completedDecks || {}) };
+
+      if (mastered[cardKey]) {
+        // Toggle OFF: unmark as mastered, but NEVER deduct or re-award XP
+        delete mastered[cardKey];
+        isNowMastered = false;
+        return {
+          ...prev,
+          masteredFlashcards: mastered,
+        };
+      }
+
+      // Toggle ON: mark as mastered
+      mastered[cardKey] = true;
+      isNowMastered = true;
+
+      // Count total mastered in this subject deck
+      let subjectMasteredCount = 0;
+      Object.keys(mastered).forEach((k) => {
+        if (k.startsWith(`${subjectId}_`)) {
+          subjectMasteredCount++;
+        }
+      });
+      const isDeckComplete = totalDeckCards > 0 && subjectMasteredCount >= totalDeckCards;
+
+      let reason = "";
+      // Award 25 XP strictly ONCE per card
+      if (!claimedCards[cardKey]) {
+        claimedCards[cardKey] = true;
+        xpAdded += 25;
+        reason = `${subjectCode} Flashcard Mastered`;
+      }
+
+      // Award 200 XP deck bonus strictly ONCE per deck
+      if (isDeckComplete && !completedDecks[subjectId]) {
+        completedDecks[subjectId] = true;
+        xpAdded += 200;
+        reason = reason ? `${reason} + 100% Deck Mastery! 🎓` : `100% Deck Mastery: ${subjectCode}! 🎓`;
+      }
+
+      if (xpAdded === 0) {
+        return {
+          ...prev,
+          masteredFlashcards: mastered,
+        };
+      }
+
+      const prevLevel = getLevelInfo(prev.xp).level;
+      const newXp = prev.xp + xpAdded;
+      const newLevelInfo = getLevelInfo(newXp);
+
+      if (newLevelInfo.level > prevLevel) {
+        try { sound?.playFanfare?.(); } catch (e) {}
+        confetti({ particleCount: 120, spread: 85, origin: { y: 0.5 } });
+        const unlocked = getNewlyUnlockedRewards(prev.xp, newXp);
+        if (unlocked) setLevelUpReward(unlocked);
+        setXpToast(`🎉 LEVEL UP! You reached Level ${newLevelInfo.level} — ${newLevelInfo.title}!`);
+        setTimeout(() => setXpToast(null), 4000);
+      } else {
+        setXpToast(`+${xpAdded} XP: ${reason}`);
+        setTimeout(() => setXpToast(null), 2200);
+      }
+
+      const updated = {
+        ...prev,
+        xp: newXp,
+        masteredFlashcards: mastered,
+        claimedFlashcards: claimedCards,
+        completedDecks: completedDecks,
+      };
+
+      if (subjectId) {
+        const stats = { ...(prev.subjectStats || {}) };
+        const sub = stats[subjectId] || { xp: 0, highestPercent: 0, fastestBlitz: null, quizzesTaken: 0 };
+        stats[subjectId] = {
+          ...sub,
+          xp: (sub.xp || 0) + xpAdded,
+        };
+        updated.subjectStats = stats;
+      }
+
+      return updated;
+    });
+
+    return { isNowMastered, xpAdded };
+  };
+
   // Equip newly unlocked rewards (frame, tagline, nameFx)
   const equipRewards = ({ frame, tagline, nameFx }) => {
     setProfile((prev) => {
@@ -521,6 +616,7 @@ export function UserProvider({ children }) {
         addXp,
         recordExamResult,
         updateProfile,
+        toggleFlashcardMastered,
         importScorecard,
         isCloudConnected,
         isSyncing,

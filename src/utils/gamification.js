@@ -425,6 +425,8 @@ export function createDefaultProfile() {
     highestScorePercent: 0,
     totalQuizzesTaken: 0,
     masteredFlashcards: {},
+    claimedFlashcards: {},
+    completedDecks: {},
     completedUnits: {},
     subjectStats: {},
     joinedAt: new Date().toISOString(),

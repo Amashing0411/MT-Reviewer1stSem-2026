@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   RotateCw, 
   ChevronLeft, 
@@ -15,23 +15,29 @@ import { sound } from "../utils/sound";
 import { useUser } from "../context/UserContext";
 
 export function Flashcards({ subject, onSelectMode }) {
-  const { addXp } = useUser();
+  const { profile, toggleFlashcardMastered } = useUser();
   const rawCards = subject.flashcards || [];
   const [cards, setCards] = useState(rawCards);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState(new Set());
+  const isTogglingRef = useRef(false);
 
   useEffect(() => {
     setCards(subject.flashcards || []);
     setCurrentIndex(0);
     setIsFlipped(false);
-    setMasteredIds(new Set());
   }, [subject.id]);
 
   const currentCard = cards[currentIndex] || cards[0] || null;
-  const isMastered = currentCard ? masteredIds.has(currentCard.id) : false;
-  const progressPercent = cards.length > 0 ? Math.round((masteredIds.size / cards.length) * 100) : 0;
+  const currentCardKey = currentCard ? `${subject.id}_${currentCard.id}` : null;
+
+  // Read mastered status from persistent profile
+  const masteredMap = profile?.masteredFlashcards || {};
+  const isMastered = currentCardKey ? Boolean(masteredMap[currentCardKey]) : false;
+  
+  // Count how many cards in this deck are mastered
+  const masteredCount = cards.filter((c) => Boolean(masteredMap[`${subject.id}_${c.id}`])).length;
+  const progressPercent = cards.length > 0 ? Math.round((masteredCount / cards.length) * 100) : 0;
 
   const handleFlip = () => {
     sound.playFlip();
@@ -56,26 +62,29 @@ export function Flashcards({ subject, onSelectMode }) {
 
   const toggleMastered = (id) => {
     if (!id || cards.length === 0) return;
-    setMasteredIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-        sound.playCorrect();
-        addXp(25, `${subject.code} Flashcard Mastered`, subject.id);
-        if (next.size === cards.length) {
-          sound.playStreak();
-          addXp(200, `100% Deck Mastery: ${subject.code}! 🎓`, subject.id);
-          confetti({
-            particleCount: 100,
-            spread: 80,
-            origin: { y: 0.6 },
-          });
-        }
+    // Spam click throttle: drop rapid repeated clicks
+    if (isTogglingRef.current) return;
+    isTogglingRef.current = true;
+    setTimeout(() => {
+      isTogglingRef.current = false;
+    }, 250);
+
+    const cardKey = `${subject.id}_${id}`;
+    const result = toggleFlashcardMastered(cardKey, subject.id, subject.code, cards.length);
+
+    if (result.isNowMastered) {
+      sound.playCorrect();
+      if (result.xpAdded >= 200) {
+        sound.playStreak();
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.6 },
+        });
       }
-      return next;
-    });
+    } else {
+      sound.playFlip();
+    }
   };
 
   const handleShuffle = () => {
@@ -174,7 +183,7 @@ export function Flashcards({ subject, onSelectMode }) {
             <div className="text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Mastery Score</span>
               <span className="text-xs font-bold text-emerald-600">
-                {masteredIds.size} / {cards.length} ({progressPercent}%)
+                {masteredCount} / {cards.length} ({progressPercent}%)
               </span>
             </div>
 
