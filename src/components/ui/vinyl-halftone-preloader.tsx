@@ -16,7 +16,7 @@
 
 import * as React from "react"
 
-export type VinylPreset = "rhythm" | "cobalt" | "citrus" | "newsprint"
+export type VinylPreset = "rhythm" | "cobalt" | "citrus" | "newsprint" | "arena"
 
 export interface VinylPalette {
   /** The paper: the label, and everything the ink does not cover. */
@@ -62,6 +62,10 @@ export interface VinylHalftonePreloaderProps {
   ringText?: string
   /** The stages down the diagonal. The last one is the way in. */
   stages?: string[]
+  /** Interactive callback when a stage is clicked */
+  onStageClick?: (index: number) => void
+  /** Custom HUD elements overlaid inside the gate (e.g., cyberpunk battle bar, buttons) */
+  hud?: React.ReactNode
   /** Tempo of the burst's pulse. Defaults to 120. */
   bpm?: number
   /** Corner line that tells people they can scratch. Empty string hides it. */
@@ -85,6 +89,7 @@ const PRESETS: VinylPresetMap = {
   cobalt: { paper: "#5370ff", ink: "#05081f", glow: "#f2f5ff", edge: "#1f2fc4", spark: "#dfe6ff" },
   citrus: { paper: "#ffb21a", ink: "#1c0e00", glow: "#fffbea", edge: "#e2531a", spark: "#fff8dc" },
   newsprint: { paper: "#ebe5d8", ink: "#151311", glow: "#ffffff", edge: "#e3402a", spark: "#fff7e6" },
+  arena: { paper: "#090d16", ink: "#040711", glow: "#38bdf8", edge: "#1d4ed8", spark: "#fbbf24" },
 }
 
 const FONT_HREF = "https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;800&display=swap"
@@ -340,9 +345,20 @@ const VHP_CSS = `
 .vhp-item[data-state="on"]::after, .vhp-item:hover::after { color: #2ae4ff; opacity: .4; transform: translate(calc(.02em + var(--vhp-beat, 0) * .03em), -.006em); }
 .vhp-item[data-state="on"]::before, .vhp-item[data-state="on"]::after { clip-path: inset(var(--vhp-slice, 40%) 0 calc(100% - var(--vhp-slice, 40%) - 18%) 0); }
 .vhp-item:enabled { cursor: pointer; }
+.vhp-item.vhp-stage-btn { cursor: pointer; }
+.vhp-item.vhp-stage-btn:hover {
+  --vhp-nudge: .16em;
+  opacity: 1;
+  filter: brightness(1.25) drop-shadow(0 0 6px var(--vhp-glow));
+}
 .vhp-item:focus-visible { outline: 2px solid var(--vhp-glow); outline-offset: .12em; }
 .vhp-item .vhp-play { display: inline-block; font-size: .5em; margin-left: .3em; vertical-align: .55em; transition: transform 300ms ease; }
 .vhp-item:enabled:hover .vhp-play { transform: translateX(.25em); }
+.vhp-hud {
+  position: absolute; inset: 0; pointer-events: none; z-index: 10;
+  display: flex; flex-direction: column; justify-content: space-between; padding: clamp(10px, 2vmin, 20px);
+}
+.vhp-hud > * { pointer-events: auto; }
 .vhp-hint {
   position: absolute; right: clamp(16px, 2.6vmin, 34px); bottom: clamp(14px, 2.4vmin, 30px); margin: 0;
   font-family: var(--vhp-text); font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
@@ -352,7 +368,7 @@ const VHP_CSS = `
 .vhp-hint > i { display: inline-block; width: .7em; height: .7em; margin-right: .7em; border-radius: 50%; background: currentColor; vertical-align: -.02em; animation: vhp-blink 1s steps(2, start) infinite; }
 .vhp-gate[data-phase="exit"] .vhp-label { opacity: 0; transform: translate(-6%, -50%) scale(.96); }
 .vhp-gate[data-phase="exit"] .vhp-label[data-align="center"] { transform: translate(-50%, -54%) scale(.96); }
-.vhp-gate[data-phase="exit"] .vhp-ring, .vhp-gate[data-phase="exit"] .vhp-hint { opacity: 0; transition: opacity 400ms ease; }
+.vhp-gate[data-phase="exit"] .vhp-ring, .vhp-gate[data-phase="exit"] .vhp-hint, .vhp-gate[data-phase="exit"] .vhp-hud { opacity: 0; transition: opacity 400ms ease; }
 .vhp-gate[data-phase="exit"] .vhp-stage { animation: vhp-leave 600ms cubic-bezier(.7,0,.84,0) both; animation-delay: calc(var(--i) * 60ms); }
 .vhp-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @keyframes vhp-fade { from { opacity: 0; } }
@@ -420,6 +436,8 @@ export default function VinylHalftonePreloader({
   credits = ["Design & Code", "Portfolio · Vol. 26"],
   ringText = "Side A  ·  33⅓ RPM  ·  Stereo  ·  Selected Works  ·  2019 — 2026  ·  ",
   stages = ["Mastering", "Pressing", "Spinning", "Play"],
+  onStageClick,
+  hud,
   bpm = 120,
   hint = "Drag the record to scratch",
   displayFamily = DISPLAY_STACK,
@@ -740,7 +758,18 @@ export default function VinylHalftonePreloader({
   }, [phase, enter])
 
   const goIn = () => {
-    if (live.current.phase === "ready") live.current.wantExit = true
+    if (live.current.phase === "ready") {
+      live.current.wantExit = true
+    } else {
+      // Early activation if user presses Enter Arena or bypass
+      live.current.target = 100
+      live.current.shown = 100
+      live.current.pct = 100
+      live.current.phase = "ready"
+      live.current.readyAt = performance.now()
+      live.current.wantExit = true
+      setPhase("ready")
+    }
   }
 
   const lay = vhpLayout(size.w || 1280, size.h || 720, list.length)
@@ -809,6 +838,8 @@ export default function VinylHalftonePreloader({
             />
           )}
 
+          {hud ? <div className="vhp-hud">{hud}</div> : null}
+
           <svg
             className="vhp-ring"
             aria-hidden="true"
@@ -876,6 +907,17 @@ export default function VinylHalftonePreloader({
                     >
                       {s}
                       {ready ? <span className="vhp-play" aria-hidden="true">▶</span> : null}
+                    </button>
+                  ) : onStageClick ? (
+                    <button
+                      type="button"
+                      className="vhp-item vhp-stage-btn"
+                      data-state={state}
+                      data-text={s}
+                      onClick={() => onStageClick(i)}
+                      title="Click to cycle option"
+                    >
+                      {s}
                     </button>
                   ) : (
                     <span className="vhp-item" data-state={state} data-text={s} aria-current={state === "on" ? "step" : undefined}>
