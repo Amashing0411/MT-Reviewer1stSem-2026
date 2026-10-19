@@ -286,370 +286,376 @@ export const elect3Data = {
     }
   ],
   mockQuestions: [
-    {
-      id: "elect3-mq1",
-      question: "A junior systems administrator logs in as `root` (UID 0) on an enterprise Red Hat Enterprise Linux server. The administrator attempts to execute a custom Python script that reads `/etc/shadow` directly to dump password hashes. Despite holding full root privileges, the kernel immediately terminates the operation with `Permission Denied` and generates an audit log entry in `/var/log/audit/audit.log` showing an SELinux denial.\n\nWhich access control model prevented the `root` superuser from accessing this file?",
-      options: [
-        "Discretionary Access Control (DAC)",
-        "Mandatory Access Control (MAC)",
-        "Role-Based Access Control (RBAC)",
-        "Single Sign-On (SSO)"
-      ],
-      correctAnswer: 1,
-      explanation: "**Security Architecture Analysis:**\n• **Mandatory Access Control (MAC):** Under MAC (implemented via SELinux / AppArmor), access rights are governed by centralized security policies and security labels (type enforcement), NOT by user identity.\n• Even the `root` superuser cannot bypass MAC rules if the executing process domain lacks the required security label attribute.\n• *Why other options fail:* Discretionary Access Control (DAC) grants the resource owner or root unrestricted bypass powers (`chmod 777`). RBAC maps roles to users, but standard Linux RBAC still permits root overrides.",
-      category: "Access Control Models"
-    },
-    {
-      id: "elect3-mq2",
-      question: "A regional hospital's patient database server is infected by a zero-day ransomware strain at 3:00 PM on a Friday. The hospital's Business Continuity & Disaster Recovery (BCDR) policy mandates an **RPO (Recovery Point Objective) of 30 minutes** and an **RTO (Recovery Time Objective) of 4 hours**.\n\nThe IT incident response team halts the ransomware spread, restores clean database snapshots taken at 2:40 PM, tests database consistency, and restores production operations by 6:15 PM.\n\nDid the incident response team successfully satisfy the organization's BCDR Service Level Agreements (SLAs)?",
-      options: [
-        "Yes, both RPO and RTO SLAs were met (Data lost = 20 minutes $\\le$ 30 min RPO; Total downtime = 3 hours 15 minutes $\\le$ 4 hour RTO)",
-        "No, the RTO SLA was violated because production was down for more than 3 hours",
-        "No, the RPO SLA was violated because 40 minutes of transaction logs were permanently destroyed",
-        "No, because Business Continuity prohibits using Disaster Recovery snapshots during ransomware"
-      ],
-      correctAnswer: 0,
-      explanation: "**BCDR Metric Calculations:**\n• **RPO (Recovery Point Objective):** Measures maximum tolerable data loss in time. The attack occurred at 3:00 PM; the restore point was 2:40 PM $\\rightarrow$ Data loss = 20 minutes. Since $20\\text{ min} \\le 30\\text{ min RPO}$, RPO is **SATISFIED**.\n• **RTO (Recovery Time Objective):** Measures maximum tolerable downtime. Downtime spanned 3:00 PM to 6:15 PM = 3 hours 15 minutes. Since $3\\text{ hrs } 15\\text{ min} \\le 4\\text{ hrs RTO}$, RTO is **SATISFIED**.\n• Both objectives were met successfully under the enterprise BCDR policy.",
-      category: "BCDR"
-    },
-    {
-      id: "elect3-mq3",
-      question: "A financial fintech institution is architecting a perimeter security defense for its core payment gateway. The network architect must deploy deep packet inspection to detect and actively terminate SQL injection and buffer overflow exploits in real time before packets reach web servers. However, the operations director insists that if the security appliance suffers complete hardware power failure, customer payment traffic must NOT be severed.\n\nWhich device and deployment architecture fulfills both requirements?",
-      options: [
-        "A passive Intrusion Detection System (IDS) connected to a switch SPAN mirror port",
-        "An inline Intrusion Prevention System (IPS) equipped with a hardware fail-open (bypass) network tap",
-        "A forward caching proxy server using Discretionary Access Control",
-        "An isolated Personal Area Network (PAN) gateway"
-      ],
-      correctAnswer: 1,
-      explanation: "**Network Security Engineering:**\n• **IPS (Intrusion Prevention System):** Must sit **inline** in the physical traffic path to actively drop malicious packets and terminate TCP sessions before they reach the web servers.\n• **Hardware Fail-Open (Bypass Tap):** Physical relay circuitry that automatically bridges the network connection if the IPS loses power or crashes, preventing the appliance from becoming a single point of network failure.\n• *Why other options fail:* An IDS is passive (out-of-band) and can only send alerts after packets have already reached the target. A proxy server does not perform inline deep packet threat inspection.",
-      category: "Security Practices"
-    },
-    {
-      id: "elect3-mq4",
-      question: "A network administrator is carving out a new subnet for an automated manufacturing robotics cell using the assigned IP address block:\n`192.168.50.192/27`\n\nWhat are the Network Address, the Broadcast Address, and the maximum number of assignable client host IP addresses in this subnet?",
-      options: [
-        "Network: `192.168.50.192`, Broadcast: `192.168.50.255`, Usable Hosts: 62",
-        "Network: `192.168.50.0`, Broadcast: `192.168.50.192`, Usable Hosts: 32",
-        "Network: `192.168.50.192`, Broadcast: `192.168.50.223`, Usable Hosts: 30",
-        "Network: `192.168.50.193`, Broadcast: `192.168.50.222`, Usable Hosts: 30"
-      ],
-      correctAnswer: 2,
-      explanation: "**Subnetting Calculations:**\n• Prefix: `/27`. Host bits $h = 32 - 27 = 5$ bits.\n• Block Size $= 2^5 = 32$.\n• Total IP range for this block: `192.168.50.192` to `192.168.50.223` ($192 + 32 - 1 = 223$).\n• **Network Address:** `192.168.50.192` (first IP, identifies subnet).\n• **Broadcast Address:** `192.168.50.223` (last IP, reserved for broadcast).\n• **Usable Hosts:** $2^5 - 2 = 32 - 2 = 30$ assignable host IPs (`192.168.50.193` to `192.168.50.222`).",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq5",
-      question: "A network technician plugs a newly imaged desktop into a wall Ethernet jack. The user reports that they cannot access the local intranet portal or the internet. The technician opens a command prompt and runs `ipconfig`, observing:\n• IPv4 Address: `169.254.104.55`\n• Subnet Mask: `255.255.0.0`\n• Default Gateway: *(blank)*\n\nWhat failure occurred in the DHCP 4-step DORA process, and why was this specific IP address assigned?",
-      options: [
-        "The client broadcasted a DHCP Discover, but received no DHCP Offer from a server; the OS automatically assigned an APIPA (Automatic Private IP Addressing) address",
-        "The DHCP server successfully acknowledged the lease via DHCP Acknowledge, but the client rejected the DNS server address",
-        "The client received an IP collision error during the DHCP Request stage and reverted to a Class A loopback address",
-        "The switch port blocked the client because the desktop's MAC address is in Little-Endian format"
-      ],
-      correctAnswer: 0,
-      explanation: "**DHCP Handshake Diagnostics:**\n• **DORA Steps:** Discover (broadcast) $\\rightarrow$ Offer (unicast/broadcast) $\\rightarrow$ Request $\\rightarrow$ Acknowledge.\n• When a client transmits a **DHCP Discover** packet and fails to receive any **DHCP Offer** (due to a disconnected cable, dead DHCP server, or unassigned VLAN), the operating system falls back to **APIPA** (Automatic Private IP Addressing) in the `169.254.0.0/16` range.\n• APIPA allows link-local communication but provides no default gateway, preventing routing to external networks.",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq6",
-      question: "An automotive embedded engineering team is debating the choice of operating system for an Electronic Stability Control (ESC) braking computer. A software engineer suggests deploying a high-end 3.8 GHz 16-core desktop Linux distribution, claiming its raw CPU gigahertz will outperform a lightweight 200 MHz microcontroller running FreeRTOS.\n\nWhy does the fundamental rule from Module 1—**'In an RTOS, predictability is more important than raw speed'**—disqualify the general-purpose desktop Linux OS?",
-      options: [
-        "Desktop Linux cannot compile C++ applications or execute loop iterations",
-        "General-purpose Linux is optimized for average throughput; non-deterministic thread preemption and variable interrupt latency mean a deadline could be missed by milliseconds, causing catastrophic vehicle crash",
-        "FreeRTOS consumes 100x more battery power than desktop Linux, which stabilizes the alternator",
-        "Real-Time Operating Systems do not have process schedulers or memory controllers"
-      ],
-      correctAnswer: 1,
-      explanation: "**Real-Time OS Principles:**\n• **Hard Real-Time Systems:** In safety-critical embedded systems (automotive braking, pacemakers, flight flaps), computational correctness depends not just on the logical result, but on the **exact time** at which it is delivered. Missing a deadline by 2 milliseconds is a catastrophic failure.\n• General-purpose OS (Linux/Windows) prioritize **average throughput**, resulting in non-deterministic scheduling jitter and unpredictable interrupt handling. An RTOS provides bounded, deterministic task execution guarantees regardless of raw clock speed.",
-      category: "Operating Systems"
-    },
-    {
-      id: "elect3-mq7",
-      question: "A company plans to migrate a legacy mission-critical banking application from an IBM AIX server to an open-source Ubuntu Server installation. A senior engineer asks the systems team to clarify the historical and architectural differences between **Unix** and **Linux**.\n\nWhich statement accurately describes the historical origin and licensing contrast presented in the slides?",
-      options: [
-        "Unix was created in 1991 by Linus Torvalds under the GPL license; Linux was developed in 1969 at Bell Labs as a proprietary commercial OS",
-        "Unix and Linux are byte-for-byte identical operating systems created by the Free Software Foundation in 1980",
-        "Unix was developed in 1969 at AT&T Bell Labs by Ken Thompson & Dennis Ritchie as a proprietary OS; Linux was created in 1991 by Linus Torvalds as a free, open-source Unix-like kernel",
-        "Unix only runs on Personal Area Networks (PAN); Linux is restricted strictly to Wide Area Networks (WAN)"
-      ],
-      correctAnswer: 2,
-      explanation: "**Verbatim Slide Comparison:**\n• **Unix:** Developed in **1969 at AT&T’s Bell Labs** by **Ken Thompson & Dennis Ritchie**. Proprietary commercial OS (IBM AIX, HP-UX, Solaris) tied to specific vendor hardware architectures.\n• **Linux:** Created in **1991 by Linus Torvalds** as a free, open-source alternative to Unix under the GPL license. Highly portable across almost all hardware architectures (x86, ARM, RISC-V).",
-      category: "Unix vs Linux"
-    },
-    {
-      id: "elect3-mq8",
-      question: "A Linux system administrator notices that a hung child worker process (PID 5120) is consuming memory. The administrator executes `kill -9 5120` (`SIGKILL`). However, running `ps aux | grep 5120` shows the process is still listed with status `Z` (Defunct / Zombie).\n\nWhat is the underlying operating system cause of this Zombie process, and how should the administrator properly clear it from the process table?",
-      options: [
-        "The process is terminated, but its parent process has not called `wait()` to read its exit status; the administrator must signal or restart the parent process to reap it",
-        "The `kill -9` signal was intercepted by the process's signal handler; the admin must run `kill -15` to force termination",
-        "The process migrated to Level 4 optical storage and must be ejected manually",
-        "The Linux kernel automatically converts all multi-threaded processes into permanent zombies"
-      ],
-      correctAnswer: 0,
-      explanation: "**Process Lifecycle & Zombie Mechanics:**\n• When a process terminates in Unix/Linux (even via uncatchable `SIGKILL` 9), its entry remains in the process table until its **parent process** reads its exit status code via the `wait()` or `waitpid()` system call.\n• A **Zombie process** consumes no CPU or memory—only a process table PID slot. If the parent is deadlocked or poorly programmed, it fails to reap the child.\n• To clear the zombie, the administrator must either send a signal to the parent (`SIGHUP` or `SIGTERM`) or terminate the parent process, causing the `init` / `systemd` process (PID 1) to adopt and immediately reap the zombie.",
-      category: "System Administration"
-    },
-    {
-      id: "elect3-mq9",
-      question: "Prior to launching a new online payment portal, an enterprise hires two cybersecurity consulting firms:\n• **Firm 1:** Deploys automated vulnerability scanners (OpenVAS/Nessus) to identify unpatched software packages, missing HTTP headers, and open firewall ports.\n• **Firm 2:** Ethical hackers manually craft custom payloads to exploit an authentication bypass flaw, gain unauthorized administrative shell access to the database, and prove that exfiltration of customer data is achievable.\n\nHow does the curriculum formally categorize the security assessments conducted by Firm 1 and Firm 2?",
-      options: [
-        "Firm 1 performed Disaster Recovery; Firm 2 performed Business Continuity",
-        "Firm 1 conducted a Vulnerability Assessment; Firm 2 conducted a Penetration Test (Pen Test)",
-        "Firm 1 executed Role-Based Access Control; Firm 2 executed Attribute-Based Access Control",
-        "Firm 1 deployed an Inline IPS; Firm 2 deployed a Passive IDS"
-      ],
-      correctAnswer: 1,
-      explanation: "**Security Assessment Definitions:**\n• **Vulnerability Assessment:** A systematic scan of network and system configurations to identify and catalog known security weaknesses, CVEs, and missing patches without attempting exploitation.\n• **Penetration Testing (Pen Test):** Authorized simulated cyberattacks where ethical security experts actively exploit vulnerabilities to evaluate the practical security posture and test defensive response capabilities.",
-      category: "Security Practices"
-    },
-    {
-      id: "elect3-mq10",
-      question: "An aerospace enterprise implements an identity and access management system with the following rule:\n*\"An engineer may only download telemetry flight logs if: (1) their departmental role is 'Avionics', (2) the connection originates from inside the physical engineering hangar IP range, (3) the workstation has disk encryption active, and (4) the current local time is between 07:00 and 19:00.\"*\n\nWhich access control architecture is uniquely defined by evaluating dynamic combinations of subject, resource, action, and contextual environmental factors?",
-      options: [
-        "Discretionary Access Control (DAC)",
-        "Mandatory Access Control (MAC)",
-        "Attribute-Based Access Control (ABAC)",
-        "Single-Factor Authentication (SFA)"
-      ],
-      correctAnswer: 2,
-      explanation: "**Access Control Taxonomy:**\n• **Attribute-Based Access Control (ABAC):** Grants access by evaluating policies against dynamic attributes: subject attributes (department, clearance), resource attributes (classification, file type), action attributes (read, download), and environmental attributes (time of day, physical IP geolocation, device encryption status).\n• *Why other options fail:* DAC relies solely on resource owner discretion. MAC relies strictly on static security classification levels. RBAC assigns permissions based only on static job titles.",
-      category: "Access Control Models"
-    },
-    {
-      id: "elect3-mq11",
-      question: "An engineer pairs their wireless fitness tracker and Bluetooth headset to their smartphone. The smartphone is connected to the office enterprise Wi-Fi access point (802.11ax). Meanwhile, the enterprise router routes database traffic across an undersea transpacific fiber-optic cable connecting the Manila headquarters to the Frankfurt cloud datacenter.\n\nClassify these three network segments from smallest to largest geographic scope:",
-      options: [
-        "PAN (Personal Area Network) $\\rightarrow$ LAN (Local Area Network) $\\rightarrow$ WAN (Wide Area Network)",
-        "LAN $\\rightarrow$ PAN $\\rightarrow$ WAN",
-        "WAN $\\rightarrow$ LAN $\\rightarrow$ PAN",
-        "PAN $\\rightarrow$ WAN $\\rightarrow$ LAN"
-      ],
-      correctAnswer: 0,
-      explanation: "**Geographical Network Taxonomy:**\n1. **PAN (~10 meters):** Personal devices (Bluetooth headset, smartwatch, fitness tracker).\n2. **LAN (Building/Room):** Local area coverage (office Wi-Fi, Ethernet laboratory).\n3. **WAN (Country/Global):** Intercontinental communication (the Internet, undersea fiber links connecting Manila to Frankfurt).",
-      category: "Network Topologies"
-    },
-    {
-      id: "elect3-mq12",
-      question: "Users across an organization report that typing `portal.company.com` in their web browser redirects them to a fake banking login page at IP `198.51.100.99`. However, typing the direct internal IP `10.5.0.25` loads the genuine company portal. Investigation reveals that an attacker injected fraudulent records into the company's local caching DNS server.\n\nWhat specific DNS resource record was tampered with, and what security technology cryptographically validates DNS responses to prevent this attack?",
-      options: [
-        "MX (Mail Exchange) record; mitigated by DHCP Snooping",
-        "A (Address) record; mitigated by DNSSEC (Domain Name System Security Extensions)",
-        "PTR (Pointer) record; mitigated by Discretionary Access Control",
-        "CNAME record; mitigated by Level 1 SRAM caching"
-      ],
-      correctAnswer: 1,
-      explanation: "**DNS Protocols & Security:**\n• **'A' Record (Address Record):** Maps a human-readable hostname (`portal.company.com`) to a 32-bit IPv4 address.\n• **DNS Cache Poisoning / Spoofing:** Attackers trick a resolver into caching false IP mappings.\n• **DNSSEC:** Cryptographically signs DNS resource records with digital signatures, allowing resolvers to verify the authenticity and integrity of responses, preventing DNS spoofing.",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq13",
-      question: "A network administrator is troubleshooting an outage between an office branch and a remote file server at `203.0.113.88`. Running `ping 203.0.113.88` results in `Request timed out` with 100% packet loss. The administrator then executes `traceroute 203.0.113.88`:\n• Hops 1 through 6 respond with latencies between 12 ms and 25 ms.\n• Hop 6 shows router IP `198.51.100.1`.\n• Hop 7 shows `* * *` (Request timed out), and all subsequent hops up to 30 time out.\n\nWhat critical diagnostic conclusion does `traceroute` provide that `ping` could not?",
-      options: [
-        "The destination file server's hard drive has crashed due to bad sectors",
-        "The client workstation's Ethernet cable is completely disconnected",
-        "Network packets are successfully reaching Hop 6, localizing the routing failure or firewall block specifically between Hop 6 and Hop 7",
-        "The DNS server failed to resolve the hostname into a MAC address"
-      ],
-      correctAnswer: 2,
-      explanation: "**Network Diagnostics Mechanics:**\n• `ping` only indicates end-to-end reachability (pass or fail).\n• `traceroute` leverages the **TTL (Time to Live)** field in IP packets, incrementing TTL by 1 at each probe to elicit `ICMP Time Exceeded` messages from each intermediate gateway.\n• Seeing Hops 1–6 respond cleanly proves the local LAN and initial upstream provider are healthy, localizing the failure precisely to the link between router `198.51.100.1` and the next router (Hop 7).",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq14",
-      question: "A Linux system administrator creates an administrative backup shell script `/opt/scripts/backup.sh`. Security policy dictates that:\n• The owner (`root`) must have **read, write, and execute** permissions.\n• The group (`sysadmins`) must have **read and execute** permissions only.\n• Other users (world) must have **no permissions** whatsoever.\n\nWhich command applies these exact octal permissions?",
-      options: [
-        "`chmod 750 /opt/scripts/backup.sh`",
-        "`chmod 777 /opt/scripts/backup.sh`",
-        "`chmod 640 /opt/scripts/backup.sh`",
-        "`chmod 755 /opt/scripts/backup.sh`"
-      ],
-      correctAnswer: 0,
-      explanation: "**Linux Octal File Permissions:**\n• Read (r) = 4, Write (w) = 2, Execute (x) = 1.\n• Owner: $r + w + x = 4 + 2 + 1 = 7$.\n• Group: $r + x = 4 + 1 = 5$.\n• Others: none $= 0$.\n• Result: `chmod 750 /opt/scripts/backup.sh`.\n• *Why other options fail:* `777` grants full access to everyone (severe vulnerability). `640` lacks execute permission for owner and group. `755` grants read and execute to everyone in the world.",
-      category: "System Administration"
-    },
-    {
-      id: "elect3-mq15",
-      question: "A corporate procurement officer approves an electronic purchase requisition for \$250,000 using their digital smart card and private cryptographic key. Two weeks later, after an audit questions the expense, the officer claims that an unknown hacker must have impersonated them.\n\nThe audit committee validates the cryptographic audit log containing the officer's digital signature and timestamp. Which fundamental security principle legally and technically prevents the officer from denying their action?",
-      options: [
-        "Confidentiality",
-        "Accountability / Non-repudiation",
-        "High Availability",
-        "Virtualization"
-      ],
-      correctAnswer: 1,
-      explanation: "**Security Principle Definition:**\n• **Accountability / Non-repudiation:** The principle ensuring that an entity cannot deny the authenticity of their signature or the origination of a transaction.\n• Implemented through digital signatures and PKI (Public Key Infrastructure), non-repudiation provides indisputable proof of the origin, integrity, and authorization of an action.",
-      category: "Security Principles"
-    },
-    {
-      id: "elect3-mq16",
-      question: "A tech company moves away from the traditional perimeter-based security model ('Castle-and-Moat', which trusted all internal corporate LAN traffic once connected behind the VPN). In their new architecture, every employee request—whether made from the CEO's office Ethernet port or a remote worker's home Wi-Fi—must be mutually authenticated, authorized, micro-segmented, and continuously validated.\n\nWhich modern security architecture does this represent?",
-      options: [
-        "Zero Trust Architecture ('Never trust, always verify')",
-        "Discretionary Access Control",
-        "Single-User Operating System",
-        "Uncontrolled Domain Routing"
-      ],
-      correctAnswer: 0,
-      explanation: "**Zero Trust Architecture:**\n• Built on the core principle: **'Never trust, always verify.'**\n• Traditional security assumed that anything inside the corporate network was safe. Zero Trust treats all networks (even internal LANs) as hostile, enforcing least privilege, dynamic context-based access (ABAC), microsegmentation, and end-to-end encryption for every transaction.",
-      category: "Access Control Models"
-    },
-    {
-      id: "elect3-mq17",
-      question: "A system administrator inspects a Linux crontab configuration file for scheduled maintenance tasks. They encounter the following line:\n`30 2 * * 1-5 /usr/local/bin/nightly_sync.sh`\n\nWhen will this script execute?",
-      options: [
-        "Every 2 minutes and 30 seconds on the first day of May",
-        "At 2:30 AM every Monday through Friday (weekdays)",
-        "At 1:05 AM on the 2nd and 30th day of every month",
-        "Continuously in the background as an RTOS priority thread"
-      ],
-      correctAnswer: 1,
-      explanation: "**Cron Syntax Breakdown:**\n• Fields: `minute` `hour` `day_of_month` `month` `day_of_week` `command`\n• `30`: Minute 30\n• `2`: Hour 2 (2:00 AM)\n• `*`: Every day of the month\n• `*`: Every month\n• `1-5`: Days of the week 1 through 5 (Monday to Friday)\n• Thus, the script runs at **2:30 AM every weekday (Mon-Fri)**.",
-      category: "Automation & DevOps"
-    },
-    {
-      id: "elect3-mq18",
-      question: "A European Union citizen contacts a global cloud SaaS provider, demanding that all their stored account history, personal identifiable information (PII), and credit card records be permanently erased from all production databases and backups within 30 days under the 'Right to be Forgotten.'\n\nWhich international regulatory framework mandates strict penalties for failure to comply with this data privacy directive?",
-      options: [
-        "ITIL v4",
-        "ISO 27001",
-        "GDPR (General Data Protection Regulation)",
-        "POSIX Standard 1003.1"
-      ],
-      correctAnswer: 2,
-      explanation: "**Compliance & Regulatory Frameworks:**\n• **GDPR (General Data Protection Regulation):** The European Union regulation establishing stringent legal guidelines for the collection, handling, and erasure of personal data, including the explicit 'Right to Erasure / Right to be Forgotten.'\n• *Why other options fail:* ISO 27001 specifies requirements for an Information Security Management System (ISMS). ITIL governs IT service delivery workflows. POSIX is an operating system interface standard.",
-      category: "Compliance & Standards"
-    },
-    {
-      id: "elect3-mq19",
-      question: "A DevOps engineer needs to configure 100 newly deployed Linux virtual machines with identical firewall rules, user accounts, and Nginx configurations. Rather than writing brittle imperative shell scripts with loops and SSH connections, the engineer writes declarative YAML files defining the desired state (`state: present`, `port: 443`) and runs an agentless automation engine over SSH.\n\nWhich modern configuration management tool is described?",
-      options: [
-        "Ansible",
-        "Netstat",
-        "Active Directory Group Policy (GPO)",
-        "Cron Tab"
-      ],
-      correctAnswer: 0,
-      explanation: "**DevOps & Automation:**\n• **Ansible:** An open-source, agentless configuration management and automation tool that uses declarative YAML **playbooks** to define the desired state of remote machines over standard SSH.\n• It is idempotent, meaning it only makes changes if the target system has drifted from the defined configuration.",
-      category: "Automation & DevOps"
-    },
-    {
-      id: "elect3-mq20",
-      question: "A high-performance weather forecasting cluster consists of 256 independent server nodes interconnected via high-speed InfiniBand networking. When atmospheric scientists launch meteorological simulation models, the operating system transparently schedules compute threads and distributes memory access across all 256 physical machines, presenting them to the user as a single unified supercomputer.\n\nHow does Module 1 classify this type of operating system?",
-      options: [
-        "Single-User Single-Tasking OS",
-        "Distributed Operating System",
-        "Personal Area Network Controller",
-        "Embedded MS-DOS System"
-      ],
-      correctAnswer: 1,
-      explanation: "**Operating System Taxonomies:**\n• **Distributed Operating System:** Manages a collection of independent, networked computational nodes and presents them to users and applications as a single, coherent, unified computing system.\n• It handles cross-node process scheduling, inter-process communication, and distributed file systems transparently.",
-      category: "Operating Systems"
-    },
-    {
-      id: "elect3-mq21",
-      question: "An organization's Chief Information Security Officer (CISO) publishes two documents:\n• **Document A:** *\"All employee passwords must be a minimum of 14 characters, require Multi-Factor Authentication (MFA), and must never be shared under any circumstances.\"*\n• **Document B:** *\"Step 1: Open the Okta Verify portal. Step 2: Scan the QR code with your mobile authenticator. Step 3: Enter the 6-digit one-time code to complete registration.\"*\n\nHow are Document A and Document B formally distinguished in security governance?",
-      options: [
-        "Document A is a Vulnerability Scan; Document B is a Penetration Test",
-        "Document A is a Disaster Recovery Plan; Document B is Business Continuity",
-        "Document A is a Security Policy (what must be done); Document B is a Security Procedure (how to do it)",
-        "Document A is a MAC rule; Document B is a DAC rule"
-      ],
-      correctAnswer: 2,
-      explanation: "**Security Governance Frameworks:**\n• **Policy:** A high-level, mandatory organizational statement that outlines **what** rules must be adhered to (strategic goals, security requirements).\n• **Procedure:** Detailed, step-by-step operational instructions that explain **how** personnel must carry out a specific policy in daily practice.",
-      category: "Security Management"
-    },
-    {
-      id: "elect3-mq22",
-      question: "In a corporate Windows enterprise network, when an employee joins the company, the network administrator creates a single user account on the Domain Controller. The user can then authenticate at any workstation in the building, and their permissions to corporate shared folders and email services are validated automatically via Kerberos and directory queries.\n\nWhich centralized directory service and protocol enables this unified identity management?",
-      options: [
-        "Microsoft Active Directory using LDAP (Lightweight Directory Access Protocol) and Kerberos",
-        "Static DNS hosts files stored in Level 1 SRAM cache",
-        "DHCP Snooping over an ad-hoc Personal Area Network (PAN)",
-        "Discretionary Access Control inside an unmanaged switch"
-      ],
-      correctAnswer: 0,
-      explanation: "**Directory Services & Identity Management:**\n• **Active Directory (AD):** Microsoft's centralized directory service providing authentication, group policies, and access management across enterprise domains.\n• It relies on **LDAP** for querying directory objects (users, groups, computers) and **Kerberos** for secure, single-sign-on ticket-based authentication.",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq23",
-      question: "A Linux storage administrator needs to add NVMe-over-Fabrics support to a running enterprise database server. Instead of recompiling the entire Linux monolithic kernel and scheduling a disruptive server reboot, the administrator runs `modprobe nvme_fabrics` to dynamically load the compiled driver directly into kernel memory.\n\nWhat architectural capability of modern Linux systems makes this dynamic expansion possible?",
-      options: [
-        "Virtualization Type 2 hypervisor bypass",
-        "Loadable Kernel Modules (LKM)",
-        "Discretionary Access Control (DAC)",
-        "Automatic Private IP Addressing (APIPA)"
-      ],
-      correctAnswer: 1,
-      explanation: "**Linux Kernel Architecture:**\n• Although Linux has a **monolithic kernel** (where the kernel runs in a single address space for maximum performance), it supports **Loadable Kernel Modules (LKMs)**.\n• LKMs allow the kernel to dynamically load and unload device drivers and filesystem protocols into running memory on-demand without recompilation or system reboots.",
-      category: "System Administration"
-    },
-    {
-      id: "elect3-mq24",
-      question: "A remote software engineer connects to a coffee shop's open Wi-Fi network. An attacker on the same Wi-Fi performs ARP spoofing to intercept unencrypted traffic. However, the engineer initiates an encrypted tunnel to the corporate office gateway, encapsulating all traffic in IPsec and routing it securely.\n\nWhich network technology protects the engineer's data from eavesdropping and tampering over untrusted public networks?",
-      options: [
-        "A caching Proxy Server",
-        "Quality of Service (QoS)",
-        "A Virtual Private Network (VPN)",
-        "A Distributed File System"
-      ],
-      correctAnswer: 2,
-      explanation: "**Network Security:**\n• **Virtual Private Network (VPN):** Creates an encrypted, authenticated virtual tunnel between a client and a remote network across the public, untrusted internet.\n• Even if third parties sniff packets on public Wi-Fi, the payload remains undecipherable due to cryptographic protocols (such as IPsec, OpenVPN, or WireGuard).",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq25",
-      question: "A managed Layer 2 Ethernet switch receives an incoming Ethernet frame on physical Port 4. To forward the frame strictly to the intended workstation connected to Port 12 without flooding all other switch ports, which address in the frame header does the switch inspect against its internal CAM table?",
-      options: [
-        "The destination IPv4 address (e.g. `192.168.1.50`)",
-        "The destination Layer 2 MAC (Media Access Control) address",
-        "The DNS domain name query string",
-        "The TCP source port number"
-      ],
-      correctAnswer: 1,
-      explanation: "**Layer 2 Switching Mechanics:**\n• Standard Ethernet switches operate at **Layer 2 (Data Link Layer)**.\n• They inspect the **Destination MAC Address** (48-bit physical address) and look it up in their **CAM (Content Addressable Memory) table** to forward the frame only out of the specific port associated with that MAC, isolating collision domains.",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq26",
-      question: "In an enterprise corporate office, employee video conferences on Microsoft Teams and Zoom experience severe robotic audio, video stuttering, and dropped calls during afternoon hours because several workstations are downloading multi-gigabyte ISO disk images.\n\nWhat network administration traffic management technology should be implemented on the router/switch to prioritize latency-sensitive voice and video packets ahead of bulk data downloads?",
-      options: [
-        "Quality of Service (QoS)",
-        "Discretionary Access Control (DAC)",
-        "Dynamic Host Configuration Protocol (DHCP)",
-        "SELinux Mandatory Access Control"
-      ],
-      correctAnswer: 0,
-      explanation: "**Network Traffic Management:**\n• **Quality of Service (QoS):** A network mechanism that classifies and prioritizes network traffic based on sensitivity to delay and jitter.\n• QoS tags real-time traffic (VoIP, video conferencing) with higher priority queues (DSCP/CoS), ensuring audio and video packets are transmitted first while bulk downloads wait during periods of congestion.",
-      category: "Network Administration"
-    },
-    {
-      id: "elect3-mq27",
-      question: "A user `charlie` creates a research document `/home/charlie/notes.txt`. By default, its permissions are `-rw-r--r--`. Charlie wants his collaborator `dana` to be able to edit the document, so Charlie executes `chmod 664 notes.txt` without needing approval from the system administrator.\n\nWhy does Charlie possess the authority to change permissions on this file?",
-      options: [
-        "Because the system uses Mandatory Access Control (MAC), which gives all users root privileges",
-        "Because Charlie is logged in via a Personal Area Network (PAN)",
-        "Because the operating system enforces Discretionary Access Control (DAC), where the creator/owner of a resource has full discretion over access permissions",
-        "Because the file system uses FAT32 which does not support permissions"
-      ],
-      correctAnswer: 2,
-      explanation: "**Access Control Concepts:**\n• **Discretionary Access Control (DAC):** The fundamental access model used in standard Unix/Linux and Windows file systems.\n• In DAC, the **owner** of an object (the user who created it) has the discretion to grant or revoke read, write, and execute permissions to other users and groups as they see fit.",
-      category: "Access Control Models"
-    },
-    {
-      id: "elect3-mq28",
-      question: "A coordinated Distributed Denial of Service (DDoS) attack floods an online e-commerce website with 500 Gbps of SYN flood traffic, saturating perimeter internet bandwidth and crashing the web server load balancers. Legitimate customers attempting to purchase goods are met with HTTP 504 Gateway Timeout errors, but no customer passwords or payment data were modified or stolen.\n\nWhich pillar of the **CIA Triad** was primarily violated during this cyber incident?",
-      options: [
-        "Confidentiality",
-        "Availability",
-        "Integrity",
-        "Non-repudiation"
-      ],
-      correctAnswer: 1,
-      explanation: "**CIA Triad Analysis:**\n• **Availability:** Ensuring that authorized users have prompt, uninterrupted access to systems, services, and data when needed.\n• A DDoS attack does not breach confidentiality (data was not stolen) nor integrity (data was not altered or corrupted); it solely exhausts computing and network resources to deny **Availability** to legitimate users.",
-      category: "Security Principles"
-    }
+      {
+          "id": "elect3-mq1",
+          "question": "True or False: In the CIA Triad, Integrity refers to ensuring that authorized users have timely and reliable access to systems and information whenever needed.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** That is the definition of Availability. Integrity ensures that data remains accurate, complete, and protected against unauthorized modification or deletion.",
+          "category": "Security Principles"
+      },
+      {
+          "id": "elect3-mq2",
+          "question": "True or False: In Mandatory Access Control (MAC), access permissions are determined centrally based on fixed security classifications, and cannot be modified by the resource owner.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** In MAC (such as SELinux), security labels and classifications are centrally mandated. Resource owners cannot override or grant access contrary to central security policy.",
+          "category": "Access Control"
+      },
+      {
+          "id": "elect3-mq3",
+          "question": "True or False: The Zero Trust security architecture operates under the core principle 'Never trust, always verify', treating all network traffic as untrusted by default.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Zero Trust assumes threats exist both inside and outside the network perimeter. Every user, device, and request must be explicitly authenticated, authorized, and encrypted.",
+          "category": "Access Control"
+      },
+      {
+          "id": "elect3-mq4",
+          "question": "True or False: A Personal Area Network (PAN) typically spans a radius of up to 10 kilometers using microwave radio links.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** A PAN typically operates within a personal workspace range of approximately 10 meters, commonly utilizing Bluetooth or Zigbee (e.g., smartwatches, wireless earphones).",
+          "category": "Network Topologies"
+      },
+      {
+          "id": "elect3-mq5",
+          "question": "True or False: An Intrusion Prevention System (IPS) operates inline with network traffic and can actively drop malicious packets in real time.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Unlike a passive IDS that only detects and alerts via a mirror port, an IPS sits inline in the traffic path to actively detect, block, and drop malicious traffic as it arrives.",
+          "category": "Security Management"
+      },
+      {
+          "id": "elect3-mq6",
+          "question": "True or False: In Linux, process signal SIGKILL (signal 9) can be caught, handled, or ignored by an unprivileged user process.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** SIGKILL (9) and SIGSTOP (19) cannot be caught, blocked, or ignored by any process. Only SIGTERM (15) can be caught and handled gracefully.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq7",
+          "question": "True or False: In a Real-Time Operating System (RTOS), predictability and deterministic timing are more critical than raw throughput speed.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** The defining hallmark of an RTOS is determinism. Executing tasks within strict, guaranteed deadlines is more vital than raw computing throughput.",
+          "category": "OS Types"
+      },
+      {
+          "id": "elect3-mq8",
+          "question": "True or False: Linux was originally created in 1991 by Linus Torvalds as a free, open-source kernel licensed under the GNU General Public License (GPL).",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Linus Torvalds created the Linux kernel in 1991 at the University of Helsinki as an open-source, GPL-licensed Unix-like operating system kernel.",
+          "category": "Unix/Linux"
+      },
+      {
+          "id": "elect3-mq9",
+          "question": "True or False: Recovery Point Objective (RPO) measures the maximum acceptable elapsed duration of system downtime before IT services must be restored.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** That is Recovery Time Objective (RTO). Recovery Point Objective (RPO) measures the maximum acceptable age of data lost in elapsed time during an outage.",
+          "category": "Security Management"
+      },
+      {
+          "id": "elect3-mq10",
+          "question": "True or False: The Linux octal permission 'chmod 755' grants the file owner read, write, and execute permissions, while group members and others receive read and execute permissions.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** 7 = 4+2+1 (rwx) for owner; 5 = 4+0+1 (r-x) for group; 5 = 4+0+1 (r-x) for others.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq11",
+          "question": "Which security principle ensures that an individual or entity cannot deny having performed a specific transaction or system action?",
+          "options": [
+              "Confidentiality",
+              "Non-repudiation (Accountability)",
+              "Availability",
+              "Authorization"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Non-repudiation** provides undeniable proof of the origin, authenticity, and delivery of a message or action, making it impossible for the initiator to deny it.",
+          "category": "Security Principles"
+      },
+      {
+          "id": "elect3-mq12",
+          "question": "Which access control model assigns access permissions based on an employee's job function and organizational responsibilities?",
+          "options": [
+              "Discretionary Access Control (DAC)",
+              "Mandatory Access Control (MAC)",
+              "Role-Based Access Control (RBAC)",
+              "Attribute-Based Access Control (ABAC)"
+          ],
+          "correctAnswer": 2,
+          "explanation": "**Role-Based Access Control (RBAC)** groups permissions by job roles (e.g., Doctor, Nurse, Auditor) rather than managing individual user accounts separately.",
+          "category": "Access Control"
+      },
+      {
+          "id": "elect3-mq13",
+          "question": "What protocol automatically assigns IP addresses, subnet masks, and default gateways to client devices via the DORA handshake process?",
+          "options": [
+              "Domain Name System (DNS)",
+              "Dynamic Host Configuration Protocol (DHCP)",
+              "Simple Network Management Protocol (SNMP)",
+              "Border Gateway Protocol (BGP)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**DHCP (Dynamic Host Configuration Protocol)** dynamically allocates IP configuration via the 4-step DORA (Discover, Offer, Request, Acknowledge) sequence.",
+          "category": "Network Protocols"
+      },
+      {
+          "id": "elect3-mq14",
+          "question": "Which network diagnostic command uses ICMP echo requests to determine round-trip latency and verify reachability to an IP host?",
+          "options": [
+              "traceroute",
+              "ping",
+              "netstat",
+              "arp"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**ping** uses ICMP Echo Request and Echo Reply messages to verify network layer connectivity and measure round-trip response time.",
+          "category": "Network Protocols"
+      },
+      {
+          "id": "elect3-mq15",
+          "question": "In what year and location was the original Unix operating system created by Ken Thompson and Dennis Ritchie?",
+          "options": [
+              "1969 at AT&T Bell Labs",
+              "1976 at Xerox PARC",
+              "1983 at UC Berkeley",
+              "1991 at University of Helsinki"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**Unix** was developed in **1969 at AT&T Bell Labs** by Ken Thompson, Dennis Ritchie, and their colleagues as a multi-user, multi-tasking operating system.",
+          "category": "Unix/Linux"
+      },
+      {
+          "id": "elect3-mq16",
+          "question": "What is the standard numerical User ID (UID) of the root superuser account across Unix and Linux systems?",
+          "options": [
+              "UID -1",
+              "UID 0",
+              "UID 1",
+              "UID 1000"
+          ],
+          "correctAnswer": 1,
+          "explanation": "In Unix and Linux systems, **UID 0** is permanently reserved for the superuser account (`root`), granting full administrative kernel privileges.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq17",
+          "question": "What category of network connects facilities across a large metropolitan area or city, spanning greater distances than a LAN but smaller than a global WAN?",
+          "options": [
+              "Personal Area Network (PAN)",
+              "Local Area Network (LAN)",
+              "Metropolitan Area Network (MAN)",
+              "Storage Area Network (SAN)"
+          ],
+          "correctAnswer": 2,
+          "explanation": "A **Metropolitan Area Network (MAN)** covers a municipal geographic area such as a city, school district, or regional university campus network.",
+          "category": "Network Topologies"
+      },
+      {
+          "id": "elect3-mq18",
+          "question": "Which standard DNS resource record maps a human-readable domain name directly to an IPv4 address?",
+          "options": [
+              "A Record",
+              "AAAA Record",
+              "MX Record",
+              "CNAME Record"
+          ],
+          "correctAnswer": 0,
+          "explanation": "An **A Record** (Address Record) resolves a domain name directly to a 32-bit IPv4 address. (An AAAA record resolves to an IPv6 address).",
+          "category": "Network Protocols"
+      },
+      {
+          "id": "elect3-mq19",
+          "question": "What is the term for a Linux process that has completed execution, but still occupies a process table slot because its parent has not yet executed wait()?",
+          "options": [
+              "Daemon process",
+              "Zombie process (Defunct)",
+              "Orphan process",
+              "Suspended process"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A **Zombie (or Defunct) process** has completed execution but remains in the OS process table until its parent process reads its exit status using the `wait()` system call.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq20",
+          "question": "Which standard cron schedule string executes a designated script every day at 2:30 AM?",
+          "options": [
+              "* 2 30 * *",
+              "30 2 * * *",
+              "2 30 * * *",
+              "30 * 2 * *"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Cron format follows `minute hour day-of-month month day-of-week`. Thus, minute 30 and hour 2 is written as **30 2 * * * **.",
+          "category": "DevOps & Standards"
+      },
+      {
+          "id": "elect3-mq21",
+          "question": "A client workstation fails to contact the network DHCP server and automatically configures its IP address to 169.254.88.14. What protocol generated this address?",
+          "options": [
+              "Static IP reservation",
+              "Automatic Private IP Addressing (APIPA)",
+              "DNS fallback routing",
+              "Network Address Translation (NAT)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**APIPA (Automatic Private IP Addressing)** automatically assigns a link-local IPv4 address in the 169.254.0.0/16 range when a DHCP server cannot be contacted.",
+          "category": "Network Protocols"
+      },
+      {
+          "id": "elect3-mq22",
+          "question": "What is the maximum number of assignable client host IP addresses in an IPv4 subnet configured with a /26 subnet mask?",
+          "options": [
+              "30",
+              "62",
+              "126",
+              "254"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A /26 subnet leaves $32 - 26 = 6$ host bits. Total usable addresses $= 2^6 - 2 = 64 - 2 = \\mathbf{62}$ host addresses.",
+          "category": "Network Administration"
+      },
+      {
+          "id": "elect3-mq23",
+          "question": "A system administrator assigns file permissions using 'chmod 640 security.log'. What permissions are granted to the user, group, and others?",
+          "options": [
+              "User: read/write/execute, Group: read, Others: none",
+              "User: read/write, Group: read, Others: none",
+              "User: read/write, Group: write, Others: read",
+              "User: read only, Group: read only, Others: read only"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Octal permissions: 6 = 4+2 (read and write) for Owner; 4 = read-only for Group; 0 = no permissions for Others.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq24",
+          "question": "Which field in the IPv4 packet header does the 'traceroute' command incrementally increment to discover intermediate routers via ICMP Time Exceeded messages?",
+          "options": [
+              "Protocol field",
+              "Time to Live (TTL)",
+              "Type of Service (ToS)",
+              "Header Checksum"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**traceroute** sends packets starting with a **TTL (Time to Live)** value of 1, incrementing by 1 for each hop. Each router decrements TTL, and when TTL reaches 0, the router discards the packet and returns an ICMP Time Exceeded message.",
+          "category": "Network Protocols"
+      },
+      {
+          "id": "elect3-mq25",
+          "question": "Which type of hypervisor installs directly onto bare-metal server hardware without requiring an underlying host operating system?",
+          "options": [
+              "Type 1 Hypervisor (Bare-Metal)",
+              "Type 2 Hypervisor (Hosted)",
+              "Container Engine (Docker)",
+              "Application Sandbox"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**Type 1 (Bare-Metal) Hypervisors** (e.g., VMware ESXi, Proxmox, Xen) run directly on physical server hardware, providing high efficiency, lower overhead, and enterprise isolation.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq26",
+          "question": "Which access control model dynamically evaluates environmental contextual conditions—such as current time of day, client IP geolocation, and device encryption status—to grant access?",
+          "options": [
+              "Discretionary Access Control (DAC)",
+              "Mandatory Access Control (MAC)",
+              "Role-Based Access Control (RBAC)",
+              "Attribute-Based Access Control (ABAC)"
+          ],
+          "correctAnswer": 3,
+          "explanation": "**Attribute-Based Access Control (ABAC)** dynamically evaluates policies against attributes of the subject, resource, action, and environment (e.g., IP location, time of day).",
+          "category": "Access Control"
+      },
+      {
+          "id": "elect3-mq27",
+          "question": "What is the primary operational difference between a vulnerability assessment and a penetration test?",
+          "options": [
+              "Vulnerability assessments exploit system bugs, while penetration tests only run port scans",
+              "Vulnerability assessments identify and catalog known flaws, while penetration tests actively exploit vulnerabilities to measure exploitability",
+              "Penetration tests only inspect physical locks, while vulnerability assessments inspect firewalls",
+              "There is no difference; the two terms are synonymous"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A **vulnerability assessment** scans systems to identify and catalog potential weaknesses. A **penetration test (pen test)** actively simulates an authorized cyberattack to exploit weaknesses and evaluate defense depth.",
+          "category": "Security Management"
+      },
+      {
+          "id": "elect3-mq28",
+          "question": "Which operating system kernel architecture incorporates process scheduling, memory management, and device drivers into a single privileged address space for high execution performance?",
+          "options": [
+              "Microkernel",
+              "Monolithic Kernel",
+              "Exokernel",
+              "Nanokernel"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A **Monolithic Kernel** (such as Linux) runs all core operating system services in supervisor kernel space, maximizing execution speed by eliminating IPC context-switching overhead.",
+          "category": "System Administration"
+      },
+      {
+          "id": "elect3-mq29",
+          "question": "Which declarative configuration management tool configures remote Linux servers agentlessly over standard SSH using YAML playbooks?",
+          "options": [
+              "Docker",
+              "Ansible",
+              "Kubernetes",
+              "Nagios"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Ansible** is a declarative, agentless automation and configuration management tool that executes tasks across remote nodes over standard SSH using YAML playbooks.",
+          "category": "DevOps & Standards"
+      },
+      {
+          "id": "elect3-mq30",
+          "question": "An organization's Disaster Recovery policy mandates an RTO of 2 hours and an RPO of 15 minutes. What do these SLA constraints require following an unplanned system outage?",
+          "options": [
+              "The system must be fully restored within 2 hours, and data loss cannot exceed the last 15 minutes of transactions",
+              "Backups must run for 2 hours, and servers must reboot every 15 minutes",
+              "The system can tolerate 15 minutes of downtime and up to 2 hours of lost data",
+              "The disaster recovery team has 15 minutes to declare an incident and 2 hours to notify customers"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**RTO (Recovery Time Objective)** = max downtime allowed (2 hours to restore service). **RPO (Recovery Point Objective)** = max data loss allowed (no more than 15 minutes of data loss).",
+          "category": "Security Management"
+      }
   ],
   cramNotes: [
     "CIA Triad: Confidentiality (secrecy/no unauthorized viewing), Integrity (accuracy/no improper modification), Availability (accessibility when needed).",

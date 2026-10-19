@@ -323,370 +323,376 @@ export const cpe413Data = {
     }
   ],
   mockQuestions: [
-    {
-      id: "cpe413-mq1",
-      question: "An embedded systems engineer is running the same compiled x86 binary on both an Intel Core i7 processor and an AMD Ryzen processor. Both chips execute the machine code identically, but the internal instruction pipelines, ALU adder circuits, branch prediction topologies, and cache hierarchy latencies are vastly different.\n\nWhich architectural principle explains why the software runs identically despite these hardware differences?",
-      options: [
-        "The chips share the same Computer Organization but differ in Computer Architecture",
-        "The chips share the same Computer Architecture (ISA) but differ in Computer Organization (Microarchitecture)",
-        "The chips bypass the ISA and rely solely on Level 0 register hardware emulation",
-        "Both processors share an identical physical microarchitecture layout defined by Generation 3 standards"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Analysis:**\n• **Computer Architecture (ISA):** The conceptual contract visible to the programmer/compiler (instruction set, data types, visible registers, addressing modes). Both CPUs implement the x86-64 ISA, guaranteeing binary execution compatibility.\n• **Computer Organization (μ-ARCH):** The underlying physical hardware realization (wiring, pipeline depth, circuit topology, control signal timing). AMD and Intel implement completely different microarchitectures to execute the same ISA.\n• *Why other options fail:* Option A reverses the definitions. Option C is false because CPUs execute ISA directly. Option D is incorrect because AMD and Intel proprietary microarchitectures are physically distinct.",
-      category: "Architecture vs Organization"
-    },
-    {
-      id: "cpe413-mq2",
-      question: "A high-performance computing simulation on a single-core CPU spends over 70% of its execution cycles stalled waiting for data and instruction transfers over a single shared system bus connecting the processor to DRAM. Even when the CPU clock is boosted from 3.0 GHz to 4.5 GHz, the application's overall completion time barely improves.\n\nWhat architectural phenomenon does this scenario illustrate, and what fundamental architectural concept causes it?",
-      options: [
-        "The Von Neumann Bottleneck, caused by instructions and data sharing the same physical bus and memory address space",
-        "A Harvard Architecture hazard, caused by separate instruction and data caches",
-        "Instruction-Level Parallelism starvation caused by RISC load-store overhead",
-        "A Generation 2 transistor saturation breakdown caused by dynamic power dissipation"
-      ],
-      correctAnswer: 0,
-      explanation: "**Engineering Analysis:**\n• The **Von Neumann Bottleneck** occurs because CPU execution speed scales much faster than memory bus throughput. In a classical Von Neumann architecture, both program instructions and data must traverse the same shared physical memory bus, choking the processor.\n• *Harvard Architecture* mitigates this by utilizing physically separate memory buses for instructions and data, allowing simultaneous fetch and operand read.\n• *Why other options fail:* Option B contradicts the prompt (Harvard uses separate buses, which eliminates this shared contention). Option C confuses bus saturation with pipeline stalls. Option D cites an irrelevant semiconductor physics term.",
-      category: "Von Neumann Architecture"
-    },
-    {
-      id: "cpe413-mq3",
-      question: "A programmer benchmarks two C algorithms that iterate over a 2048 x 2048 matrix of 32-bit integers. Algorithm A traverses row-by-row (`matrix[row][col]`), finishing in 4.2 milliseconds. Algorithm B traverses column-by-column (`matrix[col][row]`), finishing in 68.5 milliseconds—over 16 times slower!\n\nGiven that C stores multidimensional arrays in contiguous memory using row-major order, which memory hierarchy principle explains this performance disparity?",
-      options: [
-        "Algorithm A maximizes Temporal Locality by repeatedly reading the exact same memory word",
-        "Algorithm A maximizes Spatial Locality, allowing adjacent elements in a cache line to produce cache hits",
-        "Algorithm B suffers from Instruction-Level Parallelism stalls in the Arithmetic Logic Unit",
-        "Algorithm B forces the CPU to switch from SRAM Level 1 cache directly to Level 4 Magnetic Tape"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Analysis:**\n• **Spatial Locality:** When a memory location is accessed, nearby memory locations are likely to be accessed soon. In row-major order, row elements reside in contiguous memory bytes. When `matrix[0][0]` is loaded, the entire 64-byte cache line containing the next 15 integers is brought into Level 1 SRAM cache, resulting in 15 consecutive cache hits.\n• In column-major traversal, every subsequent element is 2048 words (8 KB) away, exceeding cache line boundaries and triggering an expensive Level 2 DRAM cache miss on almost every access.\n• *Why other options fail:* Temporal locality refers to reusing the *same* address over time. ALU pipelining and Level 4 tape are completely irrelevant to CPU cache line misses.",
-      category: "Memory Hierarchy"
-    },
-    {
-      id: "cpe413-mq4",
-      question: "An embedded systems telemetry sensor running on an x86 microcontroller (Little-Endian) reads a 32-bit unsigned integer hexadecimal value `0xA1B2C3D4`. The device must transmit this value over an industrial Ethernet network using TCP/IP, which mandates Network Byte Order (Big-Endian).\n\nIf the data is placed into a byte array starting at base memory address `0x2000`, what byte must be stored at address `0x2000` to conform to Big-Endian Network Byte Order?",
-      options: [
-        "`0xD4`",
-        "`0xA1`",
-        "`0xB2`",
-        "`0xC3`"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Analysis:**\n• **Big-Endian Ordering:** The Most Significant Byte (MSB) is stored at the lowest (initial) memory address.\n• In the 32-bit hex word `0xA1B2C3D4`:\n  - Byte 3 (MSB) = `0xA1`\n  - Byte 2 = `0xB2`\n  - Byte 1 = `0xC3`\n  - Byte 0 (LSB) = `0xD4`\n• Under Big-Endian: Address `0x2000` = `0xA1`, `0x2001` = `0xB2`, `0x2002` = `0xC3`, `0x2003` = `0xD4`.\n• *Little-Endian (x86 default)* would store `0xD4` at `0x2000`. Therefore, network transmission requires converting to Big-Endian where `0xA1` resides at the first address.",
-      category: "Byte Ordering & Endianness"
-    },
-    {
-      id: "cpe413-mq5",
-      question: "A design team is engineering an ultra-low-power biomedical pacemaker SoC that must operate continuously for 10 years on an internal battery. The CMOS processor's dynamic power dissipation is governed by the formula:\n$$P = C \\cdot V^2 \\cdot f$$\n\nIf the team implements Dynamic Voltage and Frequency Scaling (DVFS), halving the clock frequency ($f_2 = 0.5 f_1$) and reducing the supply voltage from 1.2V to 0.6V ($V_2 = 0.5 V_1$), by what factor is the dynamic power consumption reduced, and which of the 8 design constraints governed this optimization?",
-      options: [
-        "Reduced by a factor of 4; Maintainability constraint",
-        "Reduced by a factor of 8; Power and Energy constraint",
-        "Reduced by a factor of 2; Size constraint",
-        "Reduced by a factor of 16; Time to Market constraint"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Calculation & Rationale:**\n• Dynamic power formula: $P = C \\cdot V^2 \\cdot f$.\n• $P_2 = C \\cdot (0.5 V_1)^2 \\cdot (0.5 f_1) = C \\cdot (0.25 V_1^2) \\cdot (0.5 f_1) = 0.125 \\cdot P_1$.\n• $1 / 0.125 = 8$. The power consumption drops by a factor of 8 (87.5% reduction)!\n• The constraint is explicitly **Power & Energy**, which directly determines battery longevity in embedded/biomedical hardware.\n• *Why other options fail:* Linear scaling assumptions miss the quadratic relationship with voltage ($V^2$), and the other constraints (Maintainability, Size, Time to Market) do not dictate battery operational physics.",
-      category: "Engineering Constraints"
-    },
-    {
-      id: "cpe413-mq6",
-      question: "A telecommunications data center deploys high-availability edge routers. The hardware specifications mandate that if a redundant power supply or network interface card fails, a field technician must be able to diagnose the failure via automated LED indicators and hot-swap the module in under 3 minutes without interrupting router uptime.\n\nAccording to Module 1, which of the 8 engineering design constraints does this specification directly optimize?",
-      options: [
-        "Time to Market",
-        "Maintainability",
-        "Performance",
-        "Functionality"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Definition:**\n• **Maintainability:** Defined in Module 1 as 'the probability that a failed component or system can be diagnosed, repaired, or updated within a specified period of time.' Hot-swappable modules and rapid diagnostic indicators directly reduce Mean Time To Repair (MTTR).\n• *Why other options fail:* Time to Market measures time from concept to first commercial sale. Performance measures IPC/throughput. Functionality determines whether baseline operational requirements are met.",
-      category: "Engineering Constraints"
-    },
-    {
-      id: "cpe413-mq7",
-      question: "A junior hardware engineer proposes upgrading an industrial robotic controller from 4 GB of RAM to 16 GB of DDR4 RAM to prevent out-of-memory buffer overruns. However, the existing microprocessor architecture features a 32-bit physical Address Bus ($A_0 - A_{31}$).\n\nWhy will the senior computer architect immediately reject this proposal without additional banking or paging hardware?",
-      options: [
-        "A 32-bit address bus can directly reference at most $2^{32}$ discrete bytes (4,294,967,296 bytes = 4 GB)",
-        "The control bus cannot assert Read and Write signals on memory modules larger than 2 GB",
-        "A 32-bit data bus cannot transfer 64-bit floating point instructions from Level 2 DRAM",
-        "DDR4 RAM requires an optical storage interface that is incompatible with Generation 4 microprocessors"
-      ],
-      correctAnswer: 0,
-      explanation: "**Architectural Physics:**\n• The width of the **Address Bus** dictates the maximum physical address space: Maximum Addresses $= 2^n$, where $n$ is the number of address lines.\n• For a 32-bit address bus: $2^{32} = 4,294,967,296$ memory addresses. Assuming standard byte-addressable memory (1 address = 1 byte), the physical ceiling is exactly 4 GB.\n• Any memory installed beyond 4 GB is unreachable because the CPU lacks the physical address pins to generate addresses $> \\text{0xFFFFFFFF}$.\n• *Why other options fail:* Control bus R/W lines are independent of memory size. Data bus width affects transfer chunk size, not total addressable space.",
-      category: "Bus Systems"
-    },
-    {
-      id: "cpe413-mq8",
-      question: "During the instruction execution cycle of a Von Neumann CPU, the Program Counter (PC) currently holds the memory address `0x0080`. The CPU initiates the **Fetch Stage**.\n\nWhich of the following represents the exact, correct micro-operation sequence across internal registers before instruction decoding begins?",
-      options: [
-        "1. IR $\\leftarrow$ PC; 2. ALU executes opcode; 3. PC $\\leftarrow$ PC + 4; 4. MAR $\\leftarrow$ IR",
-        "1. MDR $\\leftarrow$ PC; 2. MAR $\\leftarrow$ Memory; 3. IR $\\leftarrow$ MDR; 4. PC $\\leftarrow$ PC + 1",
-        "1. MAR $\\leftarrow$ PC; 2. Memory Read into MDR; 3. PC $\\leftarrow$ PC + 4; 4. IR $\\leftarrow$ MDR",
-        "1. Control Unit $\\leftarrow$ PC; 2. ALU $\\leftarrow$ MAR; 3. MDR $\\leftarrow$ IR; 4. Memory Write"
-      ],
-      correctAnswer: 2,
-      explanation: "**Detailed Datapath Micro-Operations:**\n1. **MAR $\\leftarrow$ PC:** The address of the next instruction stored in the Program Counter is loaded into the Memory Address Register (MAR).\n2. **Memory Read $\\rightarrow$ MDR:** The Control Unit asserts the read signal on the bus; the instruction machine code at that address is retrieved from memory and placed into the Memory Data Register (MDR / MBR).\n3. **PC $\\leftarrow$ PC + 4:** The Program Counter is incremented to point to the next instruction in sequence.\n4. **IR $\\leftarrow$ MDR:** The fetched instruction is copied from MDR to the Instruction Register (IR), ready for the Decode Stage.",
-      category: "CPU Datapath"
-    },
-    {
-      id: "cpe413-mq9",
-      question: "A defense avionics system requires deterministic, hardwired instruction decoding with single-cycle execution for mission-critical flight stability. The architects select a RISC (Reduced Instruction Set Computer) architecture over CISC.\n\nWhat microarchitectural characteristic justifies this choice, and what trade-off must the software engineering team accept?",
-      options: [
-        "RISC uses microcode ROM to execute multi-cycle complex instructions; trade-off is reduced pipeline throughput",
-        "RISC uses a load/store model with hardwired control logic for uniform single-cycle execution; trade-off is larger binary code size",
-        "RISC allows arithmetic operations directly on DRAM operands; trade-off is excessive register spill",
-        "RISC eliminates the Program Counter; trade-off is inability to execute conditional branches"
-      ],
-      correctAnswer: 1,
-      explanation: "**RISC vs CISC Engineering Trade-offs:**\n• **RISC Characteristics:** Simple, uniform fixed-length instructions, load/store architecture (only `LOAD` and `STORE` access memory; arithmetic operates strictly between registers), and hardwired control logic that executes most instructions in a single clock cycle.\n• **The Trade-Off:** Because complex operations (like polynomial evaluation or direct memory arithmetic) cannot be done in a single instruction, compilers must emit sequences of simple instructions, resulting in lower code density and larger compiled binary sizes.\n• *Why other options fail:* CISC uses microcode ROM, not RISC. CISC allows memory-operand arithmetic, not RISC. Eliminating the PC is nonsensical.",
-      category: "ISA Architecture"
-    },
-    {
-      id: "cpe413-mq10",
-      question: "Prior to 1964, upgrading an enterprise computing system meant completely discarding existing software, retraining programmers, and rewriting programs from scratch because every computer model had distinct instruction sets and wiring.\n\nIn 1964, IBM introduced the **System/360** (Generation 3, Integrated Circuits). What monumental computer architecture paradigm did the System/360 introduce?",
-      options: [
-        "The concept of a computer family sharing a common Instruction Set Architecture (ISA) across different performance and price tiers",
-        "The first single-chip microprocessor containing an ALU and registers on one silicon die",
-        "The elimination of operating systems in favor of direct vacuum tube arithmetic logic",
-        "The invention of the Stored-Program concept and the separation of RAM from magnetic tape"
-      ],
-      correctAnswer: 0,
-      explanation: "**Historical Milestone Analysis:**\n• In 1964, IBM revolutionized computing with the **System/360** family. For the first time, an enterprise could buy a small, inexpensive Model 30 and later upgrade to a high-performance Model 75, running the exact same binary software without recompilation.\n• This introduced the concept of decoupling **Architecture (ISA)** from **Organization (Microarchitecture)**.\n• *Why other options fail:* The single-chip microprocessor was the Intel 4004 (1971, Gen 4). Stored-program concept was John von Neumann (1945). System/360 pioneered advanced operating systems (OS/360).",
-      category: "History & Milestones"
-    },
-    {
-      id: "cpe413-mq11",
-      question: "A microprocessor memory subsystem has the following performance metrics:\n• Level 1 Cache Access Time: 2 nanoseconds\n• Level 2 DRAM Main Memory Access Time: 80 nanoseconds\n• Level 1 Cache Hit Rate: 90% (Miss Rate = 10%)\n\nWhat is the Average Memory Access Time (AMAT) of this system, and what memory hierarchy principle does it demonstrate?",
-      options: [
-        "AMAT = 8.2 ns; Locality of reference allows fast cache to mask the high latency of main memory",
-        "AMAT = 10.0 ns; Locality of reference eliminates the need for Level 0 CPU registers",
-        "AMAT = 74.0 ns; Cache hierarchy increases latency compared to direct DRAM access",
-        "AMAT = 2.0 ns; Cache hits completely prevent DRAM refresh cycles"
-      ],
-      correctAnswer: 1,
-      explanation: "**Calculation & Principle:**\n• Formula: $\\text{AMAT} = \\text{Hit Time}_{L1} + (\\text{Miss Rate}_{L1} \\times \\text{Miss Penalty}_{L2})$\n• $\\text{AMAT} = 2\\text{ ns} + (0.10 \\times 80\\text{ ns}) = 2\\text{ ns} + 8\\text{ ns} = 10.0\\text{ ns}$.\n• Despite DRAM taking 80 ns, the 90% hit rate keeps average memory access down to only 10 ns!\n• This quantitatively validates the **Memory Hierarchy**: small, fast SRAM caches exploit locality of reference to provide high average speed at low cost per bit.",
-      category: "Memory Hierarchy"
-    },
-    {
-      id: "cpe413-mq12",
-      question: "In an enterprise financial server, ionizing cosmic radiation causes an electrical charge in a DRAM capacitor to leak, flipping a single bit from `0` to `1` in a stored bank transaction balance.\n\nCompare how a system using **Parity Checking** versus a system using **SECDED ECC (Error-Correcting Code)** responds to this single-bit event:",
-      options: [
-        "Parity detects the error and automatically corrects it; ECC triggers a hardware kernel panic",
-        "Parity detects the odd bit flip but cannot correct it (halting system); SECDED ECC detects and automatically corrects the single-bit flip on-the-fly",
-        "Both systems ignore single-bit flips and only trigger on double-bit parity errors",
-        "Parity encrypts the flipped bit; SECDED ECC flushes Level 1 cache to secondary tape storage"
-      ],
-      correctAnswer: 1,
-      explanation: "**Data Integrity Mechanisms:**\n• **Parity Checking:** Appends a single parity bit (even or odd). It detects single-bit errors (because parity flips), but cannot identify *which* bit flipped, so it cannot correct the error. The system must trigger an unrecoverable parity check error (blue screen / kernel panic).\n• **SECDED ECC (Single Error Correction, Double Error Detection):** Uses Hamming code check bits. It identifies the exact bit position of a single-bit flip and mathematically corrects it in hardware without interrupting execution, while alerting administrators.",
-      category: "Memory & Data Integrity"
-    },
-    {
-      id: "cpe413-mq13",
-      question: "Consider a classic 5-stage RISC instruction pipeline: Fetch (IF), Decode (ID), Execute (EX), Memory (MEM), and Write-Back (WB). The processor executes the following two sequential instructions:\n1. `ADD R1, R2, R3`  (R1 = R2 + R3; written back to register in WB stage)\n2. `SUB R4, R1, R5`  (R4 = R1 - R5; reads R1 in ID stage)\n\nIf the hardware pipeline has NO data forwarding (bypassing) circuitry, what type of pipeline hazard occurs, and how many clock cycle stalls (bubbles) must the control unit insert?",
-      options: [
-        "Read-After-Write (RAW) Data Hazard; requires 2 stall cycles until R1 is written in WB stage",
-        "Write-After-Read (WAR) Structural Hazard; requires 4 stall cycles to reload Level 1 cache",
-        "Control Branch Hazard; requires flushing all 5 stages of the pipeline",
-        "Bus Contention Hazard; requires switching execution to Level 3 Magnetic Storage"
-      ],
-      correctAnswer: 0,
-      explanation: "**Pipeline Hazard Analysis:**\n• **RAW (Read-After-Write) Hazard:** Instruction 2 needs the operand `R1` in its ID stage (Cycle 3), but Instruction 1 does not write the computed value of `R1` into the register file until its WB stage (Cycle 5).\n• Without forwarding, the pipeline must stall for **2 clock cycles** (cycles 3 and 4) so that `SUB` does not read stale data from `R1`.\n• *Why other options fail:* WAR hazard is impossible in simple in-order pipelines. There is no branch instruction (eliminating control hazards). Magnetic storage is secondary storage, completely unrelated to CPU pipelines.",
-      category: "Instruction-Level Parallelism"
-    },
-    {
-      id: "cpe413-mq14",
-      question: "A tech startup is designing an AI smart-ring wearable. The engineering team can either:\n1. Design a custom neuromorphic silicon ASIC (taking 18 months to tape out, but delivering 40% higher efficiency), OR\n2. Integrate an off-the-shelf ARM Cortex-M0+ SoC (ready in 3 months, hitting the Q4 holiday sales window before competitors launch).\n\nThe CEO mandates Option 2. Which of the 8 engineering design constraints from Module 1 was the decisive factor?",
-      options: [
-        "Performance",
-        "Time to Market",
-        "Maintainability",
-        "Safety"
-      ],
-      correctAnswer: 1,
-      explanation: "**Engineering Constraint Analysis:**\n• **Time to Market:** Explicitly defined in Module 1 as 'the elapsed time from initial product concept formulation to the commercial release or sale of the first unit.'\n• Missing a critical commercial market window (like the holiday season or beating a competitor) can bankrupt a product regardless of superior performance. Option 2 prioritized Time to Market over peak architectural efficiency.",
-      category: "Engineering Constraints"
-    },
-    {
-      id: "cpe413-mq15",
-      question: "In 1837, Charles Babbage formulated the blueprint for the **Analytical Engine**. His design separated computing into two mechanical sections: the **'Store'** and the **'Mill'**.\n\nIn modern computer architecture, what do Babbage's 'Store' and 'Mill' correspond to, respectively?",
-      options: [
-        "Store = Memory (RAM / Registers); Mill = Central Processing Unit (ALU / Datapath)",
-        "Store = Hard Disk Drive; Mill = Optical Disc Reader",
-        "Store = System Bus; Mill = Operating System Kernel",
-        "Store = Instruction Register; Mill = Power Supply Unit"
-      ],
-      correctAnswer: 0,
-      explanation: "**Historical Blueprint Mapping:**\n• **The Store:** Babbage's mechanical storage where numbers and intermediate quantities were held on columns of geared wheels $\\rightarrow$ corresponds directly to modern **Memory (RAM and Registers)**.\n• **The Mill:** The mechanical section that performed mathematical operations upon the numbers retrieved from the Store $\\rightarrow$ corresponds directly to the modern **Central Processing Unit / Arithmetic Logic Unit (ALU)**.",
-      category: "History & Milestones"
-    },
-    {
-      id: "cpe413-mq16",
-      question: "The ENIAC computer (1945, Generation 1) occupied 1,800 square feet, utilized 17,468 vacuum tubes, consumed 150 kW of electrical power, and suffered tube burnouts approximately every two days, requiring hours of manual tracing.\n\nWhat fundamental semiconductor advancement in **Generation 2 (1955–1965)** overcame these critical physical limitations?",
-      options: [
-        "The invention of the single-chip microprocessor (Intel 4004)",
-        "The replacement of fragile, hot incandescent vacuum tubes with solid-state semiconductor transistors",
-        "The introduction of optical laser storage (CD-ROM)",
-        "The creation of quantum superconducting qubits"
-      ],
-      correctAnswer: 1,
-      explanation: "**Generational Evolution:**\n• **Generation 1 (1945–1955):** Characterized by vacuum tubes, which relied on heated physical filaments. They generated massive heat, consumed tremendous wattage, and had high failure rates (low MTBF).\n• **Generation 2 (1955–1965):** Introduced solid-state **Transistors** (invented at Bell Labs). Transistors required no filament heating, consumed a fraction of the power, were physically microscopic in comparison, and operated with vastly superior reliability.",
-      category: "Generations of Computing"
-    },
-    {
-      id: "cpe413-mq17",
-      question: "A high-end CAD rendering workstation is equipped with an AMD Threadripper processor featuring 64 physical cores. During rendering, 64 distinct execution threads concurrently process different raster tiles while accessing the same 128 GB pool of shared DDR5 RAM through a unified memory bus.\n\nWhich classification of parallelism does this workstation architecture exhibit?",
-      options: [
-        "Instruction-Level Parallelism (ILP)",
-        "Processor-Level Parallelism (Symmetric Multiprocessing)",
-        "Microcode Emulation Parallelism",
-        "Single-Cycle Stored-Program Parallelism"
-      ],
-      correctAnswer: 1,
-      explanation: "**Parallelism Taxonomy:**\n• **Processor-Level Parallelism:** Multiple discrete CPU cores or physical processors executing independent threads or processes concurrently, typically sharing memory in a Symmetric Multiprocessing (SMP) configuration.\n• *Instruction-Level Parallelism (ILP):* Exploiting concurrency within a *single* sequential instruction stream (via pipelining, out-of-order execution, or superscalar issue).",
-      category: "Parallelism"
-    },
-    {
-      id: "cpe413-mq18",
-      question: "When the CPU executes a memory write instruction (`STORE [0x1000], R1`), it places the address `0x1000` onto the Address Bus and the contents of `R1` onto the Data Bus.\n\nWhat role does the **Control Bus** perform during this exact bus cycle?",
-      options: [
-        "It converts the 32-bit data word from Little-Endian to Big-Endian",
-        "It asserts the Memory Write (`MEMW`) control line and provides timing synchronization signals so the memory controller latches the data",
-        "It routes the instruction through Level 4 Optical Storage for non-volatile backup",
-        "It increments the Program Counter to bypass the Decode Stage"
-      ],
-      correctAnswer: 1,
-      explanation: "**Bus Functions:**\n• **Address Bus:** Carries the destination memory address (`0x1000`) unidirectional from CPU.\n• **Data Bus:** Carries the payload bits bidirectional.\n• **Control Bus:** Transmits command, timing, and status signals. In a write cycle, it asserts the `MEMW` (Memory Write) signal and clock strobe so the DRAM controller knows when the data bus is stable and ready to be latched into memory cells.",
-      category: "Bus Systems"
-    },
-    {
-      id: "cpe413-mq19",
-      question: "Why do modern computer architectures use **SRAM (Static RAM)** for on-chip Level 1/2 caches, but utilize **DRAM (Dynamic RAM)** for primary system memory, rather than using SRAM for all system memory?",
-      options: [
-        "SRAM is non-volatile and retains data without power, whereas DRAM is volatile",
-        "SRAM uses a 6-transistor latch per bit which is extremely fast but has low density and high cost; DRAM uses a 1-transistor 1-capacitor cell which is far denser and cheaper despite needing refresh cycles",
-        "DRAM executes instructions directly without needing an Arithmetic Logic Unit",
-        "SRAM can only store optical data words, making it incompatible with motherboard memory slots"
-      ],
-      correctAnswer: 1,
-      explanation: "**Circuit-Level Memory Trade-Off:**\n• **SRAM (Static RAM):** Built from 6 transistors (6T flip-flop latch) per bit. It retains its state continuously without refresh and achieves sub-nanosecond access times. However, 6 transistors per bit consume significant silicon die area, making it expensive and low-density $\\rightarrow$ ideal for small L1/L2 caches.\n• **DRAM (Dynamic RAM):** Built from only 1 transistor and 1 tiny capacitor (1T-1C) per bit. It achieves massive capacity and low cost per bit, but charge leaks from the capacitor, requiring periodic electrical refresh cycles (hence 'dynamic') and higher latency $\\rightarrow$ ideal for multi-gigabyte main memory.",
-      category: "Memory Hierarchy"
-    },
-    {
-      id: "cpe413-mq20",
-      question: "In 1971, Busicom contracted Intel to design 12 custom application-specific integrated circuits for a desktop calculator. Instead, an Intel engineering team led by Marcian 'Ted' Hoff and Federico Faggin designed a single general-purpose 4-bit chip: the **Intel 4004**.\n\nWhy does history designate the Intel 4004 as the catalyst for **Generation 4 Computing**?",
-      options: [
-        "It was the first computer built using solid-state discrete transistors instead of vacuum tubes",
-        "It was the first machine to implement John von Neumann's Stored-Program Concept",
-        "It integrated the entire CPU datapath (ALU, registers, control logic) onto a single silicon chip (the microprocessor)",
-        "It introduced quantum artificial intelligence algorithms to consumer calculators"
-      ],
-      correctAnswer: 2,
-      explanation: "**Historical Milestone Analysis:**\n• **Generation 4 (1980–Present)** is defined by the **Microprocessor**.\n• The Intel 4004 (1971) was the world's first commercially available single-chip microprocessor. By integrating the ALU, general registers, instruction fetch, and control logic onto a single chip containing 2,300 transistors, it made general-purpose microcomputing economically viable and spawned the personal computer revolution.",
-      category: "History & Milestones"
-    },
-    {
-      id: "cpe413-mq21",
-      question: "An embedded avionics flight control computer incorporates a hardware **Watchdog Timer** that must be periodically reset by the flight control software loop. If software freezes due to an unexpected thread deadlock, the watchdog expires, triggering a hardware interrupt that reverts control flaps to a passive, fail-safe aerodynamic glide configuration.\n\nWhich of the 8 engineering design constraints directly mandates this fail-safe architecture?",
-      options: [
-        "Functionality",
-        "Time to Market",
-        "Cost",
-        "Safety"
-      ],
-      correctAnswer: 3,
-      explanation: "**Engineering Constraint Analysis:**\n• **Safety:** Explicitly defined in Module 1 as 'incorporating operational safety, fault tolerance, and fail-safe mechanisms from the earliest architectural phase.'\n• Watchdog timers, redundant buses, and fail-safe hardware states are standard engineering implementations required to guarantee system safety in critical physical environments (aerospace, medical, automotive).",
-      category: "Engineering Constraints"
-    },
-    {
-      id: "cpe413-mq22",
-      question: "A systems administrator is designing a tiered data storage and backup infrastructure. According to the secondary and tertiary storage classifications presented in Module 1, which of the following groupings is strictly correct?",
-      options: [
-        "Magnetic Storage: RAID, SCSI, IDE, Floppy, Tape; Optical Storage: CD-ROM, DVD, Blu-Ray; Flash Storage: SSD, USB Flash Drive",
-        "Magnetic Storage: DVD, Blu-Ray; Optical Storage: RAID, SCSI; Flash Storage: Floppy Disk",
-        "Magnetic Storage: SSD, NVMe; Optical Storage: USB Thumb Drive; Flash Storage: Magnetic Tape",
-        "Magnetic Storage: CD-ROM; Optical Storage: IDE, SCSI; Flash Storage: Level 1 SRAM Cache"
-      ],
-      correctAnswer: 0,
-      explanation: "**Verbatim Slide Categorization:**\n• **Magnetic Storage:** Magnetic tape, Magnetic disk, Floppy disk, IDE, SCSI, RAID.\n• **Optical Storage:** CD-ROM, DVD, Blu-Ray (uses laser reflection on physical pits).\n• **Flash Storage:** USB flash drives, Memory cards, Solid State Drives (SSDs).\n• **Cloud Storage:** Remote distributed storage (Google Drive, OneDrive, Dropbox).",
-      category: "Storage Classification"
-    },
-    {
-      id: "cpe413-mq23",
-      question: "A computer engineering student is using an FPGA logic analyzer to inspect CPU registers during the execution of a branch instruction located at memory address `0x0040` (`JMP 0x0090`).\n\nImmediately after the **Fetch Stage** completes (before the Decode and Execute stages alter program flow), what are the contents of the **Instruction Register (IR)** and the **Program Counter (PC)**?",
-      options: [
-        "IR contains `0x0090`; PC contains `0x0040`",
-        "IR contains the binary machine code of `JMP 0x0090`; PC contains `0x0044` (the address of the sequential next instruction)",
-        "IR contains `0x0000`; PC contains `0x0090`",
-        "Both IR and PC are reset to Level 0 CPU registers"
-      ],
-      correctAnswer: 1,
-      explanation: "**Datapath State Mechanics:**\n• During the Fetch stage:\n  1. The instruction at the address currently in the PC (`0x0040`) is retrieved from memory and latched into the **Instruction Register (IR)**. Thus, IR contains the machine code for `JMP 0x0090`.\n  2. The **Program Counter (PC)** is automatically incremented by the instruction word length (e.g. +4 bytes $\\rightarrow$ `0x0044`) to point to the next sequential instruction.\n• The PC does NOT update to the jump destination (`0x0090`) until the instruction is decoded and executed in subsequent stages!",
-      category: "CPU Datapath"
-    },
-    {
-      id: "cpe413-mq24",
-      question: "Modern hyperscale datacenters deploy Google TPU (Tensor Processing Unit) clusters and quantum annealing coprocessors alongside standard microprocessors to train deep learning models.\n\nWhy does Module 1 classify these technologies as **Generation 5 Computing** rather than Generation 4?",
-      options: [
-        "Because they revert to vacuum tube filament heating to increase thermal entropy",
-        "Because they abandon Integrated Circuits in favor of mechanical gear wheels",
-        "Because they represent Artificial Intelligence and Quantum Computing architectures designed for parallel neural matrix computation and non-Von Neumann paradigms",
-        "Because they operate strictly at Level 4 of the memory hierarchy without using primary RAM"
-      ],
-      correctAnswer: 2,
-      explanation: "**Generational Taxonomy:**\n• **Generation 4 (1980–Present):** Defined by traditional Von Neumann microprocessors (VLSI single-chip CPUs).\n• **Generation 5 (Present & Future):** Defined by **Artificial Intelligence and Quantum Computing**. These encompass neuromorphic chips, systolic array TPUs for tensor calculations, and quantum processors that transcend classical sequential Von Neumann execution.",
-      category: "Generations of Computing"
-    },
-    {
-      id: "cpe413-mq25",
-      question: "A computerized industrial SCADA system monitors pipeline pressure. Pressure transducers sample analog voltages, analog-to-digital converters convert them to 32-bit floats, an embedded Linux controller filters out pump noise, and a Modbus TCP/IP gateway transmits real-time telemetry packets over fiber-optic lines to a central monitoring facility.\n\nIn the 4-component computerized Input-Process-Output model described in Module 1, which component does the Modbus TCP/IP gateway and fiber-optic link represent?",
-      options: [
-        "Computer Hardware",
-        "Computer Software",
-        "Data",
-        "Communication Component"
-      ],
-      correctAnswer: 3,
-      explanation: "**IPO Model Components:**\n• Module 1 outlines 4 essential components required to implement a computerized IPO model:\n  1. **Computer Hardware:** Physical mechanisms (sensors, processor, memory).\n  2. **Computer Software:** System & application programs (embedded Linux, filtering algorithms).\n  3. **Data:** Digital values (32-bit floating point pressure readings).\n  4. **Communication Component:** Telecommunications networks, protocols, and transmission media (Modbus TCP/IP over fiber optics) that transport data between computer systems.",
-      category: "IPO Model"
-    },
-    {
-      id: "cpe413-mq26",
-      question: "A smartphone chip designer faces a dilemma: cramming an 8-core CPU, 12-core GPU, and neural NPU onto a silicon die smaller than $100\\text{ mm}^2$ causes the chip to consume 15 Watts under maximum load. In a sealed 7mm-thin smartphone chassis without cooling fans, surface temperatures quickly exceed $65^\\circ\\text{C}$, triggering severe thermal throttling that drops performance by 50%.\n\nWhich two engineering design constraints are in direct conflict in this scenario?",
-      options: [
-        "Size (physical silicon/chassis footprint) and Power & Energy (thermal dissipation limits)",
-        "Time to Market and Level 4 Tape Storage",
-        "Functionality and Parity Error Correction",
-        "Maintainability and Network Byte Order"
-      ],
-      correctAnswer: 0,
-      explanation: "**Engineering Trade-Off Analysis:**\n• The **Size** constraint requires the chip and device to remain ultra-compact to fit inside a pocket.\n• The **Power & Energy** constraint limits how many watts of power the chip can consume before thermal dissipation exceeds what the phone's passive cooling can reject ($P = C \\cdot V^2 \\cdot f$).\n• Designing an ultra-dense, ultra-fast chip inside an ultra-thin form factor represents the classic engineering tension between Size and Power/Thermal constraints.",
-      category: "Engineering Constraints"
-    },
-    {
-      id: "cpe413-mq27",
-      question: "An assembly language programmer writes a routine that compares two 64-bit numbers using `CMP RAX, RBX`, followed by a conditional branch instruction `JE target_label` (Jump if Equal), which checks whether the Zero Flag (ZF) in the CPU Status Register is set to 1.\n\nAre the condition code status flags (Zero Flag, Carry Flag, Overflow Flag) considered part of **Computer Architecture** or **Computer Organization**?",
-      options: [
-        "Computer Organization, because flags are implemented using physical flip-flop transistors inside the ALU",
-        "Computer Architecture, because status flags are part of the programmer-visible state and directly alter instruction set control flow",
-        "Neither; status flags belong exclusively to the operating system file system",
-        "Computer Organization, because flags are only accessible to Level 3 magnetic storage controllers"
-      ],
-      correctAnswer: 1,
-      explanation: "**Architecture vs Organization Rule:**\n• The fundamental dividing line:\n  - **Computer Architecture:** Attributes of a system visible to the programmer (assembly instructions, data types, visible registers, addressing modes, and condition code status flags).\n  - **Computer Organization:** The underlying physical implementation details transparent to the programmer (clock distribution, transistor logic gates, adder circuit topologies).\n• Because the programmer checks and branches on `ZF` and `CF`, they are explicitly part of **Computer Architecture**.",
-      category: "Architecture vs Organization"
-    },
-    {
-      id: "cpe413-mq28",
-      question: "In an industrial embedded controller, three independent hardware devices—a CPU core, a Direct Memory Access (DMA) controller, and an Ethernet packet processor—all share a common system memory bus. If both the DMA controller and CPU attempt to drive addresses onto the bus simultaneously, electrical bus contention would destroy data signals.\n\nWhich bus subsystem and mechanism prevents this collision?",
-      options: [
-        "The Data Bus executes byte-swapping using Little-Endian logic",
-        "The Address Bus increases its width from 32 bits to 64 bits dynamically",
-        "The Control Bus coordinates bus arbitration using Bus Request (BR) and Bus Grant (BG) handshake signals",
-        "The Level 4 Optical Storage drive halts all clock cycles"
-      ],
-      correctAnswer: 2,
-      explanation: "**Bus Arbitration Mechanics:**\n• When multiple bus masters exist, **Bus Arbitration** is required.\n• The **Control Bus** carries arbitration signals (such as Bus Request `BR` and Bus Grant `BG`). A bus master must assert `BR` and wait for the arbiter to assert `BG` before driving the address and data buses, guaranteeing that only one master controls the bus at any given instant.",
-      category: "Bus Systems"
-    }
+      {
+          "id": "cpe413-mq1",
+          "question": "True or False: Computer Architecture refers to the operational units and their interconnections that realize the architectural specifications, while Computer Organization refers to attributes visible to the programmer.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** The definitions are reversed. Computer Architecture defines programmer-visible attributes (ISA, registers, addressing modes, data types), whereas Computer Organization refers to the physical operational units and interconnections (circuits, control signals, adder designs) that implement the architecture.",
+          "category": "Architecture vs Organization"
+      },
+      {
+          "id": "cpe413-mq2",
+          "question": "True or False: The Von Neumann architecture stores both instructions and data in the same physical memory space over a shared system bus.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** In a pure Von Neumann architecture, code and data reside in a shared memory space and travel across a single shared system bus, which leads to the Von Neumann Bottleneck.",
+          "category": "Von Neumann Architecture"
+      },
+      {
+          "id": "cpe413-mq3",
+          "question": "True or False: SRAM uses 6 transistors per cell to hold charge without needing periodic refresh cycles, making it faster and more expensive than DRAM.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Static RAM (SRAM) uses a 6-transistor bistable latch per cell that retains data as long as power is applied without refresh cycles. DRAM uses a 1T-1C structure that discharges and requires constant refreshing.",
+          "category": "Memory Hierarchy"
+      },
+      {
+          "id": "cpe413-mq4",
+          "question": "True or False: In a Little-Endian system, the least significant byte (LSB) of a multi-byte word is stored at the lowest memory address.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Little-Endian places the Least Significant Byte (LSB) at the lowest memory address (standard in x86 architectures), while Big-Endian places the Most Significant Byte (MSB) at the lowest memory address.",
+          "category": "Data Integrity & Encoding"
+      },
+      {
+          "id": "cpe413-mq5",
+          "question": "True or False: A processor with a 32-bit address bus can directly address up to 8 Gigabytes (GB) of physical memory.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** A 32-bit address bus can address at most 2^32 unique memory locations = 4,294,967,296 bytes = exactly 4 GB, not 8 GB.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq6",
+          "question": "True or False: The Control Bus is responsible for carrying raw arithmetic operand data and memory words between the CPU and memory.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** The Data Bus carries raw operands, memory words, and instructions. The Control Bus transmits timing and command signals (Read, Write, Interrupt, Bus Grant) to coordinate system operations.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq7",
+          "question": "True or False: Charles Babbage's Analytical Engine in 1837 anticipated modern computer design by separating computational processing ('The Mill') from memory storage ('The Store').",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** Babbage's mechanical Analytical Engine pioneered the fundamental conceptual separation between the arithmetic/processing unit ('The Mill') and memory storage ('The Store').",
+          "category": "Evolution & Milestones"
+      },
+      {
+          "id": "cpe413-mq8",
+          "question": "True or False: Single-bit parity checking can detect both single-bit errors and automatically correct them without retransmission.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** Simple parity bits can only detect an odd number of bit errors; they cannot determine which bit flipped or correct any error. Single-Error Correction Double-Error Detection (SECDED Hamming Code) is required for error correction.",
+          "category": "Data Integrity & Encoding"
+      },
+      {
+          "id": "cpe413-mq9",
+          "question": "True or False: Temporal locality states that if a memory location is referenced once, nearby adjacent memory locations will likely be referenced soon.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**False.** That describes Spatial Locality. Temporal Locality states that the SAME memory location referenced recently is likely to be referenced again soon (e.g., loop counters, stack pointers).",
+          "category": "Memory Hierarchy"
+      },
+      {
+          "id": "cpe413-mq10",
+          "question": "True or False: The Intel 4004, introduced in 1971, is recognized as the world's first single-chip commercial microprocessor, marking the start of Generation 4.",
+          "options": [
+              "True",
+              "False"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**True.** The 4-bit Intel 4004 (1971) was the first commercial single-chip microprocessor, marking the beginning of Generation 4 (Microprocessors).",
+          "category": "Evolution & Milestones"
+      },
+      {
+          "id": "cpe413-mq11",
+          "question": "Which computer generation introduced Integrated Circuits (ICs), allowing hundreds of transistors on a single silicon chip?",
+          "options": [
+              "Generation 1 (1945–1955)",
+              "Generation 2 (1955–1965)",
+              "Generation 3 (1965–1980)",
+              "Generation 4 (1980–Present)"
+          ],
+          "correctAnswer": 2,
+          "explanation": "**Generation 3 (1965–1980)** replaced discrete transistor logic boards with Integrated Circuits (ICs), vastly increasing computing speed, density, and reliability (e.g., IBM System/360).",
+          "category": "Evolution & Milestones"
+      },
+      {
+          "id": "cpe413-mq12",
+          "question": "What are the five basic physical hardware units of a general-purpose digital computer?",
+          "options": [
+              "Monitor, Keyboard, Mouse, CPU, Power Supply",
+              "Central Processing Unit (CPU), Memory, Storage, I/O Systems, Bus Systems",
+              "ALU, Register File, Program Counter, Cache, Multiplexer",
+              "Hardware, Software, Firmware, Middleware, Operating System"
+          ],
+          "correctAnswer": 1,
+          "explanation": "The 5 basic physical components of a computer system are: (1) CPU, (2) Main Memory, (3) Secondary Storage, (4) Input/Output (I/O) Systems, and (5) Bus Systems.",
+          "category": "Computer Fundamentals"
+      },
+      {
+          "id": "cpe413-mq13",
+          "question": "Which of the following is an attribute of Computer Architecture rather than Computer Organization?",
+          "options": [
+              "Transistor gate propagation delay",
+              "Instruction Set Architecture (ISA) and visible registers",
+              "Control signal clock routing layout",
+              "Memory bus copper trace impedance"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Attributes visible to the machine language programmer—such as the Instruction Set Architecture (ISA), addressable registers, condition code flags, and addressing modes—belong to Computer Architecture.",
+          "category": "Architecture vs Organization"
+      },
+      {
+          "id": "cpe413-mq14",
+          "question": "What primary hardware limitation defines the 'Von Neumann Bottleneck'?",
+          "options": [
+              "Magnetic disk rotational latency during cold boots",
+              "Throughput limitation caused by sharing a single memory bus for both instructions and data",
+              "Register bit-width mismatch between 32-bit and 64-bit ALUs",
+              "Capacitor charge leakage in dynamic RAM chips"
+          ],
+          "correctAnswer": 1,
+          "explanation": "The Von Neumann Bottleneck occurs because instructions and data must compete for access across the same shared system memory bus, leaving the high-speed CPU starved for data.",
+          "category": "Von Neumann Architecture"
+      },
+      {
+          "id": "cpe413-mq15",
+          "question": "Which landmark computer system introduced in 1964 established the concept of family architecture and software backward compatibility?",
+          "options": [
+              "ENIAC",
+              "UNIVAC I",
+              "IBM System/360",
+              "DEC PDP-11"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Gene Amdahl and IBM introduced the **IBM System/360** in 1964, establishing the first family of computers sharing a single architecture across different price and performance points.",
+          "category": "Evolution & Milestones"
+      },
+      {
+          "id": "cpe413-mq16",
+          "question": "Which level in the computer memory hierarchy possesses the fastest access time and lowest latency?",
+          "options": [
+              "Level 0: CPU Internal Registers",
+              "Level 1: SRAM Cache",
+              "Level 2: Main Memory (DRAM)",
+              "Level 3: Solid State Drive (NVMe)"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**Level 0 (CPU Registers)** provides sub-nanosecond access speeds (<1 ns) directly inside the processor pipeline, making it the fastest memory tier.",
+          "category": "Memory Hierarchy"
+      },
+      {
+          "id": "cpe413-mq17",
+          "question": "Which system bus lines determine the source or destination location for data being read or written?",
+          "options": [
+              "Data Bus",
+              "Address Bus",
+              "Control Bus",
+              "Power Bus"
+          ],
+          "correctAnswer": 1,
+          "explanation": "The **Address Bus** carries memory addresses or I/O port numbers to select the exact source or target location for the upcoming transfer.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq18",
+          "question": "In the Input-Processing-Output (IPO) model, what are the four foundational components of a computer system?",
+          "options": [
+              "Hardware, Software, Data, and Communication",
+              "ALU, Control Unit, Registers, and Cache",
+              "Client, Server, Router, and Switch",
+              "Motherboard, Processor, RAM, and Storage"
+          ],
+          "correctAnswer": 0,
+          "explanation": "The four components under the extended IPO model are: (1) Hardware, (2) Software, (3) Data, and (4) Communication.",
+          "category": "Computer Fundamentals"
+      },
+      {
+          "id": "cpe413-mq19",
+          "question": "Which memory technology uses a single transistor and one capacitor (1T-1C) per cell, requiring periodic refresh cycles?",
+          "options": [
+              "Static RAM (SRAM)",
+              "Dynamic RAM (DRAM)",
+              "NOR Flash",
+              "Mask ROM"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**DRAM (Dynamic RAM)** uses a 1T-1C architecture. Because the capacitor loses charge over time, DRAM requires constant periodic refresh operations to prevent data loss.",
+          "category": "Memory Hierarchy"
+      },
+      {
+          "id": "cpe413-mq20",
+          "question": "Which byte-ordering convention stores the most significant byte (MSB) at the lowest memory address and is used in Network Byte Order?",
+          "options": [
+              "Little-Endian",
+              "Big-Endian",
+              "Bi-Endian",
+              "Middle-Endian"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Big-Endian** stores the Most Significant Byte (MSB) at the lowest memory address. It is the mandatory standard for IP internet protocols (known as Network Byte Order).",
+          "category": "Data Integrity & Encoding"
+      },
+      {
+          "id": "cpe413-mq21",
+          "question": "If the 32-bit hexadecimal value 0x12345678 is stored in memory starting at address 0x2000 on a Little-Endian processor, what byte value is located at address 0x2000?",
+          "options": [
+              "0x12",
+              "0x34",
+              "0x56",
+              "0x78"
+          ],
+          "correctAnswer": 3,
+          "explanation": "In Little-Endian byte ordering, the Least Significant Byte (LSB, which is 0x78) is stored at the lowest base address (0x2000). The subsequent bytes follow: 0x2001: 0x56, 0x2002: 0x34, 0x2003: 0x12.",
+          "category": "Data Integrity & Encoding"
+      },
+      {
+          "id": "cpe413-mq22",
+          "question": "A microcomputer processor features a 36-bit physical address bus. What is the maximum amount of physical RAM this processor can directly address?",
+          "options": [
+              "16 GB",
+              "32 GB",
+              "64 GB",
+              "128 GB"
+          ],
+          "correctAnswer": 2,
+          "explanation": "A 36-bit address bus can address 2^36 unique byte locations. 2^36 = (2^6) * (2^30) bytes = 64 * 1 GB = **64 GB**.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq23",
+          "question": "A program iterates linearly through a 10,000-element integer array stored in contiguous memory addresses. Which caching principle primarily boosts this loop's performance?",
+          "options": [
+              "Spatial Locality",
+              "Temporal Locality",
+              "Branch Prediction",
+              "Dynamic Paging"
+          ],
+          "correctAnswer": 0,
+          "explanation": "**Spatial Locality** states that memory locations near recently accessed addresses will likely be accessed soon. When the CPU fetches an array element, the entire cache line is brought into cache, ensuring subsequent contiguous elements hit the cache.",
+          "category": "Memory Hierarchy"
+      },
+      {
+          "id": "cpe413-mq24",
+          "question": "When both the CPU and a Direct Memory Access (DMA) controller attempt to access the system bus simultaneously, which mechanism prevents bus collision?",
+          "options": [
+              "Dynamic Frequency Scaling",
+              "Bus Arbitration via Bus Request (BR) and Bus Grant (BG) control signals",
+              "Hardware Watchdog Timer Reset",
+              "Static Parity Verification"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Bus Arbitration** coordinates access among multiple bus masters. Devices assert Bus Request (BR), and the arbiter asserts Bus Grant (BG) to designate exactly one active bus master at any given cycle.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq25",
+          "question": "In CMOS microprocessor circuit design, which formula governs dynamic switching power dissipation?",
+          "options": [
+              "P = V / I",
+              "P = C * V^2 * f",
+              "P = I^2 * R * t",
+              "P = C / (V * f)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Dynamic power dissipation in CMOS processors is given by **P = C * V^2 * f**, where C is load capacitance, V is supply voltage, and f is clock frequency. Because voltage is squared, reducing voltage yields quadratic power savings.",
+          "category": "Engineering Constraints"
+      },
+      {
+          "id": "cpe413-mq26",
+          "question": "An 8-bit data byte 10110010 is transmitted across a system bus configured with even parity. What must the value of the parity bit be?",
+          "options": [
+              "0",
+              "1",
+              "High-Z (floating)",
+              "Inverted"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Count the number of 1s in the data byte 10110010: there are four 1s (an even number). For even parity, the total number of 1s including the parity bit must remain even; therefore, the parity bit must be **0**.",
+          "category": "Data Integrity & Encoding"
+      },
+      {
+          "id": "cpe413-mq27",
+          "question": "Why are condition code status flags (such as ZF, CF, and OF in the EFLAGS register) classified as Computer Architecture rather than Computer Organization?",
+          "options": [
+              "Because they are physically etched onto the copper motherboard layers",
+              "Because they are directly visible to the programmer and dictate conditional branch instruction execution",
+              "Because they operate only at 5V transistor logic levels",
+              "Because they are managed exclusively by the power supply regulation circuits"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Condition code flags indicate ALU outcomes (Zero, Carry, Overflow) and are directly testable by assembly instructions (e.g., JZ, JC). Because they are visible to the programmer and compiler, they are part of **Computer Architecture**.",
+          "category": "Architecture vs Organization"
+      },
+      {
+          "id": "cpe413-mq28",
+          "question": "Which I/O data transfer technique frees the CPU from byte-by-byte transfer cycles by allowing the peripheral controller to write directly into DRAM?",
+          "options": [
+              "Programmed I/O (Polled I/O)",
+              "Direct Memory Access (DMA)",
+              "Software Trap Emulation",
+              "Instruction Cache Snooping"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Direct Memory Access (DMA)** enables high-speed peripheral devices (disks, NICs) to transfer data blocks directly to and from main memory without tying up CPU execution cycles.",
+          "category": "Bus Systems"
+      },
+      {
+          "id": "cpe413-mq29",
+          "question": "Which fundamental computer architecture eliminates the Von Neumann Bottleneck by using physically separate memory spaces and buses for instructions and data?",
+          "options": [
+              "Harvard Architecture",
+              "Turing Architecture",
+              "Princeton Architecture",
+              "RISC Single-Bus Architecture"
+          ],
+          "correctAnswer": 0,
+          "explanation": "The **Harvard Architecture** uses physically separate storage and signal pathways for instructions and data, allowing simultaneous instruction fetch and data read/write.",
+          "category": "Von Neumann Architecture"
+      },
+      {
+          "id": "cpe413-mq30",
+          "question": "In mission-critical embedded systems, what reliability metric specifies the expected average operating time between consecutive hardware or system failures?",
+          "options": [
+              "Mean Time to Repair (MTTR)",
+              "Mean Time Between Failures (MTBF)",
+              "Total Cost of Ownership (TCO)",
+              "Thermal Design Power (TDP)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "**Mean Time Between Failures (MTBF)** measures the predicted elapsed operational time between inherent system failures, quantifying hardware reliability.",
+          "category": "Engineering Constraints"
+      }
   ],
   cramNotes: [
     "Architecture ('The What'): Conceptual design, ISA, visible registers, status flags, addressing modes, data types.",
