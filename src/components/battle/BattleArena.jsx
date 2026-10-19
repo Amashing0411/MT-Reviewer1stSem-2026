@@ -5,6 +5,7 @@ import { StudentAvatar } from "../StudentAvatar";
 import { CoinTossModal } from "./CoinTossModal";
 import { VinylBattleIntro } from "./VinylBattleIntro";
 import { TurntableDeckHeader } from "./TurntableDeckHeader";
+import VinylHalftonePreloader from "../ui/vinyl-halftone-preloader";
 import { TwitchSpectatorChat } from "./TwitchSpectatorChat";
 import { getBattleQuestions } from "../../utils/battleQuestions";
 import { FormattedText } from "../MathView";
@@ -168,6 +169,8 @@ export function BattleArena({ onBackToReviewer }) {
   const [countdownSeconds, setCountdownSeconds] = useState(5);
   const [createClockDuration, setCreateClockDuration] = useState(30); // 10 | 30 | 60
   const [showIntroGate, setShowIntroGate] = useState(false);
+  const [showVinylGate, setShowVinylGate] = useState(true);
+  const [vinylPreset, setVinylPreset] = useState("rhythm"); // Matches reference Image 2
   const [lobbySubjectFilter, setLobbySubjectFilter] = useState("all");
   const [isMuted, setIsMuted] = useState(() => {
     try {
@@ -1293,26 +1296,121 @@ export function BattleArena({ onBackToReviewer }) {
         />
       )}
 
-      {/* SCREEN 1: REAL-TIME 1v1 BATTLE LOBBY WITH INTEGRATED TURNTABLE DECK */}
+      {/* SCREEN 1: 1v1 BATTLE ARENA LOBBY */}
       {screen === "lobby" && (
-        <div className="space-y-6 animate-fadeIn">
-          {/* Integrated 3D Turntable Battle Deck Header */}
-          <TurntableDeckHeader
-            profile={profile}
-            createWager={createWager}
-            setCreateWager={setCreateWager}
-            createClockDuration={createClockDuration}
-            setCreateClockDuration={setCreateClockDuration}
-            createSubject={createSubject}
-            setCreateSubject={setCreateSubject}
-            onStartBotMatch={handleStartBotMatch}
-            onOpenCreateRoom={() => setIsCreateOpen(true)}
-            isMuted={isMuted}
-            onToggleMute={() => {
-              const next = sound.toggleSound();
-              setIsMuted(!next);
-            }}
-          />
+        showVinylGate ? (
+          <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-2 border-pink-500/40 animate-fadeIn bg-[#1d070b]">
+            {/* Top Toolbar: Preset Switcher + Instant Skip Button */}
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md p-1 rounded-xl border border-white/20">
+                {[
+                  { id: "rhythm", label: "Rhythm (Pink)" },
+                  { id: "cobalt", label: "Cobalt (Blue)" },
+                  { id: "citrus", label: "Citrus (Gold)" },
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setVinylPreset(p.id)}
+                    className={`px-2.5 py-1 text-[11px] font-black rounded-lg transition-all cursor-pointer ${
+                      vinylPreset === p.id
+                        ? "bg-white text-black shadow-md scale-105"
+                        : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playTap();
+                  setShowVinylGate(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/30 text-white text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xl"
+              >
+                <span>Enter Lobby Floor</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <VinylHalftonePreloader
+              preset={vinylPreset}
+              durationMs={2200}
+              enter="click"
+              title="BSCPE 4TH YEAR"
+              subtitle="ROOM 106–109 CLASH"
+              loadingWord="CLASH"
+              readyWord="READY"
+              credits={[
+                "10s / 30s / 60s Speed Chess Clocks",
+                "Upstash Cloud Real-Time Arena",
+                "DLSP College of Engineering",
+              ]}
+              ringText="SIDE A · BSCPE 4A · 4B · 4C · 4D · 1v1 SPEED CHESS CLOCKS · WAGER POOL · DLSP · "
+              stages={["MATCH", "WAGER", "CLOCKS", "ENTER"]}
+              bpm={128}
+              hint="Drag the record to scratch · Click ENTER to clash"
+              height="clamp(580px, 80vh, 760px)"
+              onComplete={() => {
+                sound.playFanfare();
+                setShowVinylGate(false);
+              }}
+            />
+          </div>
+        ) : (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Inside Lobby: Header Bar with Replay Vinyl Gate button */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-amber-500 flex items-center justify-center shadow-lg shadow-pink-500/20">
+                  <Disc3 className="w-5 h-5 text-white animate-spin" style={{ animationDuration: "5s" }} />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-white">
+                    1v1 Battle Arena · Room 106–109
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Real-time speed chess battle · Put XP on the line!
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playTap();
+                    setShowVinylGate(true);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/40 text-pink-300 hover:text-white text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  title="Replay the Vinyl Halftone Preloader Gate"
+                >
+                  <Disc3 className="w-4 h-4 text-pink-400 animate-spin" style={{ animationDuration: "4s" }} />
+                  <span>Spin Vinyl Gate</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Integrated 3D Turntable Battle Deck Header */}
+            <TurntableDeckHeader
+              profile={profile}
+              createWager={createWager}
+              setCreateWager={setCreateWager}
+              createClockDuration={createClockDuration}
+              setCreateClockDuration={setCreateClockDuration}
+              createSubject={createSubject}
+              setCreateSubject={setCreateSubject}
+              onStartBotMatch={handleStartBotMatch}
+              onOpenCreateRoom={() => setIsCreateOpen(true)}
+              isMuted={isMuted}
+              onToggleMute={() => {
+                const next = sound.toggleSound();
+                setIsMuted(!next);
+              }}
+            />
 
           {/* Active Public Rooms Grid */}
           <div className="double-bezel-outer">
@@ -1505,7 +1603,8 @@ export function BattleArena({ onBackToReviewer }) {
             </div>
           </div>
         </div>
-      )}
+      )
+    )}
 
       {/* SCREEN 2: ROOM SETUP / MATCHMAKING (With Synchronized Ready Protocol) */}
       {screen === "room_setup" && activeRoom && (

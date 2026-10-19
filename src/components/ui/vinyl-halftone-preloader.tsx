@@ -625,7 +625,7 @@ export default function VinylHalftonePreloader({
       const px = still ? 0 : L.sx * lay.u * 0.012
       const py = still ? 0 : L.sy * lay.u * 0.012
       if (labelRef.current) labelRef.current.style.translate = (-px * 0.6).toFixed(1) + "px " + (-py * 0.6).toFixed(1) + "px"
-      if (menuRef.current) menuRef.current.style.translate = (px * 1.2).toFixed(1) + "px " + (py * 1.2).toFixed(1) + "px"
+      if (menuRef.current) menuRef.current.style.translate = "0px 0px"
       const beat = still ? 0 : vhpBeat(ms, o.bpm)
       gate.style.setProperty("--vhp-beat", beat.toFixed(3))
       if (!still) gate.style.setProperty("--vhp-slice", Math.round(((ms * 0.37) % 70) + 5) + "%")
