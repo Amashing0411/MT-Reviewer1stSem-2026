@@ -103,62 +103,64 @@ export function ReviewerNotes({ subject, searchQuery }) {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Top Reading View Switcher & Action Controls */}
-      <div className="no-print double-bezel-outer">
-        <div className="double-bezel-inner p-2 sm:p-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800">
-            <button
-              onClick={() => setReadingView("zen")}
-              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                readingView === "zen"
-                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <FileText className={`w-3.5 h-3.5 ${readingView === "zen" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}`} />
-              <span>Zen Reader</span>
-            </button>
-            <button
-              onClick={() => setReadingView("cards")}
-              className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                readingView === "cards"
-                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <LayoutGrid className={`w-3.5 h-3.5 ${readingView === "cards" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`} />
-              <span>Study Cards</span>
-            </button>
-          </div>
+      {subject.hasStandardReviewer !== false && (
+        <div className="no-print double-bezel-outer">
+          <div className="double-bezel-inner p-2 sm:p-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800">
+              <button
+                onClick={() => setReadingView("zen")}
+                className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  readingView === "zen"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                <FileText className={`w-3.5 h-3.5 ${readingView === "zen" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}`} />
+                <span>Zen Reader</span>
+              </button>
+              <button
+                onClick={() => setReadingView("cards")}
+                className={`btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  readingView === "cards"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs dark:shadow-sm border border-slate-200/60 dark:border-slate-700"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                <LayoutGrid className={`w-3.5 h-3.5 ${readingView === "cards" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`} />
+                <span>Study Cards</span>
+              </button>
+            </div>
 
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => window.print()}
-              className="btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-all shrink-0 cursor-pointer"
-              title="Print to PDF"
-            >
-              <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-              <span className="hidden sm:inline">Print to PDF</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => window.print()}
+                className="btn-haptic flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-all shrink-0 cursor-pointer"
+                title="Print to PDF"
+              >
+                <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                <span className="hidden sm:inline">Print to PDF</span>
+              </button>
 
-            {readingView === "cards" && (
-              <div className="hidden sm:flex items-center gap-1">
-                <button
-                  onClick={expandAll}
-                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
-                >
-                  Expand
-                </button>
-                <button
-                  onClick={collapseAll}
-                  className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
-                >
-                  Collapse
-                </button>
-              </div>
-            )}
+              {readingView === "cards" && (
+                <div className="hidden sm:flex items-center gap-1">
+                  <button
+                    onClick={expandAll}
+                    className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
+                  >
+                    Expand
+                  </button>
+                  <button
+                    onClick={collapseAll}
+                    className="btn-haptic px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
+                  >
+                    Collapse
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Subject Header Card */}
       <div className="double-bezel-outer">
@@ -243,24 +245,28 @@ export function ReviewerNotes({ subject, searchQuery }) {
         </div>
       </div>
 
-      {/* DSP GRAPH PRACTICE ADVISORY BANNER */}
-      {subject.graphNotice && (
+      {/* SUBJECT ADVISORY / SPECIAL NOTICE BANNER */}
+      {(subject.notice || subject.graphNotice) && (
         <div className="double-bezel-outer bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-blue-500/10">
           <div className="double-bezel-inner p-5 sm:p-7 space-y-3">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20 text-lg">
-                <PenTool className="w-5 h-5" />
+                {subject.notice?.icon ? (
+                  <span className="text-xl select-none">{subject.notice.icon}</span>
+                ) : (
+                  <PenTool className="w-5 h-5" />
+                )}
               </div>
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 rounded-md font-bold text-[10px] uppercase tracking-wider border border-amber-200 dark:border-amber-800/60">
-                  Official Course Notice
+                  {subject.notice?.badge || "Official Course Notice"}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                  {subject.graphNotice.title}
+                  {subject.notice?.title || subject.graphNotice?.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                  <FormattedText text={subject.graphNotice.body} />
-                </p>
+                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">
+                  <FormattedText text={subject.notice?.body || subject.graphNotice?.body} />
+                </div>
               </div>
             </div>
           </div>

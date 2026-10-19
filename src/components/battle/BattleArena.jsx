@@ -2081,8 +2081,10 @@ export function BattleArena({ onBackToReviewer }) {
                   onChange={(e) => setCreateSubject(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="all">⚡ All 8 Subjects Mixed (Random Showdown)</option>
-                  {Object.entries(SUBJECTS_MAP).map(([id, s]) => (
+                  <option value="all">⚡ All Mixed Subjects (Random Showdown)</option>
+                  {Object.entries(SUBJECTS_MAP)
+                    .filter(([_, s]) => (s.mockQuestions?.length || 0) > 0)
+                    .map(([id, s]) => (
                     <option key={id} value={id}>
                       {s.code}: {s.title}
                     </option>

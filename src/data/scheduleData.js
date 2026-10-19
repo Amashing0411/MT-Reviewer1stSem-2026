@@ -79,7 +79,7 @@ export const MASTER_EXAM_TIMETABLE = [
         color: "from-blue-500 to-indigo-600",
         badge: "Mon 2:00 PM",
         units: 3,
-        description: "Discrete-time signals, LTI systems, Z-Transforms, DFT/FFT, FIR/IIR filter design.",
+        description: "Computation & graph-driven subject. Best reviewed directly via your past classroom activities and seatworks.",
       },
       {
         id: "cpe411",
@@ -130,7 +130,7 @@ export const MASTER_EXAM_TIMETABLE = [
         color: "from-cyan-500 to-blue-600",
         badge: "Tue 2:00 PM",
         units: 1,
-        description: "Applied engineering common sense, industrial workplace decorum, plant safety protocols, technical documentation.",
+        description: "Formality exam based on general situational judgment. Can be answered with intuition and common sense without reviewing.",
       },
       {
         id: "elect3",

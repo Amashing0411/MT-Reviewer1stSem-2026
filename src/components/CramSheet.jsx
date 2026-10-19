@@ -60,7 +60,15 @@ export function CramSheet({ subject }) {
           </div>
 
           {cramNotes.length === 0 ? (
-            <p className="text-xs text-slate-500 dark:text-slate-400">No cram notes yet for {subject.code}.</p>
+            <div className="py-6 text-center space-y-2">
+              <span className="text-2xl select-none">{subject.notice?.icon || "📌"}</span>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                {subject.notice?.title || `No cram notes required for ${subject.code}.`}
+              </p>
+              <div className="text-xs text-slate-600 dark:text-slate-400 max-w-lg mx-auto whitespace-pre-line leading-relaxed">
+                <FormattedText text={subject.notice?.body || "Review your syllabus and class materials directly."} />
+              </div>
+            </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {cramNotes.map((note, idx) => (

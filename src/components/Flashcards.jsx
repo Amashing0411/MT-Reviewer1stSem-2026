@@ -123,31 +123,32 @@ export function Flashcards({ subject, onSelectMode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [cards, currentIndex, isFlipped, currentCard]);
 
-  // Empty State / DSP Graph Practice Advisory
+  // Empty State / Subject Advisory
   if (cards.length === 0) {
-    if (subject.isGraphSubject) {
+    if (subject.notice || subject.isGraphSubject || subject.isFormalityExam) {
+      const notice = subject.notice || {};
       return (
         <div className="double-bezel-outer max-w-2xl mx-auto">
           <div className="double-bezel-inner p-8 sm:p-12 text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm text-2xl">
-              📐
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center border border-blue-200 dark:border-blue-800 shadow-sm text-2xl select-none">
+              {notice.icon || "📌"}
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full font-bold text-xs uppercase tracking-wider">
-              Manual Graph Practice Subject
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 rounded-full font-bold text-xs uppercase tracking-wider">
+              {notice.badge || "Subject Notice"}
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900">
-              DSP Uses Paper Graphing Instead of Flashcards
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">
+              {notice.title || subject.title}
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
-              Digital Signal Processing is visual and graph-heavy. Memorizing flashcards is not recommended when exams require hand-sketching stem plots, folding signals $x[-n]$, and sliding convolution.
-            </p>
+            <div className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto whitespace-pre-line">
+              <FormattedText text={notice.body || "No flashcards are required for this subject."} />
+            </div>
             <div className="pt-2">
               <button
                 type="button"
                 onClick={() => onSelectMode?.("reviewer")}
                 className="btn-haptic px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-700/25 inline-flex items-center gap-2 cursor-pointer"
               >
-                <span>Open DSP Paper Graph Problems</span>
+                <span>View Subject Overview</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
