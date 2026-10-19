@@ -5,6 +5,7 @@ import { StudentAvatar } from "../StudentAvatar";
 import { CoinTossModal } from "./CoinTossModal";
 import { TwitchSpectatorChat } from "./TwitchSpectatorChat";
 import { getBattleQuestions } from "../../utils/battleQuestions";
+import { FormattedText } from "../MathView";
 import { sound } from "../../utils/sound";
 import confetti from "canvas-confetti";
 import {
@@ -1836,10 +1837,36 @@ export function BattleArena({ onBackToReviewer }) {
                     </div>
                   </div>
 
-                  {/* Question Text */}
-                  <h3 className="text-xs sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-4 sm:mb-6">
-                    {currentQuestion.question}
-                  </h3>
+                  {/* Question Scenario & Core Question Prompt */}
+                  {(() => {
+                    const rawQ = currentQuestion?.question || "";
+                    const hasScenario =
+                      currentQuestion?.scenario ||
+                      (rawQ.includes("\n\n") ? rawQ.substring(0, rawQ.lastIndexOf("\n\n")).trim() : null);
+                    const displayPrompt =
+                      currentQuestion?.prompt ||
+                      (rawQ.includes("\n\n") ? rawQ.substring(rawQ.lastIndexOf("\n\n") + 2).trim() : rawQ);
+
+                    return (
+                      <div className="space-y-2 mb-3 sm:mb-5">
+                        {hasScenario && (
+                          <div className="p-2.5 sm:p-3 rounded-xl bg-blue-50/80 dark:bg-slate-800/80 border border-blue-200/60 dark:border-blue-900/50 text-[11px] sm:text-xs md:text-[13px] text-slate-700 dark:text-slate-200 leading-relaxed max-h-32 sm:max-h-36 overflow-y-auto">
+                            <div className="flex items-center gap-1.5 font-black text-blue-700 dark:text-blue-400 uppercase tracking-wider text-[10px] mb-1">
+                              <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+                              <span>Scenario Context:</span>
+                            </div>
+                            <div className="whitespace-pre-line">
+                              <FormattedText text={hasScenario} />
+                            </div>
+                          </div>
+                        )}
+
+                        <h3 className="text-xs sm:text-base md:text-lg font-black text-slate-900 dark:text-white leading-relaxed whitespace-pre-line">
+                          <FormattedText text={displayPrompt} />
+                        </h3>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* 4 Choices */}
@@ -1877,7 +1904,9 @@ export function BattleArena({ onBackToReviewer }) {
                         <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center text-[11px] sm:text-xs font-black shrink-0 mt-0.5">
                           {letter}
                         </span>
-                        <span className="min-w-0 leading-snug">{opt}</span>
+                        <span className="min-w-0 leading-snug">
+                          <FormattedText text={opt} />
+                        </span>
                       </button>
                     );
                   })}

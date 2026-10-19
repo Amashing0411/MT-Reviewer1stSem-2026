@@ -78,11 +78,21 @@ export function getBattleQuestions(subjectId = "all", seed = null) {
     const shuffledOpts = shuffle(rawOpts, seed ? seed + idx : null);
     const newCorrectIdx = shuffledOpts.findIndex((o) => o.isCorrect);
 
+    let scenario = null;
+    let prompt = q.question;
+    if (typeof q.question === "string" && q.question.includes("\n\n")) {
+      const lastBreak = q.question.lastIndexOf("\n\n");
+      scenario = q.question.substring(0, lastBreak).trim();
+      prompt = q.question.substring(lastBreak + 2).trim();
+    }
+
     return {
       id: q.id || `q_${idx}`,
       subjectCode: q.subjectCode,
       subjectTitle: q.subjectTitle,
       question: q.question,
+      scenario: scenario,
+      prompt: prompt,
       options: shuffledOpts.map((o) => o.text),
       correctAnswer: newCorrectIdx,
       explanation: q.explanation || "",
