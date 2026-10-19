@@ -17,6 +17,7 @@
 ## 📌 Table of Contents
 - [📅 Examination Timetable & Room Directory](#-examination-timetable--room-directory)
 - [✨ Key Platform Features](#-key-platform-features)
+- [⚔️ 1v1 Midterm PvP Battle Arena](#️-1v1-midterm-pvp-battle-arena--solo-ai-practice)
 - [💬 Live Study Shoutbox & Profile Showcase](#-live-study-shoutbox--profile-showcase)
 - [🏆 Gamification & Cloud Leaderboard](#-gamification--cloud-leaderboard)
 - [🎨 Gemini & Argon Prompt Guide (Avatar Frames & Badges)](#-gemini--argon-prompt-guide-avatar-frames--badges)
@@ -78,6 +79,17 @@ The platform features an interactive section switchable schedule mapping specifi
 - **Translucent Double-Bezel Glassmorphism:** Features `bg-zinc-50` for Day / Light Mode and deep `bg-zinc-900` (`rgba(24, 24, 27, 0.88)`) for Night / Dark Mode, allowing ambient light refraction without pitch-black `#000000` overrides.
 - **Zero White-Flash Reloading:** Pre-mount `<head>` detection checks `localStorage` and system preference before rendering, guaranteeing clean light mode default on initial load with persistent dark mode when toggled.
 
+### 6. ⚔️ 1v1 Midterm PvP Battle Arena & Solo AI Practice
+- **Real-Time 1v1 Matchmaking:** Host custom lobbies or join via 4-character room codes across all sections (`BSCPE 4A`, `4B`, `4C`, `4D`).
+- **Solo Practice Mode:** Summon the "Dean's Lister AI" bot with simulated realistic answer timings for instant solo practice anytime.
+- **Fair-Play XP Wagering:** Place optional XP wagers (50 XP, 100 XP, 250 XP). Strict server-side verification ensures both competitors possess sufficient XP before entering matches.
+- **30-Second Rapid Lightning Rounds:** High-tempo 30-second countdown timer per question with synchronized live scoreboards.
+- **Anti-Cheat Blind Selection:** Opponents' choice states are blinded during live rounds; incorrect picks do not reveal the correct answer background to prevent unfair visual giveaways.
+- **Coin Flip Tiebreakers:** Dynamic 50/50 animated coin flip automatically decides the wager winner in case of exact score draws.
+- **Surrender & Reconnect Resilience:** In-match Forfeit/Surrender button immediately handles concession, while temporary browser disconnections allow seamless match re-entry.
+- **Dual-Theme Sync:** Full Light and Dark mode contrast adaptation across waiting rooms, arena timers, question cards, and victory podiums.
+- **Auto-Expiring Lobbies:** Completed battles automatically clear to protect the arena economy and prevent duplicate XP payouts.
+
 ---
 
 ## 💬 Live Study Shoutbox & Profile Showcase
@@ -97,8 +109,8 @@ To make student customizations truly visible across all sections, the platform i
   - Large avatar with equipped moving animated frame.
   - Animated typography name FX.
   - Cohort section, assigned exam room, and faculty proctor.
-  - Active vanity tagline badge (e.g., `🎖️ Room 106 Dean's Lister`, `📡 DSP Fourier Master`).
-  - Prestige Level & Rank Title.
+  - Active vanity tagline badge (e.g., `🎖️ Room 106 Dean's Lister`, `🛡️ Cyber Defense Commander`, or custom user-created tagline).
+  - **Dynamic Prestige Rank Title:** Accurately reflects your equipped vanity or Level 6+ custom vanity tagline (`Level {level} • {tagline}` with underlying `Tier: {baseTier}` subtitle), guaranteeing 100% visual consistency between profile cards, chat, and leaderboards.
   - Lifetime total experience (XP).
   - Fastest 10-Question Blitz time record.
   - Top Midterm simulation score percentage.
@@ -212,11 +224,11 @@ A sci-fi cybernetic medal badge, glowing frequency waveform sinusoidal ripples, 
 
 | Code | Subject Title | Module Highlights |
 | :--- | :--- | :--- |
-| **CPE 414** | **Digital Signal Processing** | Mathematical overview, frequency domain analysis, sampling theorems, and exam guidance. |
+| **CPE 414** | **Digital Signal Processing** | High-computation coursework — best reviewed through previous laboratory activities, DSP problem sets, and discrete transform exercises directly rather than memorizing lecture notes. |
 | **CPE 411** | **CpE Practice and Design 2** | Capstone methodologies, project lifecycle, hardware-software integration, IEEE testing standards. |
 | **CPE 416** | **CpE Laws and Professional Ethics** | RA 9292, RA 8293 (IP Code), Cybercrime Prevention Act (RA 10175), Data Privacy (RA 10173). |
 | **CPE 415** | **Engineering Management** | Planning, organizing, project scheduling (CPM/PERT), motivation theories, financial statements. |
-| **CPE 412** | **Seminars and Fieldtrips** | Professional etiquette, industry seminars, technical symposium reports, career readiness. |
+| **CPE 412** | **Seminars and Fieldtrips** | Formality assessment based on professional conduct, seminar attendance, and ethics — can be answered from practical observation without formal reviewer materials. |
 | **ELECT 3** | **Computer Engineering Elective 3** | Cloud infrastructure, Linux system administration, network virtualization, enterprise cybersecurity. |
 | **CPE 413** | **Computer Architecture & Organization** | Instruction set architectures, pipelining hazards, cache memory mapping, superscalar execution. |
 | **ENGWORK** | **English in the Workplace** | Technical memo drafting, executive summaries, cross-cultural professional communication. |
