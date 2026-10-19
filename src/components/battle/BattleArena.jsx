@@ -4,7 +4,7 @@ import { SUBJECTS_MAP } from "../../data/subjects";
 import { StudentAvatar } from "../StudentAvatar";
 import { CoinTossModal } from "./CoinTossModal";
 import { VinylBattleIntro } from "./VinylBattleIntro";
-import { VinylLobbyGateway } from "./VinylLobbyGateway";
+import { TurntableDeckHeader } from "./TurntableDeckHeader";
 import { TwitchSpectatorChat } from "./TwitchSpectatorChat";
 import { getBattleQuestions } from "../../utils/battleQuestions";
 import { FormattedText } from "../MathView";
@@ -168,7 +168,6 @@ export function BattleArena({ onBackToReviewer }) {
   const [countdownSeconds, setCountdownSeconds] = useState(5);
   const [createClockDuration, setCreateClockDuration] = useState(30); // 10 | 30 | 60
   const [showIntroGate, setShowIntroGate] = useState(false);
-  const [lobbyMode, setLobbyMode] = useState("gateway"); // "gateway" | "browser"
   const [lobbySubjectFilter, setLobbySubjectFilter] = useState("all");
   const [isMuted, setIsMuted] = useState(() => {
     try {
@@ -1294,10 +1293,11 @@ export function BattleArena({ onBackToReviewer }) {
         />
       )}
 
-      {/* SCREEN 1: LOBBY BROWSER / GATEWAY */}
+      {/* SCREEN 1: REAL-TIME 1v1 BATTLE LOBBY WITH INTEGRATED TURNTABLE DECK */}
       {screen === "lobby" && (
-        lobbyMode === "gateway" ? (
-          <VinylLobbyGateway
+        <div className="space-y-6 animate-fadeIn">
+          {/* Integrated 3D Turntable Battle Deck Header */}
+          <TurntableDeckHeader
             profile={profile}
             createWager={createWager}
             setCreateWager={setCreateWager}
@@ -1305,10 +1305,6 @@ export function BattleArena({ onBackToReviewer }) {
             setCreateClockDuration={setCreateClockDuration}
             createSubject={createSubject}
             setCreateSubject={setCreateSubject}
-            onEnterArena={() => {
-              sound.playTap();
-              setLobbyMode("browser");
-            }}
             onStartBotMatch={handleStartBotMatch}
             onOpenCreateRoom={() => setIsCreateOpen(true)}
             isMuted={isMuted}
@@ -1316,83 +1312,7 @@ export function BattleArena({ onBackToReviewer }) {
               const next = sound.toggleSound();
               setIsMuted(!next);
             }}
-            roomsCount={rooms.filter((r) => r.status !== "finished").length}
           />
-        ) : (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Hero Banner */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50 via-blue-50/70 to-amber-50/40 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-slate-200 dark:border-slate-700/80 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm dark:shadow-2xl">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-purple-500/10 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div className="space-y-2 max-w-xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-400/20 border border-amber-300 dark:border-amber-400/40 text-amber-800 dark:text-amber-300 text-xs font-black tracking-wider uppercase">
-                    <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
-                    <span>Real-Time 1v1 Battle Exam Arena</span>
-                    <Flame className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
-                  </div>
-                  <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-                    Put Your XP on the Line. <br />
-                    <span className="bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 dark:from-amber-300 dark:via-yellow-200 dark:to-amber-400 bg-clip-text text-transparent">
-                      Double Your Wager or Walk Away Empty-Handed.
-                    </span>
-                  </h1>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Enter dynamic public showdown lobbies, ready up with your opponent, watch the 3D coin toss, 
-                    and battle on synchronized speed chess clocks (10s Blitz / 30s Rapid / 60s Tactical) with live arena spectator feed!
-                  </p>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 items-center">
-                  <button
-                    onClick={() => setIsCreateOpen(true)}
-                    className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <PlusCircle className="w-4 h-4" />
-                    <span>Host Public Match</span>
-                  </button>
-
-                  <button
-                    onClick={handleStartBotMatch}
-                    className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm dark:shadow-lg cursor-pointer"
-                  >
-                    <Bot className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-                    <span>Practice vs AI Bot</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sound.playTap();
-                      setLobbyMode("gateway");
-                    }}
-                    className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-cyan-400/40 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 hover:text-white text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-cyan-950/50"
-                    title="Switch to interactive Vinyl Battle Deck"
-                  >
-                    <Disc3 className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: "5s" }} />
-                    <span>Vinyl Battle Deck</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      const next = sound.toggleSound();
-                      setIsMuted(!next);
-                    }}
-                    className={`w-full sm:w-auto px-3.5 py-3 rounded-2xl border text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 ${
-                      isMuted
-                        ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500"
-                        : "bg-white/80 dark:bg-slate-850 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 shadow-sm"
-                    }`}
-                    title={isMuted ? "Unmute Sound" : "Mute Sound"}
-                  >
-                    {isMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-amber-500" />}
-                    <span className="text-xs font-black">{isMuted ? "Muted" : "Sound ON"}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
 
           {/* Active Public Rooms Grid */}
           <div className="double-bezel-outer">
@@ -1585,8 +1505,7 @@ export function BattleArena({ onBackToReviewer }) {
             </div>
           </div>
         </div>
-      )
-    )}
+      )}
 
       {/* SCREEN 2: ROOM SETUP / MATCHMAKING (With Synchronized Ready Protocol) */}
       {screen === "room_setup" && activeRoom && (
