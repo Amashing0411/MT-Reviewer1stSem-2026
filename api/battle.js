@@ -163,9 +163,10 @@ export default async function handler(req, res) {
             sideLand: isHost ? "host" : "guest",
             flipDuration: 4200,
           };
+          const initialClock = room.clockDuration || 30;
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 30;
-          room.gameState.guestClock = 30;
+          room.gameState.hostClock = initialClock;
+          room.gameState.guestClock = initialClock;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
 
@@ -252,9 +253,10 @@ export default async function handler(req, res) {
             sideLand: isHost ? "host" : "guest",
             flipDuration: 4200,
           };
+          const initialClock = room.clockDuration || 30;
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 30;
-          room.gameState.guestClock = 30;
+          room.gameState.hostClock = initialClock;
+          room.gameState.guestClock = initialClock;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
           hasSweepChanged = true;
@@ -314,6 +316,7 @@ export default async function handler(req, res) {
           title: r.title,
           subject: r.subject,
           wager: r.wager,
+          clockDuration: r.clockDuration || 30,
           status: r.status,
           host: r.host,
           guest: r.guest,
@@ -346,7 +349,7 @@ export default async function handler(req, res) {
 
       // 1. CREATE ROOM (Stores host details & synchronized question bank)
       if (action === "create_room") {
-        const { title, subject = "all", wager = 250, host, questions = [] } = body;
+        const { title, subject = "all", wager = 250, host, questions = [], clockDuration = 30 } = body;
         if (!host || !host.id || !host.name) {
           return res.status(400).json({ ok: false, error: "Missing host details" });
         }
@@ -359,11 +362,14 @@ export default async function handler(req, res) {
           });
         }
 
+        const parsedClockDuration = [10, 30, 60].includes(Number(clockDuration)) ? Number(clockDuration) : 30;
+
         const newRoom = {
           id: "room_" + Math.random().toString(36).substring(2, 8),
           title: title || `${host.name}'s Showdown Arena`,
           subject: subject || "all",
           wager: parsedWager,
+          clockDuration: parsedClockDuration,
           status: "waiting", // "waiting" | "countdown" | "tossing_coin" | "in_battle" | "finished"
           createdAt: now,
           updatedAt: now,
@@ -391,8 +397,8 @@ export default async function handler(req, res) {
           gameState: {
             activePlayerId: null,
             questionIndex: 0,
-            hostClock: 30,
-            guestClock: 30,
+            hostClock: parsedClockDuration,
+            guestClock: parsedClockDuration,
             turnStartedAt: null,
             haltUntil: 0,
             winnerId: null,
@@ -543,9 +549,10 @@ export default async function handler(req, res) {
             sideLand: isHost ? "host" : "guest",
             flipDuration: 4200,
           };
+          const initialClock = room.clockDuration || 30;
           room.gameState.activePlayerId = winnerId;
-          room.gameState.hostClock = 30;
-          room.gameState.guestClock = 30;
+          room.gameState.hostClock = initialClock;
+          room.gameState.guestClock = initialClock;
           room.gameState.turnStartedAt = now + 4200;
           room.updatedAt = now;
 

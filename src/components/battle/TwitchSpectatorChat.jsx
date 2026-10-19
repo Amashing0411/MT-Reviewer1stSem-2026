@@ -15,11 +15,13 @@ export function TwitchSpectatorChat({
   onBurstEmote,
 }) {
   const [inputText, setInputText] = useState("");
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  // Auto-scroll chat to bottom on new messages
+  // Auto-scroll chat container strictly locally without forcing window/browser scroll!
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [chat]);
 
   const handleSend = (e) => {
@@ -37,7 +39,7 @@ export function TwitchSpectatorChat({
   return (
     <div className="relative flex flex-col h-[420px] sm:h-[580px] w-full rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden backdrop-blur-md">
 
-      {/* Top Header: Twitch Live Bar */}
+      {/* Top Header: Live Arena Feed */}
       <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative flex items-center justify-center">
@@ -45,7 +47,7 @@ export function TwitchSpectatorChat({
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 relative" />
           </div>
           <span className="text-xs font-black tracking-wider uppercase bg-gradient-to-r from-red-600 via-amber-600 to-amber-500 dark:from-red-400 dark:to-amber-300 bg-clip-text text-transparent">
-            Twitch Arena Feed
+            Live Arena Feed
           </span>
         </div>
 
@@ -56,7 +58,10 @@ export function TwitchSpectatorChat({
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs font-sans scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-3 space-y-2 text-xs font-sans scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700"
+      >
         {chat.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400 p-4">
             <MessageSquare className="w-8 h-8 mb-2 opacity-40 text-blue-500 dark:text-blue-400" />
@@ -115,7 +120,6 @@ export function TwitchSpectatorChat({
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Quick Emoji Reaction Dock */}

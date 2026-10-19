@@ -32,6 +32,8 @@ import {
   Check,
   Flag,
   Coins,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 const SESSION_ROOM_KEY = "bscpe_active_battle_room_id";
@@ -49,6 +51,94 @@ const BOT_PLAYER = {
 };
 
 const WAGER_OPTIONS = [50, 100, 250, 500, 1000];
+
+// ISOLATED GPU-ACCELERATED FLOATING REACTIONS LAYER (Zero re-renders on BattleArena!)
+const FloatingReactionsLayer = React.memo(function FloatingReactionsLayer({ recentEmotes = [] }) {
+  const [bubbles, setBubbles] = useState([]);
+  const seenIdsRef = useRef(new Set());
+
+  // Listen to remote synced emotes
+  useEffect(() => {
+    if (!recentEmotes || recentEmotes.length === 0) return;
+    const now = Date.now();
+    const toAdd = [];
+
+    recentEmotes.forEach((em) => {
+      if (!em || !em.id) return;
+      if (!seenIdsRef.current.has(em.id)) {
+        seenIdsRef.current.add(em.id);
+        if (now - (em.createdAt || now) < 7000) {
+          toAdd.push({
+            id: em.id,
+            emoji: em.emoji,
+            senderName: em.senderName,
+            left: Math.floor(Math.random() * 75) + 12,
+          });
+          sound.playPop();
+        }
+      }
+    });
+
+    if (toAdd.length > 0) {
+      setBubbles((prev) => [...prev.slice(-20), ...toAdd]);
+      setTimeout(() => {
+        const addedIds = new Set(toAdd.map((b) => b.id));
+        setBubbles((prev) => prev.filter((b) => !addedIds.has(b.id)));
+      }, 2300);
+    }
+
+    if (seenIdsRef.current.size > 200) {
+      const arr = Array.from(seenIdsRef.current);
+      seenIdsRef.current = new Set(arr.slice(-100));
+    }
+  }, [recentEmotes]);
+
+  // Listen to local fast optimistic emotes
+  useEffect(() => {
+    const handleLocalEmote = (e) => {
+      const { emoji, senderName } = e.detail || {};
+      if (!emoji) return;
+      const id = "local_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+      seenIdsRef.current.add(id);
+      const newBubble = {
+        id,
+        emoji,
+        senderName,
+        left: Math.floor(Math.random() * 75) + 12,
+      };
+      setBubbles((prev) => [...prev.slice(-20), newBubble]);
+      setTimeout(() => {
+        setBubbles((prev) => prev.filter((b) => b.id !== id));
+      }, 2300);
+    };
+
+    window.addEventListener("arena:emote", handleLocalEmote);
+    return () => window.removeEventListener("arena:emote", handleLocalEmote);
+  }, []);
+
+  if (bubbles.length === 0) return null;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+      {bubbles.map((reaction) => (
+        <div
+          key={reaction.id}
+          className="absolute bottom-16 sm:bottom-20 flex flex-col items-center animate-floatUp select-none filter drop-shadow-2xl will-change-transform"
+          style={{ left: `${reaction.left}%` }}
+        >
+          <span className="text-4xl sm:text-5xl filter drop-shadow-md">
+            {reaction.emoji}
+          </span>
+          {reaction.senderName && (
+            <span className="mt-1 px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-amber-400/60 dark:border-amber-500/50 text-[10px] sm:text-xs font-black text-slate-900 dark:text-amber-300 tracking-wide shadow-xl whitespace-nowrap backdrop-blur-md">
+              {reaction.senderName}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+});
 
 export function BattleArena({ onBackToReviewer }) {
   const { profile, addXp } = useUser();
@@ -73,10 +163,12 @@ export function BattleArena({ onBackToReviewer }) {
   const [mobileMatchTab, setMobileMatchTab] = useState("stage"); // "stage" | "chat" on mobile
   const [liveClocks, setLiveClocks] = useState({ host: 30, guest: 30 });
   const [countdownSeconds, setCountdownSeconds] = useState(5);
-  const [floatingReactions, setFloatingReactions] = useState([]);
+  const [createClockDuration, setCreateClockDuration] = useState(30); // 10 | 30 | 60
+  const [isMuted, setIsMuted] = useState(!sound.enabled);
   const [isSurrenderConfirmOpen, setIsSurrenderConfirmOpen] = useState(false);
   const [isSurrendering, setIsSurrendering] = useState(false);
   const seenEmoteIdsRef = useRef(new Set());
+  const lastTickedClockSecRef = useRef(null);
 
   // Polling ref for cloud rooms
   const pollTimerRef = useRef(null);
@@ -133,17 +225,9 @@ export function BattleArena({ onBackToReviewer }) {
     } catch (e) {}
   }, [activeRoom?.id, activeRoom?.status, isBotMatch, screen]);
 
-  // Spawn floating reactions on the global arena overlay
+  // Fast optimistic event emitter for floating reactions (Handled by FloatingReactionsLayer with 0 re-renders!)
   const spawnFloatingReaction = useCallback((emoji, senderName) => {
-    const id = "bubble_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-    const randomLeft = Math.floor(Math.random() * 75) + 12; // 12% to 87%
-    const newBubble = { id, emoji, senderName, left: randomLeft };
-
-    setFloatingReactions((prev) => [...prev.slice(-25), newBubble]);
-
-    setTimeout(() => {
-      setFloatingReactions((prev) => prev.filter((b) => b.id !== id));
-    }, 2400);
+    window.dispatchEvent(new CustomEvent("arena:emote", { detail: { emoji, senderName } }));
   }, []);
 
   // Helper roles
@@ -211,9 +295,10 @@ export function BattleArena({ onBackToReviewer }) {
     const updateClocks = () => {
       const gs = activeRoom.gameState;
       const now = Date.now();
+      const initialClock = activeRoom.clockDuration || 30;
 
       if (activeRoom.status !== "in_battle" || !gs.turnStartedAt) {
-        setLiveClocks({ host: gs.hostClock ?? 30, guest: gs.guestClock ?? 30 });
+        setLiveClocks({ host: gs.hostClock ?? initialClock, guest: gs.guestClock ?? initialClock });
         return;
       }
 
@@ -224,18 +309,26 @@ export function BattleArena({ onBackToReviewer }) {
 
       const currentHost = isHostTurn
         ? Math.max(0, +(gs.hostClock - elapsed).toFixed(1))
-        : (gs.hostClock ?? 30);
+        : (gs.hostClock ?? initialClock);
 
       const currentGuest = isGuestTurn
         ? Math.max(0, +(gs.guestClock - elapsed).toFixed(1))
-        : (gs.guestClock ?? 30);
+        : (gs.guestClock ?? initialClock);
 
       setLiveClocks({ host: currentHost, guest: currentGuest });
 
-      // Audio ticks when active player clock < 10s
+      // Audio ticks: strictly ONCE per second when in critical final seconds! (Never rapid loops)
       const activeClock = isHostTurn ? currentHost : currentGuest;
-      if (activeClock <= 10 && activeClock > 0 && Math.round(activeClock * 10) % 10 === 0) {
-        sound.playClockTick();
+      const wholeSec = Math.ceil(activeClock);
+      const urgentThreshold = activeRoom.clockDuration === 10 ? 3 : 5;
+
+      if (wholeSec <= urgentThreshold && wholeSec > 0) {
+        if (lastTickedClockSecRef.current !== wholeSec) {
+          lastTickedClockSecRef.current = wholeSec;
+          sound.playClockTick();
+        }
+      } else {
+        lastTickedClockSecRef.current = null;
       }
 
       // Timeout check (only trigger once by active player or host)
@@ -276,30 +369,6 @@ export function BattleArena({ onBackToReviewer }) {
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [activeRoom?.status, activeRoom?.countdownEnd, isHost, isBotMatch]);
-
-  // 5. Synchronized Floating Emotes from all peers & spectators across all screens
-  useEffect(() => {
-    if (!activeRoom?.recentEmotes || activeRoom.recentEmotes.length === 0) return;
-
-    const now = Date.now();
-    activeRoom.recentEmotes.forEach((em) => {
-      if (!em || !em.id) return;
-
-      if (!seenEmoteIdsRef.current.has(em.id)) {
-        seenEmoteIdsRef.current.add(em.id);
-        // Only trigger float animation if emitted within the last 7 seconds
-        if (now - (em.createdAt || now) < 7000) {
-          spawnFloatingReaction(em.emoji, em.senderName);
-          sound.playPop();
-        }
-      }
-    });
-
-    if (seenEmoteIdsRef.current.size > 200) {
-      const arr = Array.from(seenEmoteIdsRef.current);
-      seenEmoteIdsRef.current = new Set(arr.slice(-100));
-    }
-  }, [activeRoom?.recentEmotes, spawnFloatingReaction]);
 
   // 6. Bot Match Simulation Loop
   useEffect(() => {
@@ -637,6 +706,7 @@ export function BattleArena({ onBackToReviewer }) {
       title: "Solo Practice vs Dean's Lister AI",
       subject: createSubject,
       wager: createWager,
+      clockDuration: createClockDuration,
       status: "waiting",
       host: {
         id: profile.id,
@@ -660,8 +730,8 @@ export function BattleArena({ onBackToReviewer }) {
       gameState: {
         activePlayerId: null,
         questionIndex: 0,
-        hostClock: 30,
-        guestClock: 30,
+        hostClock: createClockDuration,
+        guestClock: createClockDuration,
         turnStartedAt: null,
         haltUntil: 0,
         winnerId: null,
@@ -671,7 +741,7 @@ export function BattleArena({ onBackToReviewer }) {
         {
           id: "c_1",
           type: "event",
-          text: "⚡ 1v1 Battle Exam: Player vs AI Dean's Lister initialized! Press READY to start countdown!",
+          text: `⚡ 1v1 Battle Exam: Player vs AI Dean's Lister (${createClockDuration}s Clock) initialized! Press READY to start countdown!`,
           senderName: "Arena System",
           createdAt: Date.now(),
         },
@@ -704,6 +774,7 @@ export function BattleArena({ onBackToReviewer }) {
           title: createTitle.trim() || `${profile.name}'s Showdown`,
           subject: createSubject,
           wager: createWager,
+          clockDuration: createClockDuration,
           questions,
           host: {
             id: profile.id,
@@ -1155,25 +1226,8 @@ export function BattleArena({ onBackToReviewer }) {
 
   return (
     <div className="space-y-6 animate-fadeIn relative">
-      {/* GLOBAL SYNCHRONIZED FLOATING REACTIONS OVERLAY (Visible across ALL participants & spectators) */}
-      <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
-        {floatingReactions.map((reaction) => (
-          <div
-            key={reaction.id}
-            className="absolute bottom-16 sm:bottom-20 flex flex-col items-center animate-floatUp select-none filter drop-shadow-2xl"
-            style={{ left: `${reaction.left}%` }}
-          >
-            <span className="text-4xl sm:text-5xl filter drop-shadow-md">
-              {reaction.emoji}
-            </span>
-            {reaction.senderName && (
-              <span className="mt-1 px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-amber-400/60 dark:border-amber-500/50 text-[10px] sm:text-xs font-black text-slate-900 dark:text-amber-300 tracking-wide shadow-xl whitespace-nowrap backdrop-blur-md">
-                {reaction.senderName}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* GLOBAL SYNCHRONIZED FLOATING REACTIONS OVERLAY (Isolated & zero re-renders) */}
+      <FloatingReactionsLayer recentEmotes={activeRoom?.recentEmotes} />
 
       {/* 5-SECOND SYNCHRONIZED COUNTDOWN OVERLAY (Both Players & Spectators see this) */}
       {activeRoom?.status === "countdown" && (
@@ -1229,15 +1283,15 @@ export function BattleArena({ onBackToReviewer }) {
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   Enter dynamic public showdown lobbies, ready up with your opponent, watch the 3D coin toss, 
-                  and battle on synchronized 30-second chess clocks with live Twitch spectator chat!
+                  and battle on synchronized speed chess clocks (10s Blitz / 30s Rapid / 60s Tactical) with live arena spectator feed!
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 items-center">
                 <button
                   onClick={() => setIsCreateOpen(true)}
-                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Host Public Match</span>
@@ -1245,10 +1299,26 @@ export function BattleArena({ onBackToReviewer }) {
 
                 <button
                   onClick={handleStartBotMatch}
-                  className="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm dark:shadow-lg cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm dark:shadow-lg cursor-pointer"
                 >
                   <Bot className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
                   <span>Practice vs AI Bot</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    const next = sound.toggleSound();
+                    setIsMuted(!next);
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-3 rounded-2xl border text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 ${
+                    isMuted
+                      ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500"
+                      : "bg-white/80 dark:bg-slate-850 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 shadow-sm"
+                  }`}
+                  title={isMuted ? "Unmute Sound" : "Mute Sound"}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-amber-500" />}
+                  <span className="text-xs font-black">{isMuted ? "Muted" : "Sound ON"}</span>
                 </button>
               </div>
             </div>
@@ -1330,10 +1400,16 @@ export function BattleArena({ onBackToReviewer }) {
                             </div>
 
                             <div className="text-right shrink-0">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-700 dark:text-amber-300 text-xs font-black">
-                                <Zap className="w-3 h-3 fill-amber-400 text-amber-500" />
-                                <span>{room.wager} XP</span>
-                              </span>
+                              <div className="flex items-center gap-1.5 justify-end">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-700 dark:text-amber-300 text-xs font-black">
+                                  <Zap className="w-3 h-3 fill-amber-400 text-amber-500" />
+                                  <span>{room.wager} XP</span>
+                                </span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-700 dark:text-blue-300 text-[10.5px] font-black">
+                                  <Clock className="w-2.5 h-2.5" />
+                                  <span>{room.clockDuration || 30}s</span>
+                                </span>
+                              </div>
                               <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                                 {room.subject === "all" ? "All 8 Subjects" : room.subject.toUpperCase()}
                               </div>
@@ -1622,6 +1698,22 @@ export function BattleArena({ onBackToReviewer }) {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => {
+                  const nextState = sound.toggleSound();
+                  setIsMuted(!nextState);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 ${
+                  isMuted
+                    ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500"
+                    : "bg-amber-100/70 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300"
+                }`}
+                title={isMuted ? "Unmute Game Audio" : "Mute Game Audio"}
+              >
+                {isMuted ? <VolumeX className="w-3.5 h-3.5 text-slate-400" /> : <Volume2 className="w-3.5 h-3.5 text-amber-500" />}
+                <span className="hidden sm:inline text-[11px] font-black">{isMuted ? "Muted" : "Sound"}</span>
+              </button>
+
               {isPlayer ? (
                 <button
                   onClick={() => setIsSurrenderConfirmOpen(true)}
@@ -1721,7 +1813,9 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        liveClocks.host <= 10 ? "text-red-500 animate-ping" : "text-amber-600 dark:text-amber-400"
+                        liveClocks.host <= (activeRoom.clockDuration === 10 ? 3 : 5)
+                          ? "text-red-500 animate-pulse"
+                          : "text-amber-600 dark:text-amber-400"
                       }`}
                     >
                       {Math.ceil(liveClocks.host)}s
@@ -1735,9 +1829,11 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        liveClocks.host <= 10 ? "bg-red-500" : "bg-amber-500 dark:bg-amber-400"
+                        liveClocks.host <= (activeRoom.clockDuration === 10 ? 3 : 5)
+                          ? "bg-red-500"
+                          : "bg-amber-500 dark:bg-amber-400"
                       }`}
-                      style={{ width: `${(liveClocks.host / 30) * 100}%` }}
+                      style={{ width: `${Math.min(100, Math.max(0, (liveClocks.host / (activeRoom.clockDuration || 30)) * 100))}%` }}
                     />
                   </div>
                 </div>
@@ -1769,7 +1865,9 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="flex items-baseline justify-between">
                     <span
                       className={`text-2xl sm:text-4xl font-mono font-black ${
-                        liveClocks.guest <= 10 ? "text-red-500 animate-ping" : "text-indigo-600 dark:text-indigo-400"
+                        liveClocks.guest <= (activeRoom.clockDuration === 10 ? 3 : 5)
+                          ? "text-red-500 animate-pulse"
+                          : "text-indigo-600 dark:text-indigo-400"
                       }`}
                     >
                       {Math.ceil(liveClocks.guest)}s
@@ -1783,9 +1881,11 @@ export function BattleArena({ onBackToReviewer }) {
                   <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        liveClocks.guest <= 10 ? "bg-red-500" : "bg-indigo-500 dark:bg-indigo-400"
+                        liveClocks.guest <= (activeRoom.clockDuration === 10 ? 3 : 5)
+                          ? "bg-red-500"
+                          : "bg-indigo-500 dark:bg-indigo-400"
                       }`}
-                      style={{ width: `${(liveClocks.guest / 30) * 100}%` }}
+                      style={{ width: `${Math.min(100, Math.max(0, (liveClocks.guest / (activeRoom.clockDuration || 30)) * 100))}%` }}
                     />
                   </div>
                 </div>
@@ -1793,19 +1893,23 @@ export function BattleArena({ onBackToReviewer }) {
 
               {/* Synchronized Question Card Arena */}
               <div className="relative rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-4 sm:p-7 shadow-xl overflow-hidden min-h-[340px] flex flex-col justify-between">
-                {/* 3-Second Penalty Halt Lockout Overlay */}
+                {/* Penalty Halt Lockout Overlay */}
                 {isHalted && (
-                  <div className="absolute inset-0 z-30 bg-red-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white animate-fadeIn">
-                    <AlertTriangle className="w-10 h-10 sm:w-12 sm:h-12 text-red-400 mb-2 animate-bounce" />
-                    <h3 className="text-lg sm:text-2xl font-black text-red-200">
+                  <div className="absolute inset-0 z-30 bg-red-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-white animate-fadeIn rounded-3xl">
+                    <div className="w-14 h-14 rounded-full bg-red-500/20 border-2 border-red-500/60 flex items-center justify-center mb-3">
+                      <AlertTriangle className="w-8 h-8 text-red-400 animate-pulse" />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-wide">
                       INCORRECT CHOICE! 🛑
                     </h3>
-                    <p className="text-xs text-red-300 font-semibold mt-1 mb-4">
-                      Locked out for 3 seconds penalty!
+                    <p className="text-xs text-red-300 font-bold uppercase tracking-wider mt-1 mb-4">
+                      Penalty Lockout Active
                     </p>
-                    <span className="text-3xl sm:text-4xl font-mono font-black text-white animate-ping">
-                      {haltRemaining}s
-                    </span>
+                    <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-black/40 border border-red-500/50 shadow-inner">
+                      <span className="text-3xl sm:text-4xl font-mono font-black text-red-400">
+                        {haltRemaining}s
+                      </span>
+                    </div>
                   </div>
                 )}
 
@@ -1916,7 +2020,7 @@ export function BattleArena({ onBackToReviewer }) {
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                     {isSpectator
-                      ? "👀 Spectators cannot click choices. Cheer in the live Twitch feed!"
+                      ? "👀 Spectators cannot click choices. Cheer in the live arena feed!"
                       : isMyTurn
                       ? "Correct answer freezes your timer and passes turn!"
                       : "Waiting for opponent..."}
@@ -1933,10 +2037,10 @@ export function BattleArena({ onBackToReviewer }) {
                       </button>
                     )}
 
-                    {isMyTurn && (
+                    {isMyTurn && !isHalted && (
                       <button
                         onClick={handlePassQuestion}
-                        disabled={isHalted || !!answerFeedback}
+                        disabled={!!answerFeedback}
                         className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center gap-1.5 transition-colors active:scale-95"
                         title="Skip this question, deduct 5 seconds from your clock, and pass turn to opponent"
                       >
@@ -1967,7 +2071,7 @@ export function BattleArena({ onBackToReviewer }) {
               </div>
             </div>
 
-            {/* Right Column: Live Twitch Spectator Feed */}
+            {/* Right Column: Live Arena Spectator Feed */}
             <div className={`lg:col-span-1 ${mobileMatchTab === "stage" ? "hidden lg:block" : "block"}`}>
               <TwitchSpectatorChat
                 roomId={activeRoom.id}
@@ -2045,8 +2149,8 @@ export function BattleArena({ onBackToReviewer }) {
                       countdownEnd: null,
                       gameState: {
                         ...prev.gameState,
-                        hostClock: 30,
-                        guestClock: 30,
+                        hostClock: prev?.clockDuration || 30,
+                        guestClock: prev?.clockDuration || 30,
                         winnerId: null,
                         finishReason: null,
                         haltUntil: 0,
@@ -2119,6 +2223,39 @@ export function BattleArena({ onBackToReviewer }) {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Time Control Duration Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Time Control (Chess Clock Speed)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { duration: 10, label: "10s Blitz", icon: "⚡", desc: "Instant Reflexes" },
+                    { duration: 30, label: "30s Rapid", icon: "⏱️", desc: "Standard Speed" },
+                    { duration: 60, label: "60s Tactical", icon: "⏳", desc: "Deep Thinking" },
+                  ].map((t) => (
+                    <button
+                      key={t.duration}
+                      type="button"
+                      onClick={() => setCreateClockDuration(t.duration)}
+                      className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer ${
+                        createClockDuration === t.duration
+                          ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md ring-2 ring-amber-400/50"
+                          : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-400"
+                      }`}
+                    >
+                      <div className="text-xs font-black flex items-center justify-center gap-1">
+                        <span>{t.icon}</span>
+                        <span>{t.label}</span>
+                      </div>
+                      <div className={`text-[10px] mt-0.5 font-medium ${createClockDuration === t.duration ? "text-slate-950 font-bold" : "text-slate-400"}`}>
+                        {t.desc}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
