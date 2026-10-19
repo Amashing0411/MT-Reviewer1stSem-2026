@@ -210,6 +210,7 @@ export function ClassShoutbox() {
 
   const handleInspectMessage = (msg) => {
     const isMe = Boolean(
+      msg.isCurrentUser ||
       (msg.studentId && profile?.id && msg.studentId === profile.id) ||
       (msg.studentName && profile?.name && msg.studentName.trim().toLowerCase() === profile.name.trim().toLowerCase())
     );
@@ -227,6 +228,7 @@ export function ClassShoutbox() {
         xp: profile.xp,
         fastestBlitz: profile.fastestBlitzSeconds,
         highestPercent: profile.highestScorePercent,
+        isCurrentUser: true,
       });
       return;
     }
@@ -247,7 +249,7 @@ export function ClassShoutbox() {
         avatar: normalizeAvatar(live.avatar || msg.avatar),
         frame: live.frame || msg.frame,
         nameFx: live.nameFx || msg.nameFx,
-        tagline: live.tagline || msg.tagline,
+        tagline: msg.tagline || live.tagline || "",
         customPhoto: live.customPhoto || msg.customPhoto,
         xp: typeof live.xp === "number" ? live.xp : (typeof msg.xp === "number" ? msg.xp : 0),
         fastestBlitz: live.fastestBlitz ?? msg.fastestBlitz,
@@ -703,23 +705,20 @@ export function ClassShoutbox() {
                               <div
                                 key={reactor.studentId || idx}
                                 onClick={() => {
-                                  if (!reactor.isMe) {
-                                    handleInspectMessage({
-                                      studentId: reactor.studentId,
-                                      studentName: reactor.name,
-                                      studentSection: reactor.section,
-                                      avatar: reactor.avatar,
-                                      frame: reactor.frame,
-                                      nameFx: reactor.nameFx,
-                                      tagline: reactor.tagline,
-                                      customPhoto: reactor.customPhoto,
-                                      xp: reactor.xp,
-                                    });
-                                  }
+                                  handleInspectMessage({
+                                    studentId: reactor.studentId,
+                                    studentName: reactor.name,
+                                    studentSection: reactor.section,
+                                    avatar: reactor.avatar,
+                                    frame: reactor.frame,
+                                    nameFx: reactor.nameFx,
+                                    tagline: reactor.tagline,
+                                    customPhoto: reactor.customPhoto,
+                                    xp: reactor.xp,
+                                    isCurrentUser: reactor.isMe,
+                                  });
                                 }}
-                                className={`flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 transition-all ${
-                                  reactor.isMe ? "cursor-default" : "cursor-pointer group"
-                                }`}
+                                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 transition-all cursor-pointer group"
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
                                   <StudentAvatar

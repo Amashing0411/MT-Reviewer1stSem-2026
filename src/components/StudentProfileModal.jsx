@@ -23,8 +23,10 @@ export function StudentProfileModal({ student, onClose }) {
   const { profile, leaderboard } = useUser();
   if (!student) return null;
 
-  // Check if inspecting the current user (by ID or exact name)
+  // Check if inspecting the current user (by ID, isCurrentUser flag, me, or exact name)
   const isMe = Boolean(
+    student.isCurrentUser ||
+    student.id === "me" ||
     (profile?.id && student.id === profile.id) ||
     (profile?.name && student.name && profile.name.trim().toLowerCase() === student.name.trim().toLowerCase())
   );
@@ -62,7 +64,7 @@ export function StudentProfileModal({ student, onClose }) {
         avatar: normalizeAvatar(classmateMatch.avatar || student.avatar),
         frame: classmateMatch.frame || student.frame,
         nameFx: classmateMatch.nameFx || student.nameFx,
-        tagline: classmateMatch.tagline || student.tagline,
+        tagline: student.tagline || classmateMatch.tagline,
         customPhoto: classmateMatch.customPhoto || student.customPhoto,
         xp: classmateMatch.xp ?? student.xp,
         fastestBlitz: classmateMatch.fastestBlitz ?? student.fastestBlitz,
@@ -74,6 +76,7 @@ export function StudentProfileModal({ student, onClose }) {
       };
 
   const levelInfo = getLevelInfo(activeStudent.xp || 0);
+  const prestigeTitle = activeStudent.tagline || levelInfo.title;
   const secKey = normalizeSectionKey(activeStudent.section || "4D");
   const secDetails = SECTIONS[secKey] || SECTIONS["4D"];
   const frameObj = AVATAR_FRAMES.find((f) => f.id === activeStudent.frame) || AVATAR_FRAMES[0];
@@ -82,9 +85,9 @@ export function StudentProfileModal({ student, onClose }) {
   const handleShare = () => {
     const text = `🎓 BSCPE 4th Year Reviewer Profile\n` +
       `👤 Student: ${activeStudent.name} (${activeStudent.section || "BSCPE 4D"})\n` +
-      `⭐ Rank: Level ${levelInfo.level} — ${levelInfo.title}\n` +
+      `⭐ Rank: Level ${levelInfo.level} — ${prestigeTitle}\n` +
       `⚡ Total XP: ${(activeStudent.xp || 0).toLocaleString()} XP\n` +
-      `🏷️ Vanity: ${activeStudent.tagline || "4th Year Candidate"}\n` +
+      `🏷️ Vanity: ${activeStudent.tagline || levelInfo.title}\n` +
       `⏱️ Fastest Blitz: ${activeStudent.fastestBlitz ? activeStudent.fastestBlitz + "s" : "N/A"}\n` +
       `Check standings: https://mt-reviewer2026.vercel.app`;
     navigator.clipboard.writeText(text);
@@ -157,8 +160,13 @@ export function StudentProfileModal({ student, onClose }) {
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 block">Prestige Rank</span>
                 <span className="text-sm sm:text-lg font-black text-amber-300">
-                  Level {levelInfo.level} • {levelInfo.title}
+                  Level {levelInfo.level} • {prestigeTitle}
                 </span>
+                {activeStudent.tagline && activeStudent.tagline !== levelInfo.title && (
+                  <span className="text-[10px] text-blue-200 block opacity-80 mt-0.5">
+                    Tier: {levelInfo.title}
+                  </span>
+                )}
               </div>
               <div className="sm:text-right">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 block">Total Experience</span>

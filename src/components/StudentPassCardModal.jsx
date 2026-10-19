@@ -138,20 +138,11 @@ export function StudentPassCardModal({ isOpen, onClose }) {
 
     ctx.fillStyle = "#38BDF8";
     ctx.font = "bold 15px 'Inter', sans-serif";
-    ctx.fillText(`SECTION: ${section}  •  ${levelInfo.title}`, 185, 210);
+    ctx.fillText(`SECTION: ${section}  •  ${profile.tagline || levelInfo.title}`, 185, 210);
 
-    if (profile.tagline) {
-      ctx.fillStyle = "#FBBF24";
-      ctx.font = "bold 13px 'Inter', sans-serif";
-      ctx.fillText(profile.tagline, 185, 233);
-      ctx.fillStyle = "#94A3B8";
-      ctx.font = "12px 'Inter', sans-serif";
-      ctx.fillText(`TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  STATUS: VERIFIED CANDIDATE`, 185, 252);
-    } else {
-      ctx.fillStyle = "#94A3B8";
-      ctx.font = "13px 'Inter', sans-serif";
-      ctx.fillText(`TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  STATUS: VERIFIED CANDIDATE`, 185, 235);
-    }
+    ctx.fillStyle = "#94A3B8";
+    ctx.font = "12px 'Inter', sans-serif";
+    ctx.fillText(`LEVEL ${levelInfo.level}  •  TOTAL SCORE: ${(profile.xp || 0).toLocaleString()} XP  •  DLSP CANDIDATE`, 185, 235);
 
     // Big PIN Security Box (Bottom Right)
     const pinBoxX = 185;
@@ -286,16 +277,9 @@ export function StudentPassCardModal({ isOpen, onClose }) {
                   <span className="bg-blue-900/60 px-2 py-0.2 rounded border border-blue-700/50">
                     {section}
                   </span>
-                  <span>{levelInfo.title}</span>
+                  <span>{profile.tagline || levelInfo.title}</span>
                   <span className="text-amber-400">⚡ {(profile.xp || 0).toLocaleString()} XP</span>
                 </div>
-                {profile.tagline && (
-                  <div className="pt-0.5">
-                    <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30">
-                      {profile.tagline}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
 

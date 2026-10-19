@@ -245,14 +245,9 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                   <span className="text-[9px] font-bold bg-blue-500/30 text-blue-200 px-2 py-0.2 rounded-full border border-blue-400/30 shrink-0">
                     {profile.section}
                   </span>
-                  {profile.tagline && (
-                    <span className="text-[9px] font-bold text-amber-300 bg-amber-400/10 px-2 py-0.2 rounded-full border border-amber-400/30 truncate max-w-[140px] sm:max-w-[180px]">
-                      {profile.tagline}
-                    </span>
-                  )}
                 </div>
                 <div className="text-[11px] text-blue-200 flex items-center gap-1 mt-0.5">
-                  <span>Lv. {levelInfo.level} • {levelInfo.title}</span>
+                  <span>Lv. {levelInfo.level} • {profile.tagline || levelInfo.title}</span>
                 </div>
               </div>
             </div>
@@ -488,14 +483,9 @@ export function LeaderboardModal({ isOpen, onClose, onOpenPassCard, defaultSubje
                         <span className="text-[9px] sm:text-[10px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                           {item.section}
                         </span>
-                        {item.tagline && (
-                          <span className="text-[9px] sm:text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-200/50 dark:border-blue-800/40 truncate max-w-[110px] sm:max-w-[160px]">
-                            {item.tagline}
-                          </span>
-                        )}
                       </div>
                       <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                        Lv. {item.levelInfo.level} • {item.levelInfo.title}
+                        Lv. {item.levelInfo.level} • {item.tagline || item.levelInfo.title}
                       </div>
                     </div>
                   </div>
