@@ -3,6 +3,7 @@ import { useUser } from "../../context/UserContext";
 import { SUBJECTS_MAP } from "../../data/subjects";
 import { StudentAvatar } from "../StudentAvatar";
 import { CoinTossModal } from "./CoinTossModal";
+import { VinylBattleIntro } from "./VinylBattleIntro";
 import { TwitchSpectatorChat } from "./TwitchSpectatorChat";
 import { getBattleQuestions } from "../../utils/battleQuestions";
 import { FormattedText } from "../MathView";
@@ -34,6 +35,7 @@ import {
   Coins,
   Volume2,
   VolumeX,
+  Disc3,
 } from "lucide-react";
 
 const SESSION_ROOM_KEY = "bscpe_active_battle_room_id";
@@ -164,7 +166,23 @@ export function BattleArena({ onBackToReviewer }) {
   const [liveClocks, setLiveClocks] = useState({ host: 30, guest: 30 });
   const [countdownSeconds, setCountdownSeconds] = useState(5);
   const [createClockDuration, setCreateClockDuration] = useState(30); // 10 | 30 | 60
-  const [isMuted, setIsMuted] = useState(!sound.enabled);
+  const [showIntroGate, setShowIntroGate] = useState(false);
+  const [isLobbyVinylDemoOpen, setIsLobbyVinylDemoOpen] = useState(false);
+  const [lobbySubjectFilter, setLobbySubjectFilter] = useState("all");
+  const [isMuted, setIsMuted] = useState(() => {
+    try {
+      const stored = localStorage.getItem("bscpe_battle_muted");
+      if (stored !== null) return stored === "true";
+    } catch (e) {}
+    return !sound.enabled;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("bscpe_battle_muted", String(isMuted));
+      sound.enabled = !isMuted;
+    } catch (e) {}
+  }, [isMuted]);
   const [isSurrenderConfirmOpen, setIsSurrenderConfirmOpen] = useState(false);
   const [isSurrendering, setIsSurrendering] = useState(false);
   const seenEmoteIdsRef = useRef(new Set());
@@ -358,10 +376,8 @@ export function BattleArena({ onBackToReviewer }) {
         sound.playClockTick();
       } else if (remaining === 0 && !hasTriggeredCoinTossRef.current) {
         hasTriggeredCoinTossRef.current = true;
-        // Trigger coin toss
-        if (isHost || isBotMatch) {
-          triggerCoinToss();
-        }
+        // Trigger high-energy Vinyl Halftone Preloader Showdown Gate before coin toss!
+        setShowIntroGate(true);
       }
     };
 
@@ -1250,6 +1266,33 @@ export function BattleArena({ onBackToReviewer }) {
         </div>
       )}
 
+      {/* VINYL HALFTONE PRELOADER SHOWDOWN GATE */}
+      {showIntroGate && activeRoom && (
+        <VinylBattleIntro
+          host={activeRoom.host}
+          guest={activeRoom.guest}
+          title={activeRoom.title}
+          durationMs={2800}
+          onComplete={() => {
+            setShowIntroGate(false);
+            if (isHost || isBotMatch) {
+              triggerCoinToss();
+            }
+          }}
+        />
+      )}
+
+      {/* LOBBY DEMO VINYL GATE */}
+      {isLobbyVinylDemoOpen && (
+        <VinylBattleIntro
+          host={profile}
+          guest={{ name: "Midterm Challenger" }}
+          title="BSCPE 1v1 VINYL ARENA"
+          durationMs={3800}
+          onComplete={() => setIsLobbyVinylDemoOpen(false)}
+        />
+      )}
+
       {/* SYNCHRONIZED 3D COIN TOSS MODAL (Visible to Host, Challenger, & Spectators) */}
       {activeRoom?.status === "tossing_coin" && (
         <CoinTossModal
@@ -1306,6 +1349,16 @@ export function BattleArena({ onBackToReviewer }) {
                 </button>
 
                 <button
+                  type="button"
+                  onClick={() => setIsLobbyVinylDemoOpen(true)}
+                  className="w-full sm:w-auto px-3.5 py-3 rounded-2xl border border-blue-400/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-cyan-300 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                  title="Test Interactive Vinyl Turntable"
+                >
+                  <Disc3 className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: "6s" }} />
+                  <span>Turntable FX</span>
+                </button>
+
+                <button
                   onClick={() => {
                     const next = sound.toggleSound();
                     setIsMuted(!next);
@@ -1344,6 +1397,32 @@ export function BattleArena({ onBackToReviewer }) {
                 </button>
               </div>
 
+              {/* Lobby Subject Filter Ribbon */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {[
+                  { id: "all", label: "All Subjects" },
+                  { id: "cpe413", label: "CPE413: Comp Arch" },
+                  { id: "elect3", label: "ELECT3: SysAdmin" },
+                  { id: "engwork", label: "ENGWORK: English" },
+                  { id: "cpe416", label: "CPE416: Laws" },
+                  { id: "cpe415", label: "CPE415: Eng Mgt" },
+                  { id: "cpe411", label: "CPE411: Design 2" },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setLobbySubjectFilter(s.id)}
+                    className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      lobbySubjectFilter === s.id
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/25 ring-2 ring-blue-400/40"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+
               {rooms.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
                   <Swords className="w-10 h-10 text-slate-400 mx-auto mb-3 opacity-60" />
@@ -1372,6 +1451,7 @@ export function BattleArena({ onBackToReviewer }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {rooms
                     .filter((room) => room.status !== "finished" && !room.gameState?.winnerId)
+                    .filter((room) => lobbySubjectFilter === "all" || room.subject === lobbySubjectFilter)
                     .map((room) => {
                       const isFull = !!room.guest;
                       const isMyRoom = room.host?.id === profile.id;
@@ -2162,6 +2242,15 @@ export function BattleArena({ onBackToReviewer }) {
                   Rematch Showdown ⚔️
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={handleStartBotMatch}
+                className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Bot className="w-4 h-4 text-cyan-300" />
+                <span>Instant Solo Match vs AI Bot</span>
+              </button>
 
               <button
                 onClick={handleReturnToLobby}
