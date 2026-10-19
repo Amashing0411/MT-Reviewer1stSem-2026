@@ -39,7 +39,7 @@ const BOT_PLAYER = {
   id: "bot_deans_lister",
   name: "Dean's Lister AI 🤖",
   section: "BSCPE 4D • DLSP",
-  avatar: "/avatars/bean-male-vr.jpg",
+  avatar: "/avatars/bean-male-fourier.jpg",
   customPhoto: null,
   level: 10,
   xp: 4500,
@@ -306,7 +306,9 @@ export function BattleArena({ onBackToReviewer }) {
     if (activeRoom?.gameState?.activePlayerId !== BOT_PLAYER.id) return;
 
     const botThinkTime = Math.floor(Math.random() * 2200) + 2000;
-    const curQ = activeRoom.questions?.[activeRoom.gameState.questionIndex] || {};
+    const totalQ = activeRoom.questions?.length || 1;
+    const curQIdx = (activeRoom.gameState.questionIndex || 0) % totalQ;
+    const curQ = activeRoom.questions?.[curQIdx] || {};
 
     botTurnTimeoutRef.current = setTimeout(() => {
       const roll = Math.random();
@@ -649,8 +651,8 @@ export function BattleArena({ onBackToReviewer }) {
       guestReady: true, // Bot is always ready!
       countdownEnd: null,
       spectators: [
-        { id: "spec1", name: "Audience Bot A", avatar: "/avatars/bean-female-laptop.jpg" },
-        { id: "spec2", name: "Reviewer Fan", avatar: "/avatars/bean-female-graduate.jpg" },
+        { id: "spec1", name: "Audience Bot A", avatar: "/avatars/bean-female-robotics.jpg" },
+        { id: "spec2", name: "Reviewer Fan", avatar: "/avatars/bean-female-shortcircuit.jpg" },
       ],
       questions,
       coinToss: { winnerId: null, flippedAt: null, sideLand: null },
@@ -900,6 +902,17 @@ export function BattleArena({ onBackToReviewer }) {
 
   // 11. When Coin Toss Animation Finishes -> Enter Battle!
   const handleCoinTossComplete = () => {
+    setActiveRoom((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        status: "in_battle",
+        gameState: {
+          ...prev.gameState,
+          turnStartedAt: Date.now(),
+        },
+      };
+    });
     setScreen("playing");
     sound.playStreak();
   };
@@ -911,7 +924,9 @@ export function BattleArena({ onBackToReviewer }) {
     if (gs?.activePlayerId !== profile.id) return; // Not your turn!
     if (gs?.haltUntil && gs.haltUntil > Date.now()) return; // Locked out!
 
-    const currentQ = activeRoom?.questions?.[gs?.questionIndex || 0];
+    const totalQ = activeRoom?.questions?.length || 1;
+    const currentQIdx = (gs?.questionIndex || 0) % totalQ;
+    const currentQ = activeRoom?.questions?.[currentQIdx];
     if (!currentQ) return;
 
     setSelectedChoice(choiceIndex);
@@ -992,7 +1007,9 @@ export function BattleArena({ onBackToReviewer }) {
     if (gs?.activePlayerId !== profile.id) return;
     if (gs?.haltUntil && gs.haltUntil > Date.now()) return;
 
-    const currentQ = activeRoom?.questions?.[gs?.questionIndex || 0];
+    const totalQ = activeRoom?.questions?.length || 1;
+    const currentQIdx = (gs?.questionIndex || 0) % totalQ;
+    const currentQ = activeRoom?.questions?.[currentQIdx];
     if (!currentQ) return;
 
     sound.playPass();
@@ -1118,7 +1135,9 @@ export function BattleArena({ onBackToReviewer }) {
   };
 
   // Current Question Object
-  const currentQuestionIdx = activeRoom?.gameState?.questionIndex || 0;
+  const totalQuestions = activeRoom?.questions?.length || 1;
+  const rawQuestionIdx = activeRoom?.gameState?.questionIndex || 0;
+  const currentQuestionIdx = rawQuestionIdx % totalQuestions;
   const currentQuestion = activeRoom?.questions?.[currentQuestionIdx] || {
     question: "Synchronizing midterm battle question from arena server...",
     options: ["Option A", "Option B", "Option C", "Option D"],

@@ -156,7 +156,7 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
                 {countdown}
               </span>
               <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                Starting 60s Blitz Clock...
+                Starting 30s Blitz Clock...
               </span>
             </div>
           ) : phase === "landed" ? (
@@ -170,6 +170,17 @@ export function CoinTossModal({ host, guest, winnerId, onComplete }) {
               Spinning physics active...
             </div>
           )}
+        </div>
+
+        {/* Skip Animation Shortcut */}
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={onComplete}
+            className="text-[11px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+          >
+            Skip to Battle ⏩
+          </button>
         </div>
       </div>
     </div>

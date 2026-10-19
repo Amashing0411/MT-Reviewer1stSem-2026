@@ -41,6 +41,8 @@ export const AVATAR_PRESETS = [
 
 export const DEFAULT_AVATAR = "/avatars/bean-female-debugging.jpg";
 
+const VALID_AVATAR_SET = new Set(AVATAR_PRESETS.map((a) => a.image));
+
 export const normalizeAvatar = (avatar) => {
   if (!avatar || typeof avatar !== "string") return DEFAULT_AVATAR;
   if (avatar.startsWith("data:image")) return avatar;
@@ -48,12 +50,11 @@ export const normalizeAvatar = (avatar) => {
   if (!avatar.startsWith("/") && !avatar.startsWith("http") && !avatar.includes(".")) {
     return avatar;
   }
-  // If it was truncated by the old .slice(0, 10) bug: e.g. "/avatars/b"
-  if (
-    avatar === "/avatars/b" ||
-    (avatar.startsWith("/avatars/") && !avatar.endsWith(".jpg") && !avatar.endsWith(".png"))
-  ) {
-    return DEFAULT_AVATAR;
+  // If it's an avatar path under /avatars/, ensure it's one of the valid presets
+  if (avatar.startsWith("/avatars/")) {
+    if (!VALID_AVATAR_SET.has(avatar)) {
+      return DEFAULT_AVATAR;
+    }
   }
   return avatar;
 };
